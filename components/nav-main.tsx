@@ -1,58 +1,68 @@
-"use client"
+"use client";
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { Icon } from "@tabler/icons-react";
 
-import { Button } from "@/components/ui/button"
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function NavMain({
   items,
-}: {
+}: Readonly<{
   items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
-}) {
+    title: string;
+    url: string;
+    icon?: Icon;
+  }[];
+}>) {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Quick Create"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
-            >
-              <IconCirclePlusFilled />
-              <span>Quick Create</span>
-            </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline"
-            >
-              <IconMail />
-              <span className="sr-only">Inbox</span>
-            </Button>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const isActive =
+              pathname === item.url ||
+              (pathname.startsWith(item.url + "/") &&
+                item.url !== "/dashboard");
+
+            return (
+              <SidebarMenuItem key={item.title}>
+                <Link href={item.url} className="w-full">
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    asChild
+                    className={`flex items-center gap-2 rounded-md transition-all duration-200
+                      ${
+                        isActive
+                          ? "bg-gray-900 text-white hover:bg-gray-900 hover:text-white font-semibold shadow-sm cursor-pointer" // No hover classes here
+                          : "hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {item.icon && (
+                        <item.icon
+                          className={`w-5 h-5 transition-colors duration-200 ${
+                            isActive ? "text-white" : ""
+                          }`}
+                        />
+                      )}
+                      <span>{item.title}</span>
+                    </div>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

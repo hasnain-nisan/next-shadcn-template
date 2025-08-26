@@ -47,12 +47,6 @@ export function LoginForm({
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
                 </div>
                 <Input id="password" type="password" required />
               </div>
@@ -60,13 +54,6 @@ export function LoginForm({
               <Button type="submit" className="w-full">
                 Login
               </Button>
-
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link href="/sign-up" className="underline underline-offset-4">
-                  Sign up
-                </Link>
-              </div>
             </div>
           </form>
 
