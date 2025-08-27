@@ -31,13 +31,13 @@ import {
 
 export function NavUser({
   user,
-}: {
+}: Readonly<{
   user: {
     name: string
     email: string
     avatar: string
   }
-}) {
+}>) {
   const { isMobile } = useSidebar()
 
   return (
@@ -47,7 +47,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />
@@ -83,7 +83,7 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            {/* <DropdownMenuGroup>
               <DropdownMenuItem>
                 <IconUserCircle />
                 Account
@@ -96,9 +96,9 @@ export function NavUser({
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            </DropdownMenuGroup> */}
+            {/* <DropdownMenuSeparator /> */}
+            <DropdownMenuItem className="cursor-pointer" variant="destructive">
               <IconLogout />
               Log out
             </DropdownMenuItem>
