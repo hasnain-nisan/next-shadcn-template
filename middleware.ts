@@ -1,32 +1,51 @@
+import { NextRequestWithAuth, withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+const DEFAULT_REDIRECT_PATH = "/dashboard";
 
-  // Example: check for an auth cookie (replace "token" with your actual cookie/session name)
-  const token = request.cookies.get("token")?.value;
+export default withAuth(
+  function middleware(req: NextRequestWithAuth) {
+    const { pathname } = req.nextUrl;
+    const token = req.nextauth.token;
+    const now = Math.floor(Date.now() / 1000);
 
-  // 1️⃣ Redirect `/` to `/dashboard`
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+    const isExpired = !!token?.accessTokenExp && token.accessTokenExp < now;
 
-  // 2️⃣ Protect all `/dashboard` routes
-  if (pathname.startsWith("/dashboard")) {
-    if (!token) {
-      const loginUrl = new URL("/login", request.url);
-      // Optional: remember where the user was trying to go
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+    // 1️⃣ Expired token → login (skip if already there)
+    if (isExpired && !pathname.startsWith("/login")) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
     }
-  }
 
-  // Continue normally for all other routes
-  return NextResponse.next();
-}
+    // 2️⃣ Home route
+    if (pathname === "/") {
+      const url = req.nextUrl.clone();
+      url.pathname = token && !isExpired ? DEFAULT_REDIRECT_PATH : "/login";
+      return NextResponse.redirect(url);
+    }
 
-// Apply middleware to `/` and all `/dashboard` routes
+    // 3️⃣ Protect dashboard
+    if ((!token || isExpired) && pathname.startsWith("/dashboard")) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(url);
+    }
+
+    // 4️⃣ Authenticated visiting login → dashboard
+    if (token && !isExpired && pathname.startsWith("/login")) {
+      const url = req.nextUrl.clone();
+      url.pathname = DEFAULT_REDIRECT_PATH;
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
+  },
+  { callbacks: { authorized: () => true } }
+);
+
 export const config = {
-  matcher: ["/", "/dashboard/:path*"],
+  matcher: ["/", "/dashboard/:path*", "/login"],
 };
