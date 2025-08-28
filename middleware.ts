@@ -8,8 +8,28 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
     const now = Math.floor(Date.now() / 1000);
-
     const isExpired = !!token?.accessTokenExp && token.accessTokenExp < now;
+
+    const routeAccessMap = {
+      "/dashboard/users": "canManageUsers",
+      "/dashboard/clients": "canManageClients",
+      "/dashboard/projects": "canManageProjects",
+      "/dashboard/discovery-interview": "canManageInterviews",
+      "/dashboard/client-stakeholders": "canManageStakeholders",
+    };
+
+    for (const route in routeAccessMap) {
+      const requiredScope = routeAccessMap[route];
+      if (
+        pathname.startsWith(route) &&
+        (!token?.accessScopes?.[requiredScope] || isExpired)
+      ) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/unauthorized"; // or redirect to /login with message
+        url.searchParams.set("callbackUrl", pathname);
+        return NextResponse.redirect(url);
+      }
+    }
 
     // 1️⃣ Expired token → login (skip if already there)
     if (isExpired && !pathname.startsWith("/login")) {

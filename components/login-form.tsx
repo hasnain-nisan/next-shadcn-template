@@ -43,7 +43,7 @@ export function LoginForm({
     if (result?.error) {
       toast.error(result.error);
     } else {
-      toast.success("Login successful!");
+      toast.success("You have been successfully logged in.");
       router.push(ROUTES.DASHBOARD);
     }
   };

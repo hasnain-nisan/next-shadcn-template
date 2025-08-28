@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import {
+  Icon,
   IconBriefcase,
   IconFolder,
   IconLayoutDashboard,
@@ -22,48 +23,49 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { BrandLogo } from "./ui/BrandLogo";
+import { useSession } from "next-auth/react";
+import { getNameFromEmail } from "@/lib/helper";
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconLayoutDashboard,
-    },
-    {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
+
+  const user = {
+    name: getNameFromEmail(session?.user?.email),
+    email: session?.user?.email,
+    avatar: session?.user?.image,
+  };
+
+  const access = session?.user?.accessScopes || {};
+
+  const navMain = [
+    { title: "Dashboard", url: "/dashboard", icon: IconLayoutDashboard },
+    access.canManageUsers && {
       title: "Users",
       url: "/dashboard/users",
       icon: IconUsers,
     },
-    {
+    access.canManageClients && {
       title: "Clients",
       url: "/dashboard/clients",
       icon: IconBriefcase,
     },
-    {
+    access.canManageStakeholders && {
       title: "Client Stakeholders",
       url: "/dashboard/client-stakeholders",
       icon: IconUserStar,
     },
-    {
+    access.canManageProjects && {
       title: "Projects",
       url: "/dashboard/projects",
       icon: IconFolder,
     },
-    {
+    access.canManageInterviews && {
       title: "Discovery Interview",
       url: "/dashboard/discovery-interview",
       icon: IconMessages,
     },
-  ]
-};
+  ].filter(Boolean);
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -84,10 +86,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain
+          items={
+            navMain as unknown as {
+              title: string;
+              url: string;
+              icon: Icon | undefined;
+            }[]
+          }
+        />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {
+          session && <NavUser user={user} />
+        }
       </SidebarFooter>
     </Sidebar>
   );
