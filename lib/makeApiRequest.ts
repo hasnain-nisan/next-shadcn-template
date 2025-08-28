@@ -1,16 +1,20 @@
 
 import { API_BASE_URL } from "@/lib/constants";
 import { ApiError, ApiResponse } from "@/types/api.types";
+import { getSession } from "next-auth/react";
 
 export async function makeApiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const session = await getSession();
+  const token = session?.accessToken;
   const url = `${API_BASE_URL}${endpoint}`;
   
   const defaultOptions: RequestInit = {
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   };

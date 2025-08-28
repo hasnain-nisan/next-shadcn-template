@@ -10,13 +10,13 @@ export const API_ENDPOINTS: ApiEndpoints = {
     logout: "/auth/logout",
     profile: "/auth/profile",
   },
-  notes: {
-    getAll: "/notes",
-    getById: (id: string) => `/notes/${id}`,
-    create: "/notes",
-    update: (id: string) => `/notes/${id}`,
-    delete: (id: string) => `/notes/${id}`,
-    toggleFavorite: (id: string) => `/notes/${id}/favorite`,
+  users: {
+    getAll: "/user",
+    // getById: (id: string) => `/notes/${id}`,
+    // create: "/notes",
+    // update: (id: string) => `/notes/${id}`,
+    // delete: (id: string) => `/notes/${id}`,
+    // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
   },
 };
 

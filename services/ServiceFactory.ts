@@ -1,10 +1,10 @@
 import { IAuthService } from "@/services/interfaces/IAuthService";
-import { INoteService } from "@/services/interfaces/INoteService";
 import { AuthService } from "./implementations/AuthService";
-import { NoteService } from "./implementations/NoteService";
+import { IUserService } from "./interfaces/IUserService";
+import { UserService } from "./implementations/UserService";
 
 export class ServiceFactory {
-  private static instances = new Map<string, unknown>();
+  private static readonly instances = new Map<string, unknown>();
 
   private static getService<T>(key: string, creator: () => T): T {
     if (!this.instances.has(key)) {
@@ -17,7 +17,7 @@ export class ServiceFactory {
     return this.getService("authService", () => new AuthService());
   }
 
-  static getNoteService(): INoteService {
-    return this.getService("noteService", () => new NoteService());
+  static getUserService(): IUserService {
+    return this.getService("userService", () => new UserService());
   }
 }

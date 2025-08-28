@@ -29,12 +29,12 @@ export interface ApiEndpoints {
     logout: string;
     profile: string;
   };
-  notes: {
+  users: {
     getAll: string;
-    getById: (id: string) => string;
-    create: string;
-    update: (id: string) => string;
-    delete: (id: string) => string;
-    toggleFavorite: (id: string) => string;
+    // getById: (id: string) => string;
+    // create: string;
+    // update: (id: string) => string;
+    // delete: (id: string) => string;
+    // toggleFavorite: (id: string) => string;
   };
 }

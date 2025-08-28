@@ -1,10 +1,10 @@
 import { AuthRepository } from "./implementations/AuthRepository";
-import { NoteRepository } from "./implementations/NoteRepository";
+import { UserRepository } from "./implementations/UserRepository";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
-import { INoteRepository } from "./interfaces/INoteRepository";
+import { IUserRepository } from "./interfaces/IUserRepository";
 
 export class RepositoryFactory {
-  private static instances = new Map<string, unknown>();
+  private static readonly instances = new Map<string, unknown>();
 
   static getRepository<T>(key: string, creator: () => T): T {
     if (!this.instances.has(key)) {
@@ -17,7 +17,7 @@ export class RepositoryFactory {
     return this.getRepository("auth", () => new AuthRepository());
   }
 
-  static getNoteRepository(): INoteRepository {
-    return this.getRepository("note", () => new NoteRepository());
+  static getUserRepository(): IUserRepository {
+    return this.getRepository("user", () => new UserRepository());
   }
 }

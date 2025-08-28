@@ -10,7 +10,7 @@ export default withAuth(
     const now = Math.floor(Date.now() / 1000);
     const isExpired = !!token?.accessTokenExp && token.accessTokenExp < now;
 
-    const routeAccessMap = {
+    const routeAccessMap: { [key: string]: string } = {
       "/dashboard/users": "canManageUsers",
       "/dashboard/clients": "canManageClients",
       "/dashboard/projects": "canManageProjects",
