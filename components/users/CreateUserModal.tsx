@@ -21,7 +21,7 @@ import { toast } from "sonner";
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setReFetch: (state: boolean) => void;
+  setRefetch: (state: boolean) => void;
 };
 
 type CreateUserFormValues = {
@@ -41,7 +41,7 @@ type CreateUserFormValues = {
 export function CreateUserModal({
   open,
   setOpen,
-  setReFetch,
+  setRefetch,
 }: Readonly<Props>) {
   const {
     register,
@@ -82,12 +82,11 @@ export function CreateUserModal({
     try {
       setIsSubmitting(true);
       const userService = ServiceFactory.getUserService();
-      const res = await userService.createUser(data as Partial<User>);
+      await userService.createUser(data as Partial<User>);
       toast.success("Admin user created successfully");
       reset();
       setOpen(false);
-      setReFetch(true);
-      console.log("create user response", res);
+      setRefetch(true);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "An unknown error occurred"

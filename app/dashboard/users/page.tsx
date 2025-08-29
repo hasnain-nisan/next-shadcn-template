@@ -11,10 +11,9 @@ import { User } from "@/types/user.types";
 import { UserManagementTable } from "@/components/users/UserManagementTable";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { CreateUserModal } from "@/components/users/CreateUserModal";
-import { set } from "zod";
 
 export default function UsersPage() {
-  const [refetch, setReFetch] = useState(false);
+  const [refetch, setRefetch] = useState(false);
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,7 +112,7 @@ export default function UsersPage() {
       deletedStatus,
       accessScopes
     );
-    setReFetch(false);
+    setRefetch(false);
   }, [refetch]);
 
   return (
@@ -179,7 +178,7 @@ export default function UsersPage() {
       <CreateUserModal
         open={open}
         setOpen={setOpen}
-        setReFetch={setReFetch}
+        setRefetch={setRefetch}
       />
     </>
   );
