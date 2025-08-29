@@ -53,8 +53,6 @@ export class UserRepository implements IUserRepository {
       });
     }
 
-    console.log(params?.accessScopes, "accessScopes");
-
     const endpoint = `${API_ENDPOINTS.users.getAll}?${query.toString()}`;
 
     return makeApiRequest(endpoint);
@@ -64,12 +62,12 @@ export class UserRepository implements IUserRepository {
   //   return makeApiRequest<Note>(`${API_ENDPOINTS.notes.getById(id)}`);
   // }
 
-  // async createNote(note: Partial<Note>): Promise<Note> {
-  //   return makeApiRequest<Note>(API_ENDPOINTS.notes.create, {
-  //     method: "POST",
-  //     body: JSON.stringify(note),
-  //   });
-  // }
+  async createUser(user: Partial<User>): Promise<User> {
+    return makeApiRequest<User>(API_ENDPOINTS.users.create, {
+      method: "POST",
+      body: JSON.stringify(user),
+    });
+  }
 
   // async updateNote(id: string, note: Partial<Note>): Promise<Note> {
   //   return makeApiRequest<Note>(`${API_ENDPOINTS.notes.update(id)}`, {

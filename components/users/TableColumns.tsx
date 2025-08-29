@@ -1,12 +1,10 @@
 import {
-  ArrowUpDown,
   Calendar,
   Mail,
   MoreHorizontal,
   Shield,
-  User,
+  User as UserIcon,
 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,30 +16,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AccessScopeBadges } from "./AccessScopeBadges";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { IconEdit, IconEye, IconTrash } from "@tabler/icons-react";
+import { ColumnDef } from "@tanstack/react-table";
+import type { AccessScopes, User } from "@/types/user.types";
 
-export const TableColumns = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+export const TableColumns: ColumnDef<User>[] = [
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "email",
     header: ({ column }) => (
@@ -50,13 +52,30 @@ export const TableColumns = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-auto p-0 hover:bg-transparent"
       >
-        <Mail className="mr-2 h-4 w-4" />
+        <Mail className="h-4 w-4" />
         Email
       </Button>
     ),
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("email")}</div>
-    ),
+    cell: ({ row }) => {
+      const email = row.getValue("email") as string;
+      const isDeleted = row.original.isDeleted;
+
+      return isDeleted ? (
+        <Tooltip>
+          <TooltipTrigger asChild className="ml-3">
+            <span className="font-medium cursor-help text-muted-foreground">
+              {email}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            <span className="text-xs">This user is deleted</span>
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <span className="font-medium ml-3">{email}</span>
+      );
+    },
+
     enableSorting: false,
     enableHiding: false,
   },
@@ -68,18 +87,20 @@ export const TableColumns = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-auto p-0 hover:bg-transparent"
       >
-        <User className="mr-2 h-4 w-4" />
+        <UserIcon className="h-4 w-4" />
         Role
       </Button>
     ),
     cell: ({ row }) => (
-      <Badge
-        variant={
-          row.getValue("role") === "SuperAdmin" ? "default" : "secondary"
-        }
-      >
-        {row.getValue("role")}
-      </Badge>
+      <div className="ml-3">
+        <Badge
+          variant={
+            row.getValue("role") === "SuperAdmin" ? "default" : "secondary"
+          }
+        >
+          {row.getValue("role")}
+        </Badge>
+      </div>
     ),
     enableSorting: false,
     enableHiding: false,
@@ -93,7 +114,7 @@ export const TableColumns = [
       </div>
     ),
     cell: ({ row }) => {
-      const accessScopes = row.getValue("accessScopes");
+      const accessScopes = row.getValue("accessScopes") as AccessScopes;
       return <AccessScopeBadges accessScopes={accessScopes} />;
     },
     enableSorting: false,
@@ -107,7 +128,7 @@ export const TableColumns = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-auto p-0 hover:bg-transparent"
       >
-        <Calendar className="mr-2 h-4 w-4" />
+        <Calendar className="h-4 w-4" />
         Created
       </Button>
     ),
@@ -116,7 +137,7 @@ export const TableColumns = [
       const createdByEmail = row.original.createdBy?.email;
 
       return (
-        <div className="text-sm space-y-1">
+        <div className="text-sm space-y-1 ml-3">
           <div className="font-medium text-foreground">{createdAt}</div>
           {createdByEmail && (
             <div className="text-xs text-muted-foreground">
@@ -137,7 +158,7 @@ export const TableColumns = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="h-auto p-0 hover:bg-transparent"
       >
-        <Calendar className="mr-2 h-4 w-4" />
+        <Calendar className="h-4 w-4" />
         Updated
       </Button>
     ),
@@ -146,7 +167,7 @@ export const TableColumns = [
       const updatedByEmail = row.original.updatedBy?.email;
 
       return (
-        <div className="text-sm space-y-1">
+        <div className="text-sm space-y-1 ml-3">
           <div className="font-medium text-foreground">{updatedAt}</div>
           {updatedByEmail && (
             <div className="text-xs text-muted-foreground">
@@ -162,8 +183,6 @@ export const TableColumns = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const user = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -174,15 +193,17 @@ export const TableColumns = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id)}
-            >
-              Copy user ID
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View user details</DropdownMenuItem>
-            <DropdownMenuItem>Edit permissions</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+              <IconEye size={16} />
+              View user details
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+              <IconEdit size={16} />
+              Update user details
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive cursor-pointer flex items-center gap-2">
+              <IconTrash size={16} />
               Delete user
             </DropdownMenuItem>
           </DropdownMenuContent>

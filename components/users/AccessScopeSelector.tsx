@@ -14,28 +14,34 @@ const ACCESS_SCOPE_OPTIONS = [
   { key: "canManageStakeholders", label: "Manage Stakeholders" },
 ];
 
-type AccessScopeFilterProps = {
-  selectedScopes: string[];
-  setSelectedScopes: React.Dispatch<React.SetStateAction<string[]>>;
+type Props = {
+  value: Record<string, boolean>; // e.g. { canManageUsers: true, canManageClients: false }
+  onChange: (newValue: Record<string, boolean>) => void;
 };
 
-export function AccessScopeFilter({
-  selectedScopes,
-  setSelectedScopes,
-}: Readonly<AccessScopeFilterProps>) {
+export function AccessScopeSelector({ value, onChange }: Readonly<Props>) {
   const toggleScope = (key: string) => {
-    setSelectedScopes((prev) =>
-      prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key]
-    );
+    onChange({
+      ...value,
+      [key]: !value[key],
+    });
+  };
+
+  const selectedCount = Object.values(value).filter(Boolean).length;
+  const allSelected = selectedCount === ACCESS_SCOPE_OPTIONS.length;
+
+  const toggleAll = () => {
+    const newValue: Record<string, boolean> = {};
+    ACCESS_SCOPE_OPTIONS.forEach((scope) => {
+      newValue[scope.key] = !allSelected;
+    });
+    onChange(newValue);
   };
 
   return (
-    <div className="flex flex-col lg:flex-1">
-      <label
-        htmlFor="accessScope"
-        className="text-sm text-muted-foreground mb-1"
-      >
-        Access Scope
+    <div className="flex flex-col">
+      <label htmlFor="accessScope" className="text-sm mb-1">
+        Access Scopes
       </label>
       <Popover>
         <PopoverTrigger asChild>
@@ -43,20 +49,29 @@ export function AccessScopeFilter({
             variant="outline"
             className="w-full rounded border px-2 py-1 text-sm justify-between"
           >
-            {selectedScopes.length > 0
-              ? `${selectedScopes.length} selected`
-              : "All Access Scopes"}
+            <p className="text-muted-foreground">
+              {selectedCount > 0
+                ? `${selectedCount} selected`
+                : "No Access Scopes Selected"}
+            </p>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-64 p-2">
           <div className="flex flex-col gap-2">
+            {/* Check All Option */}
+            <label className="flex items-center gap-2 text-sm font-medium border-b pb-2 mb-2">
+              <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
+              {allSelected ? "Uncheck All" : "Check All"}
+            </label>
+
+            {/* Individual Options */}
             {ACCESS_SCOPE_OPTIONS.map((scope) => (
               <label
                 key={scope.key}
                 className="flex items-center gap-2 text-sm"
               >
                 <Checkbox
-                  checked={selectedScopes.includes(scope.key)}
+                  checked={!!value[scope.key]}
                   onCheckedChange={() => toggleScope(scope.key)}
                 />
                 {scope.label}

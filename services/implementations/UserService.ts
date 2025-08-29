@@ -40,13 +40,13 @@ export class UserService implements IUserService {
   //   }
   // }
 
-  // async createNote(note: Partial<Note>): Promise<Note> {
-  //   try {
-  //     return await this.noteRepository.createNote(note);
-  //   } catch (error) {
-  //     throw this.handleError(error);
-  //   }
-  // }
+  async createUser(user: Partial<User>): Promise<User> {
+    try {
+      return await this.userRepository.createUser(user);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
 
   // async updateNote(id: string, note: Partial<Note>): Promise<Note> {
   //   try {

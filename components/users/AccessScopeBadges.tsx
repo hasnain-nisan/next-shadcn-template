@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 
-interface AccessScopeBadgesProps {
+export interface AccessScopeBadgesProps {
   accessScopes: {
     canManageUsers: boolean;
     canManageClients: boolean;

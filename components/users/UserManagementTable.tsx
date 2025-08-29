@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import * as React from "react";
@@ -9,27 +10,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  ChevronDown,
-  MoreHorizontal,
-  Shield,
-  Calendar,
-  Mail,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -41,6 +23,13 @@ import {
 import { TableColumns } from "./TableColumns";
 import type { User } from "@/types/user.types";
 import { AccessScopeFilter } from "./AccessScopeFilter";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsLeft,
+  IconChevronsRight,
+  IconListNumbers,
+} from "@tabler/icons-react";
 
 export function UserManagementTable({
   users,
@@ -75,7 +64,7 @@ export function UserManagementTable({
   deletedStatus: string;
   setDeletedStatus: (deletedStatus: string) => void;
   accessScopes: string[];
-  setAccessScopes: (accessScopes: string[]) => void;
+  setAccessScopes: React.Dispatch<React.SetStateAction<string[]>>;
 }>) {
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
@@ -85,20 +74,20 @@ export function UserManagementTable({
   const table = useReactTable({
     data: users,
     columns: TableColumns,
-    onSortingChange: (updater) => {
-      const newSorting =
-        typeof updater === "function" ? updater(sorting) : updater;
-      setSorting(newSorting);
+    // onSortingChange: (updater) => {
+    //   const newSorting =
+    //     typeof updater === "function" ? updater(sorting) : updater;
+    //   setSorting(newSorting);
 
-      if (newSorting.length > 0) {
-        setSortField(newSorting[0].id);
-        setSortOrder(newSorting[0].desc ? "desc" : "asc");
-      } else {
-        setSortField(null);
-        setSortOrder(null);
-      }
-    },
-    onColumnFiltersChange: setColumnFilters,
+    //   if (newSorting.length > 0) {
+    //     setSortField(newSorting[0].id);
+    //     setSortOrder(newSorting[0].desc ? "desc" : "asc");
+    //   } else {
+    //     setSortField(null);
+    //     setSortOrder(null);
+    //   }
+    // },
+    // onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -117,7 +106,7 @@ export function UserManagementTable({
 
   return (
     <div>
-      <div className="w-full pb-4">
+      <div className="w-full mb-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:gap-6">
           {/* Email Filter */}
           <div className="flex flex-col lg:flex-1">
@@ -258,40 +247,75 @@ export function UserManagementTable({
       {/* Pagination & Selection Info */}
       <div className="flex flex-col-reverse gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Selected Rows Info */}
-        <div className="text-sm text-muted-foreground text-center">
+        {/* <div className="text-sm text-muted-foreground text-center">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
+        </div> */}
 
         {/* Pagination Controls */}
-        <div className="flex gap-2 flex-row items-center justify-between sm:gap-4">
+        <div className="flex flex-row items-center justify-between gap-4 py-2 w-full">
           {/* Page Info */}
           <div className="text-sm text-muted-foreground">
             Page <span className="font-medium">{pageIndex + 1}</span> of{" "}
             <span className="font-medium">{totalPages}</span>
           </div>
 
-          {/* Navigation + Page Size */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-2">
+            {/* Start Button - hidden on small screens */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(0)}
+              disabled={pageIndex === 0}
+              className="hidden sm:flex items-center gap-1"
+            >
+              <IconChevronsLeft size={16} />
+              Start
+            </Button>
+
+            {/* Prev Button */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => onPageChange(pageIndex - 1)}
               disabled={pageIndex === 0}
+              className="flex items-center gap-1"
             >
+              <IconChevronLeft size={16} />
               Prev
             </Button>
+
+            {/* Next Button */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => onPageChange(pageIndex + 1)}
               disabled={pageIndex + 1 >= totalPages}
+              className="flex items-center gap-1"
             >
               Next
+              <IconChevronRight size={16} />
             </Button>
 
+            {/* End Button - hidden on small screens */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(totalPages - 1)}
+              disabled={pageIndex + 1 >= totalPages}
+              className="hidden sm:flex items-center gap-1"
+            >
+              End
+              <IconChevronsRight size={16} />
+            </Button>
+          </div>
+
+          {/* Page Size Selector */}
+          <div className="flex items-center gap-2">
+            <IconListNumbers size={16} className="text-muted-foreground" />
             <select
-              className="rounded border px-2 py-1 text-sm"
+              className="rounded border px-2 py-1 text-sm bg-background text-foreground"
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
             >

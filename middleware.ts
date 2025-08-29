@@ -18,16 +18,26 @@ export default withAuth(
       "/dashboard/client-stakeholders": "canManageStakeholders",
     };
 
+    // access scope check
     for (const route in routeAccessMap) {
       const requiredScope = routeAccessMap[route];
-      if (
-        pathname.startsWith(route) &&
-        (!token?.accessScopes?.[requiredScope] || isExpired)
-      ) {
-        const url = req.nextUrl.clone();
-        url.pathname = "/unauthorized"; // or redirect to /login with message
-        url.searchParams.set("callbackUrl", pathname);
-        return NextResponse.redirect(url);
+
+      if (pathname.startsWith(route)) {
+        if (isExpired) {
+          // Expired → send to login
+          const url = req.nextUrl.clone();
+          url.pathname = "/login";
+          url.searchParams.set("callbackUrl", pathname);
+          return NextResponse.redirect(url);
+        }
+
+        if (!token?.accessScopes?.[requiredScope]) {
+          // Not expired but missing scope → send to unauthorized
+          const url = req.nextUrl.clone();
+          url.pathname = "/unauthorized";
+          url.searchParams.set("callbackUrl", pathname);
+          return NextResponse.redirect(url);
+        }
       }
     }
 

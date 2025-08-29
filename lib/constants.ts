@@ -12,8 +12,8 @@ export const API_ENDPOINTS: ApiEndpoints = {
   },
   users: {
     getAll: "/user",
+    create: "/user",
     // getById: (id: string) => `/notes/${id}`,
-    // create: "/notes",
     // update: (id: string) => `/notes/${id}`,
     // delete: (id: string) => `/notes/${id}`,
     // toggleFavorite: (id: string) => `/notes/${id}/favorite`,

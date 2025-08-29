@@ -1,19 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { DataTable } from "@/components/data-table";
-import data from "../data.json";
 import Link from "next/link";
-import { IconPlus } from "@tabler/icons-react";
+import { IconLoader2, IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { ServiceFactory } from "@/services/ServiceFactory";
-import { ColumnDef } from "@tanstack/react-table";
 import { User } from "@/types/user.types";
 import { UserManagementTable } from "@/components/users/UserManagementTable";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { CreateUserModal } from "@/components/users/CreateUserModal";
+import { set } from "zod";
 
 export default function UsersPage() {
+  const [refetch, setReFetch] = useState(false);
+  const [open, setOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -60,6 +62,31 @@ export default function UsersPage() {
     }
   };
 
+  // Handle filter changes and fetch users
+  useEffect(() => {
+    // If filters have changed, reset to page 1
+    setPageIndex(0);
+    fetchUsers(
+      1, // Always start from page 1 when filters change
+      pageSize,
+      sortField,
+      sortOrder,
+      debouncedEmail,
+      role,
+      deletedStatus,
+      accessScopes
+    );
+  }, [
+    pageSize,
+    sortField,
+    sortOrder,
+    debouncedEmail,
+    role,
+    deletedStatus,
+    accessScopes,
+  ]);
+
+  // Fetch users when pageIndex, pageSize, or sorting change (but not filters)
   useEffect(() => {
     fetchUsers(
       pageIndex + 1,
@@ -71,16 +98,23 @@ export default function UsersPage() {
       deletedStatus,
       accessScopes
     );
-  }, [
-    pageIndex,
-    pageSize,
-    sortField,
-    sortOrder,
-    debouncedEmail,
-    role,
-    deletedStatus,
-    accessScopes,
-  ]);
+  }, [pageIndex]);
+
+  // fetch based on refetch
+  useEffect(() => {
+    if (refetch === false) return;
+    fetchUsers(
+      pageIndex + 1,
+      pageSize,
+      sortField,
+      sortOrder,
+      debouncedEmail,
+      role,
+      deletedStatus,
+      accessScopes
+    );
+    setReFetch(false);
+  }, [refetch]);
 
   return (
     <>
@@ -96,17 +130,12 @@ export default function UsersPage() {
       </div>
 
       {/* Module Header */}
-      <div className="px-4 lg:px-6">
+      <div className="px-4 lg:px-6 mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-          <Button asChild className="h-8 px-3 text-sm">
-            <Link
-              href="/dashboard/users/create"
-              className="flex items-center gap-1"
-            >
-              <IconPlus className="size-4" />
-              <span>Create New</span>
-            </Link>
+          <Button className="h-8 px-3 text-sm" onClick={() => setOpen(true)}>
+            <IconPlus className="size-4" />
+            <span>Create New</span>
           </Button>
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -118,9 +147,12 @@ export default function UsersPage() {
       {/* Data Table */}
       <div className="px-4 lg:px-6">
         {loading ? (
-          <p className="text-muted-foreground text-sm text-center">
-            Loading users...
-          </p>
+          <div className="flex justify-center items-center py-10">
+            <IconLoader2 className="animate-spin text-muted-foreground h-5 w-5" />
+            <span className="ml-2 text-sm text-muted-foreground">
+              Loading users...
+            </span>
+          </div>
         ) : (
           <UserManagementTable
             users={users}
@@ -142,6 +174,13 @@ export default function UsersPage() {
           />
         )}
       </div>
+
+      {/* create use modal */}
+      <CreateUserModal
+        open={open}
+        setOpen={setOpen}
+        setReFetch={setReFetch}
+      />
     </>
   );
 }

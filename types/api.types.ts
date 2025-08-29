@@ -31,8 +31,8 @@ export interface ApiEndpoints {
   };
   users: {
     getAll: string;
+    create: string;
     // getById: (id: string) => string;
-    // create: string;
     // update: (id: string) => string;
     // delete: (id: string) => string;
     // toggleFavorite: (id: string) => string;
