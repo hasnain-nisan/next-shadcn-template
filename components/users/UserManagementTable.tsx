@@ -152,7 +152,7 @@ export function UserManagementTable({
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="w-full rounded border px-2 py-1 text-sm h-[36px]"
             >
               <option value="">All Roles</option>
               <option value="Admin">Admin</option>
@@ -172,7 +172,7 @@ export function UserManagementTable({
               id="deleted"
               value={deletedStatus}
               onChange={(e) => setDeletedStatus(e.target.value)}
-              className="w-full rounded border px-2 py-1 text-sm"
+              className="w-full rounded border px-2 py-1 text-sm h-[36px]"
             >
               <option value="">All Users</option>
               <option value="true">Deleted Users</option>
@@ -235,6 +235,7 @@ export function UserManagementTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={row.original.isDeleted ? "text-muted-foreground" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
