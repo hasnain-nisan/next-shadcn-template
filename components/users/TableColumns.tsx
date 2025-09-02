@@ -21,7 +21,17 @@ import { IconEdit, IconEye, IconTrash } from "@tabler/icons-react";
 import { ColumnDef } from "@tanstack/react-table";
 import type { AccessScopes, User } from "@/types/user.types";
 
-export const TableColumns: ColumnDef<User>[] = [
+export const getTableColumns = ({
+  setOpenDetailsModal,
+  setSelectedUser,
+  setOpenUpdateModal,
+  setOpenDeleteModal,
+}: {
+  setOpenDetailsModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setOpenUpdateModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
+}): ColumnDef<User>[] => [
   // {
   //   id: "select",
   //   header: ({ table }) => (
@@ -183,6 +193,8 @@ export const TableColumns: ColumnDef<User>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const user = row.original;
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -194,15 +206,47 @@ export const TableColumns: ColumnDef<User>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+            <DropdownMenuItem
+              className="cursor-pointer flex items-center gap-2"
+              onClick={() => {
+                setSelectedUser(user);
+                setOpenDetailsModal(true);
+              }}
+            >
               <IconEye size={16} />
               View user details
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+            <DropdownMenuItem
+              disabled={user.role === "SuperAdmin" || user.isDeleted}
+              className={`cursor-pointer flex items-center gap-2 ${
+                user.role === "SuperAdmin" || user.isDeleted
+                  ? "opacity-50 pointer-events-none"
+                  : ""
+              }`}
+              onClick={() => {
+                if (user.role !== "SuperAdmin" && !user.isDeleted) {
+                  setSelectedUser(user);
+                  setOpenUpdateModal(true);
+                }
+              }}
+            >
               <IconEdit size={16} />
               Update user details
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive cursor-pointer flex items-center gap-2">
+            <DropdownMenuItem
+              disabled={user.role === "SuperAdmin" || user.isDeleted}
+              className={`text-destructive flex items-center gap-2 ${
+                user.role === "SuperAdmin" || user.isDeleted
+                  ? "opacity-50 pointer-events-none"
+                  : "cursor-pointer"
+              }`}
+              onClick={() => {
+                if (user.role !== "SuperAdmin" && !user.isDeleted) {
+                  setSelectedUser(user);
+                  setOpenDeleteModal(true);
+                }
+              }}
+            >
               <IconTrash size={16} />
               Delete user
             </DropdownMenuItem>

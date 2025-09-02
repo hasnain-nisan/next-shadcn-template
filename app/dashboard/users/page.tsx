@@ -11,10 +11,12 @@ import { User } from "@/types/user.types";
 import { UserManagementTable } from "@/components/users/UserManagementTable";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { CreateUserModal } from "@/components/users/CreateUserModal";
+import { UserDetailsModal } from "@/components/users/UserDetailsModal";
+import { UpdateUserModal } from "@/components/users/UpdateUserModal";
+import { DeleteUserModal } from "@/components/users/DeleteUserModal";
 
 export default function UsersPage() {
   const [refetch, setRefetch] = useState(false);
-  const [open, setOpen] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -26,6 +28,12 @@ export default function UsersPage() {
   const [role, setRole] = useState("");
   const [deletedStatus, setDeletedStatus] = useState("");
   const [accessScopes, setAccessScopes] = useState<string[]>([]);
+
+  const [openUserDetailsModal, setOpenUserDetailsModal] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const debouncedEmail = useDebouncedValue(email, 500);
 
@@ -132,7 +140,10 @@ export default function UsersPage() {
       <div className="px-4 lg:px-6 mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-          <Button className="h-8 px-3 text-sm" onClick={() => setOpen(true)}>
+          <Button
+            className="h-8 px-3 text-sm"
+            onClick={() => setOpenCreateModal(true)}
+          >
             <IconPlus className="size-4" />
             <span>Create New</span>
           </Button>
@@ -170,15 +181,42 @@ export default function UsersPage() {
             setDeletedStatus={setDeletedStatus}
             accessScopes={accessScopes}
             setAccessScopes={setAccessScopes}
+            setOpenDetailsModal={setOpenUserDetailsModal}
+            setSelectedUser={setSelectedUser}
+            setOpenUpdateModal={setOpenUpdateModal}
+            setOpenDeleteModal={setOpenDeleteModal}
           />
         )}
       </div>
 
-      {/* create use modal */}
+      {/* create user modal */}
       <CreateUserModal
-        open={open}
-        setOpen={setOpen}
+        open={openCreateModal}
+        setOpen={setOpenCreateModal}
         setRefetch={setRefetch}
+      />
+
+      {/* user info modal */}
+      <UserDetailsModal
+        open={openUserDetailsModal}
+        setOpen={setOpenUserDetailsModal}
+        user={selectedUser}
+      />
+
+      {/* update user modal */}
+      <UpdateUserModal
+        open={openUpdateModal}
+        setOpen={setOpenUpdateModal}
+        setRefetch={setRefetch}
+        user={selectedUser}
+      />
+
+      {/* delete user modal */}
+      <DeleteUserModal
+        open={openDeleteModal}
+        setOpen={setOpenDeleteModal}
+        setRefetch={setRefetch}
+        user={selectedUser}
       />
     </>
   );

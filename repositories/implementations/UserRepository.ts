@@ -69,18 +69,18 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  // async updateNote(id: string, note: Partial<Note>): Promise<Note> {
-  //   return makeApiRequest<Note>(`${API_ENDPOINTS.notes.update(id)}`, {
-  //     method: "PUT",
-  //     body: JSON.stringify(note),
-  //   });
-  // }
+  async updateUser(id: string, user: Partial<User>): Promise<User> {
+    return makeApiRequest<User>(`${API_ENDPOINTS.users.update(id)}`, {
+      method: "PUT",
+      body: JSON.stringify(user),
+    });
+  }
 
-  // async deleteNote(id: string): Promise<void> {
-  //   await makeApiRequest<void>(`${API_ENDPOINTS.notes.delete(id)}`, {
-  //     method: "DELETE",
-  //   });
-  // }
+  async deleteUser(id: string): Promise<void> {
+    await makeApiRequest<void>(`${API_ENDPOINTS.users.delete(id)}`, {
+      method: "DELETE",
+    });
+  }
 
   // async toggleFavorite(id: string): Promise<Note> {
   //   return makeApiRequest<Note>(`${API_ENDPOINTS.notes.toggleFavorite(id)}`, {

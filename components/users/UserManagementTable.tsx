@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TableColumns } from "./TableColumns";
+import { getTableColumns } from "./TableColumns";
 import type { User } from "@/types/user.types";
 import { AccessScopeFilter } from "./AccessScopeFilter";
 import {
@@ -48,6 +48,10 @@ export function UserManagementTable({
   setDeletedStatus,
   accessScopes,
   setAccessScopes,
+  setOpenDetailsModal,
+  setSelectedUser,
+  setOpenUpdateModal,
+  setOpenDeleteModal,
 }: Readonly<{
   users: User[];
   pageIndex: number;
@@ -65,15 +69,26 @@ export function UserManagementTable({
   setDeletedStatus: (deletedStatus: string) => void;
   accessScopes: string[];
   setAccessScopes: React.Dispatch<React.SetStateAction<string[]>>;
+  setOpenDetailsModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setOpenUpdateModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 }>) {
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  const columns = getTableColumns({
+    setOpenDetailsModal,
+    setSelectedUser,
+    setOpenUpdateModal,
+    setOpenDeleteModal
+  });
+
   const table = useReactTable({
     data: users,
-    columns: TableColumns,
+    columns: columns,
     // onSortingChange: (updater) => {
     //   const newSorting =
     //     typeof updater === "function" ? updater(sorting) : updater;
@@ -234,7 +249,7 @@ export function UserManagementTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={TableColumns.length}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.

@@ -48,21 +48,25 @@ export class UserService implements IUserService {
     }
   }
 
-  // async updateNote(id: string, note: Partial<Note>): Promise<Note> {
-  //   try {
-  //     return await this.noteRepository.updateNote(id, note);
-  //   } catch (error) {
-  //     throw this.handleError(error);
-  //   }
-  // }
+  async updateUser(id: string, user: Partial<User>): Promise<User> {
+    try {
+      console.log("checking user repo", this.userRepository);
+      
+      return await this.userRepository.updateUser(id, user);
+    } catch (error) {
+      console.log("error in user service", error);
+      
+      throw this.handleError(error);
+    }
+  }
 
-  // async deleteNote(id: string): Promise<void> {
-  //   try {
-  //     await this.noteRepository.deleteNote(id);
-  //   } catch (error) {
-  //     throw this.handleError(error);
-  //   }
-  // }
+  async deleteUser(id: string): Promise<void> {
+    try {
+      await this.userRepository.deleteUser(id);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
 
   // async toggleFavorite(id: string): Promise<Note> {
   //   try {

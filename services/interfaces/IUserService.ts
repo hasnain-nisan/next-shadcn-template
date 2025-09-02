@@ -17,10 +17,10 @@ export interface IUserService {
     totalPages: number;
   }>;
   
-  createUser(note: Partial<User>): Promise<User>;
+  createUser(user: Partial<User>): Promise<User>;
+  updateUser(id: string, user: Partial<User>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
   
   // getNoteById(id: string): Promise<Note>;
-  // updateNote(id: string, note: Partial<Note>): Promise<Note>;
-  // deleteNote(id: string): Promise<void>;
   // toggleFavorite(id: string): Promise<Note>;
 }

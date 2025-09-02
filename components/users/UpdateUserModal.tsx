@@ -12,24 +12,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AccessScopeSelector } from "@/components/users/AccessScopeSelector"; // <-- import selector component
-import { useState } from "react";
+import { AccessScopeSelector } from "@/components/users/AccessScopeSelector";
+import { useEffect, useState } from "react";
 import { IconEye, IconEyeOff, IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { User } from "@/types/user.types";
 import { toast } from "sonner";
+import { da } from "zod/v4/locales";
 
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefetch: (state: boolean) => void;
+  user: User | null;
 };
 
-type CreateUserFormValues = {
+type UpdateUserFormValues = {
   email: string;
-  password: string;
-  confirmPassword: string;
-  role: "Admin";
+  role: "Admin" | "SuperAdmin";
+  password?: string;
+  confirmPassword?: string;
   accessScopes: {
     canManageUsers?: boolean;
     canManageClients?: boolean;
@@ -39,10 +41,11 @@ type CreateUserFormValues = {
   };
 };
 
-export function CreateUserModal({
+export function UpdateUserModal({
   open,
   setOpen,
   setRefetch,
+  user,
 }: Readonly<Props>) {
   const {
     register,
@@ -51,12 +54,12 @@ export function CreateUserModal({
     reset,
     watch,
     formState: { errors },
-  } = useForm<CreateUserFormValues>({
+  } = useForm<UpdateUserFormValues>({
     defaultValues: {
       email: "",
+      role: "Admin",
       password: "",
       confirmPassword: "",
-      role: "Admin",
       accessScopes: {
         canManageUsers: false,
         canManageClients: false,
@@ -71,20 +74,36 @@ export function CreateUserModal({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Wrap setOpen so it resets form whenever modal closes
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      reset(); // reset to defaultValues
+  useEffect(() => {
+    if (user) {
+      reset({
+        email: user.email,
+        role: user.role as "Admin" | "SuperAdmin",
+        accessScopes: user.accessScopes,
+        password: "",
+        confirmPassword: "",
+      });
     }
+  }, [user, reset]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) reset();
     setOpen(isOpen);
   };
 
-  const onSubmit = async (data: CreateUserFormValues) => {
+  const onSubmit = async (data: UpdateUserFormValues) => {
+    if (!user) return;
     try {
       setIsSubmitting(true);
       const userService = ServiceFactory.getUserService();
-      await userService.createUser(data as Partial<User>);
-      toast.success("Admin user created successfully");
+      await userService.updateUser(user.id, {
+        email: data.email,
+        role: data.role,
+        accessScopes: data.accessScopes as unknown as User["accessScopes"],
+        password: data.password?.trim() ? data.password.trim() : undefined,
+        confirmPassword: data.confirmPassword?.trim() ? data.confirmPassword.trim() : undefined,
+      });
+      toast.success("User updated successfully");
       reset();
       setOpen(false);
       setRefetch(true);
@@ -101,9 +120,9 @@ export function CreateUserModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="mb-5">
-          <DialogTitle>Create User</DialogTitle>
+          <DialogTitle>Update User</DialogTitle>
           <DialogDescription>
-            Enter user credentials and define their access within the system.
+            Modify user details and access permissions.
           </DialogDescription>
         </DialogHeader>
 
@@ -122,13 +141,51 @@ export function CreateUserModal({
             )}
           </div>
 
+          {/* Role */}
+          <div>
+            <Label className="mb-2">Role</Label>
+            <select
+              className="w-full rounded border px-2 py-1 text-sm"
+              {...register("role", { required: true })}
+            >
+              <option value="Admin">Admin</option>
+              {/* <option value="SuperAdmin">SuperAdmin</option> */}
+            </select>
+          </div>
+
+          {/* Access Scopes Selector */}
+          <Controller
+            name="accessScopes"
+            control={control}
+            render={({ field }) => (
+              <AccessScopeSelector
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          {Object.values(watch("accessScopes")).every((v) => !v) && (
+            <p
+              className="text-xs text-red-500"
+              style={{ marginTop: "-0.7rem" }}
+            >
+              At least one access scope must be selected
+            </p>
+          )}
+
+          {/* Password Section Label */}
+          <div>
+            <p className="text-sm text-muted-foreground font-medium mt-8">
+              To change the user&apos;s password, please fill in the fields below.
+            </p>
+          </div>
+
           {/* Password */}
           <div className="relative">
             <Label className="mb-2">Password</Label>
             <Input
               type={showPassword ? "text" : "password"}
               {...register("password", {
-                required: "Password is required",
                 minLength: {
                   value: 8,
                   message: "Password must be at least 8 characters",
@@ -155,13 +212,10 @@ export function CreateUserModal({
             <Input
               type={showConfirmPassword ? "text" : "password"}
               {...register("confirmPassword", {
-                required: "Confirm password is required",
-                minLength: {
-                  value: 8,
-                  message: "Confirm password must be at least 8 characters",
-                },
                 validate: (value, formValues) =>
-                  value === formValues.password || "Passwords do not match",
+                  !formValues.password ||
+                  value === formValues.password ||
+                  "Passwords do not match",
               })}
             />
             <button
@@ -182,40 +236,6 @@ export function CreateUserModal({
             )}
           </div>
 
-          {/* Role */}
-          <div>
-            <Label className="mb-2">Role</Label>
-            <select
-              className="w-full rounded border px-2 py-1 text-sm"
-              {...register("role", { required: true })}
-            >
-              <option value="Admin">Admin</option>
-            </select>
-          </div>
-
-          {/* Access Scopes Selector */}
-          <Controller
-            name="accessScopes"
-            control={control}
-            render={({ field }) => (
-              <AccessScopeSelector
-                value={field.value}
-                onChange={field.onChange}
-              />
-            )}
-          />
-          {/* At least one scope validation */}
-          {Object.values(watch("accessScopes")).every((v) => !v) && (
-            <p
-              className="text-xs text-red-500"
-              style={{
-                marginTop: "-0.7rem",
-              }}
-            >
-              At least one access scope must be selected
-            </p>
-          )}
-
           {/* Actions */}
           <DialogFooter>
             <Button
@@ -229,7 +249,7 @@ export function CreateUserModal({
               {isSubmitting && (
                 <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {isSubmitting ? "Creating..." : "Create"}
+              {isSubmitting ? "Updating..." : "Update"}
             </Button>
           </DialogFooter>
         </form>

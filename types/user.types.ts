@@ -21,9 +21,11 @@ export interface User {
   email: string;
   role: string;
   accessScopes: AccessScopes;
-  createdBy: UserRef;
+  createdBy: UserRef | null;
   updatedBy: UserRef | null;
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;
+  password?: string; // Only for creating/updating users, not returned from API
+  confirmPassword?: string; // Only for creating/updating users, not returned from API
 }
