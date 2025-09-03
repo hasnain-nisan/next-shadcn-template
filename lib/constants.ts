@@ -18,6 +18,14 @@ export const API_ENDPOINTS: ApiEndpoints = {
     // getById: (id: string) => `/notes/${id}`,
     // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
   },
+  clients: {
+    getAll: "/client",
+    create: "/client",
+    update: (id: string) => `/client/${id}`,
+    delete: (id: string) => `/client/${id}`,
+    getById: (id: string) => `/client/${id}`,
+    // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
+  },
 };
 
 export const ROUTES = {
@@ -54,8 +62,7 @@ export const NAVIGATION_ITEMS = [
   },
 ];
 
-
 export const NOTE_ROUTES: Record<string, string> = {
-  CREATE: '/dashboard/note/create',
-  EDIT: '/dashboard/note/edit/[id]',
-}
+  CREATE: "/dashboard/note/create",
+  EDIT: "/dashboard/note/edit/[id]",
+};

@@ -2,6 +2,8 @@ import { IAuthService } from "@/services/interfaces/IAuthService";
 import { AuthService } from "./implementations/AuthService";
 import { IUserService } from "./interfaces/IUserService";
 import { UserService } from "./implementations/UserService";
+import { ClientService } from "./implementations/ClientService";
+import { IClientService } from "./interfaces/IClientService";
 
 export class ServiceFactory {
   private static readonly instances = new Map<string, unknown>();
@@ -19,5 +21,9 @@ export class ServiceFactory {
 
   static getUserService(): IUserService {
     return this.getService("userService", () => new UserService());
+  }
+
+  static getClientService(): IClientService {
+    return this.getService("clientService", () => new ClientService());
   }
 }

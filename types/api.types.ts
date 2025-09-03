@@ -37,4 +37,12 @@ export interface ApiEndpoints {
     // getById: (id: string) => string;
     // toggleFavorite: (id: string) => string;
   };
+  clients: {
+    getAll: string;
+    create: string;
+    update: (id: string) => string;
+    delete: (id: string) => string;
+    getById: (id: string) => string;
+    // toggleFavorite: (id: string) => string;
+  };
 }

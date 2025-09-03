@@ -1,6 +1,8 @@
 import { AuthRepository } from "./implementations/AuthRepository";
+import { ClientRepository } from "./implementations/ClientRepository";
 import { UserRepository } from "./implementations/UserRepository";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
+import { IClientRepository } from "./interfaces/IClientRepository";
 import { IUserRepository } from "./interfaces/IUserRepository";
 
 export class RepositoryFactory {
@@ -19,5 +21,9 @@ export class RepositoryFactory {
 
   static getUserRepository(): IUserRepository {
     return this.getRepository("user", () => new UserRepository());
+  }
+
+  static getClientRepository(): IClientRepository {
+    return this.getRepository("client", () => new ClientRepository());
   }
 }

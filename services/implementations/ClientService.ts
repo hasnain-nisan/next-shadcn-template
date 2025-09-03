@@ -2,55 +2,57 @@ import { RepositoryFactory } from "@/repositories/RepositoryFactory";
 import { IUserService } from "../interfaces/IUserService";
 import { IUserRepository } from "@/repositories/interfaces/IUserRepository";
 import { User } from "@/types/user.types";
+import { IClientService } from "../interfaces/IClientService";
+import { Client } from "@/types/client.types";
+import { IClientRepository } from "@/repositories/interfaces/IClientRepository";
 
-export class UserService implements IUserService {
-  private readonly userRepository: IUserRepository;
+export class ClientService implements IClientService {
+  private readonly clientRepository: IClientRepository;
 
   constructor() {
-    this.userRepository = RepositoryFactory.getUserRepository();
+    this.clientRepository = RepositoryFactory.getClientRepository();
   }
 
-  async getAllUsers(params?: {
+  async getAllClients(params?: {
     page?: number;
     limit?: number;
     sortField?: string;
     sortOrder?: "asc" | "desc";
-    email?: string;
-    role?: string;
+    name?: string;
+    clientCode?: string;
     deletedStatus?: string;
-    accessScopes?: string[];
   }): Promise<{
-    items: User[];
+    items: Client[];
     total: number;
     currentPage: number;
     totalPages: number;
   }> {
     try {
-      return await this.userRepository.getAllUsers(params);
+      return await this.clientRepository.getAllClients(params);
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  // async getNoteById(id: string): Promise<Note> {
-  //   try {
-  //     return await this.noteRepository.getNoteById(id);
-  //   } catch (error) {
-  //     throw this.handleError(error);
-  //   }
-  // }
-
-  async createUser(user: Partial<User>): Promise<User> {
+  async getClientById(id: string): Promise<Client> {
     try {
-      return await this.userRepository.createUser(user);
+      return await this.clientRepository.getClientById(id);
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  async updateUser(id: string, user: Partial<User>): Promise<User> {
+  async createClient(client: Partial<Client>): Promise<Client> {
     try {
-      return await this.userRepository.updateUser(id, user);
+      return await this.clientRepository.createClient(client);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async updateClient(id: string, client: Partial<Client>): Promise<Client> {
+    try {
+      return await this.clientRepository.updateClient(id, client);
     } catch (error) {
       console.log("error in user service", error);
       
@@ -58,9 +60,9 @@ export class UserService implements IUserService {
     }
   }
 
-  async deleteUser(id: string): Promise<void> {
+  async deleteClient(id: string): Promise<void> {
     try {
-      await this.userRepository.deleteUser(id);
+      await this.clientRepository.deleteClient(id);
     } catch (error) {
       throw this.handleError(error);
     }
