@@ -14,10 +14,16 @@ import { ClientManagementTable } from "@/components/clients/ClientManagementTabl
 import { CreateClientModal } from "@/components/clients/CreateClientModal";
 import { UpdateClientModal } from "@/components/clients/UpdateClientModal";
 import { DeleteClientModal } from "@/components/clients/DeleteClientModal";
+import { ClientStakeholder } from "@/types/stakeholder.types";
+import { StakeholderManagementTable } from "@/components/client-stakeholder/StakeholderManagementTable";
+import { CreateClientStakeholderModal } from "@/components/client-stakeholder/CreateClientStakeholderModal";
+import { UpdateClientStakeholderModal } from "@/components/client-stakeholder/UpdateClientStakeholderModal";
+import { DeleteClientStakeholderModal } from "@/components/client-stakeholder/DeleteClientStakeholderModal";
 
 export default function ClientsPage() {
   const [refetch, setRefetch] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+  const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -25,40 +31,39 @@ export default function ClientsPage() {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const [name, setName] = useState("");
-  const [clientCode, setClientCode] = useState("");
+  const [clientId, setClientId] = useState("all");
   const [deletedStatus, setDeletedStatus] = useState("");
 
   // const [openUserDetailsModal, setOpenUserDetailsModal] = useState(false);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedStakeholder, setSelectedStakeholder] =
+    useState<ClientStakeholder | null>(null);
 
   const debouncedName = useDebouncedValue(name, 500);
-  const debouncedClientCode = useDebouncedValue(clientCode, 500);
 
-
-  const fetchClients = async (
+  const fetchStakeholders = async (
     page = 1,
     limit = 10,
     sortField?: string | null,
     sortOrder?: "asc" | "desc" | null,
     name?: string,
-    clientCode?: string,
-    deletedStatus?: string,
+    clientId?: string,
+    deletedStatus?: string
   ) => {
     try {
-      const clientService = ServiceFactory.getClientService();
-      const result = await clientService.getAllClients({
+      const stakeholderService = ServiceFactory.getClientStakeholderService();
+      const result = await stakeholderService.getAll({
         page,
         limit,
         sortField,
         sortOrder,
         name,
-        clientCode,
+        clientId,
         deletedStatus,
       });
-      setClients(result.items);
+      setStakeholders(result.items);
       setTotalPages(result.totalPages);
       setPageIndex(result.currentPage - 1);
     } catch (error) {
@@ -68,52 +73,69 @@ export default function ClientsPage() {
     }
   };
 
+  const fetchClients = async () => {
+    try {
+      const clientService = ServiceFactory.getClientService();
+      const result = await clientService.getAllClients({
+        page: 1,
+        limit: Number.MAX_SAFE_INTEGER,
+        sortField: undefined,
+        sortOrder: undefined,
+        name: undefined,
+        clientCode: undefined,
+        deletedStatus: "false",
+      });
+      setClients(result.items);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
   // Handle filter changes and fetch users
   useEffect(() => {
     // If filters have changed, reset to page 1
     setPageIndex(0);
-    fetchClients(
+    fetchStakeholders(
       1, // Always start from page 1 when filters change
       pageSize,
       sortField,
       sortOrder,
       debouncedName,
-      debouncedClientCode,
-      deletedStatus,
+      clientId,
+      deletedStatus
     );
-  }, [
-    pageSize,
-    sortField,
-    sortOrder,
-    debouncedName,
-    debouncedClientCode,
-    deletedStatus,
-  ]);
+  }, [pageSize, sortField, sortOrder, debouncedName, clientId, deletedStatus]);
 
   // Fetch users when pageIndex, pageSize, or sorting change (but not filters)
   useEffect(() => {
-    fetchClients(
+    fetchStakeholders(
       pageIndex + 1,
       pageSize,
       sortField,
       sortOrder,
       debouncedName,
-      debouncedClientCode,
-      deletedStatus,
+      clientId,
+      deletedStatus
     );
   }, [pageIndex]);
 
   // fetch based on refetch
   useEffect(() => {
     if (refetch === false) return;
-    fetchClients(
+    fetchStakeholders(
       pageIndex + 1,
       pageSize,
       sortField,
       sortOrder,
       debouncedName,
-      debouncedClientCode,
-      deletedStatus,
+      clientId,
+      deletedStatus
     );
     setRefetch(false);
   }, [refetch]);
@@ -127,10 +149,10 @@ export default function ClientsPage() {
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <Link
-          href="/dashboard/clients"
+          href="/dashboard/client-stakeholders"
           className="text-foreground font-semibold"
         >
-          Client
+          Client Stakeholder
         </Link>
       </div>
 
@@ -147,8 +169,8 @@ export default function ClientsPage() {
           </Button>
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
-          Manage client profiles and monitor engagement
-          workflows.
+          View and manage stakeholders linked to clients, including contact
+          details, project associations, and engagement status.
         </p>
       </div>
 
@@ -158,12 +180,12 @@ export default function ClientsPage() {
           <div className="flex justify-center items-center py-10">
             <IconLoader2 className="animate-spin text-muted-foreground h-5 w-5" />
             <span className="ml-2 text-sm text-muted-foreground">
-              Loading clients...
+              Loading Client stakeholders...
             </span>
           </div>
         ) : (
-          <ClientManagementTable
-            clients={clients}
+          <StakeholderManagementTable
+            stakeholders={stakeholders}
             pageIndex={pageIndex}
             pageSize={pageSize}
             totalPages={totalPages}
@@ -173,23 +195,25 @@ export default function ClientsPage() {
             setSortOrder={setSortOrder}
             name={name}
             setName={setName}
-            clientCode={clientCode}
-            setClientCode={setClientCode}
+            clientId={clientId}
+            setClientId={setClientId}
             deletedStatus={deletedStatus}
             setDeletedStatus={setDeletedStatus}
             // setOpenDetailsModal={setOpenUserDetailsModal}
-            setSelectedClient={setSelectedClient}
+            setSelectedStakeholder={setSelectedStakeholder}
             setOpenUpdateModal={setOpenUpdateModal}
             setOpenDeleteModal={setOpenDeleteModal}
+            clients={clients}
           />
         )}
       </div>
 
       {/* create client modal */}
-      <CreateClientModal
+      <CreateClientStakeholderModal
         open={openCreateModal}
         setOpen={setOpenCreateModal}
         setRefetch={setRefetch}
+        clients={clients}
       />
 
       {/* user info modal */}
@@ -200,19 +224,20 @@ export default function ClientsPage() {
       /> */}
 
       {/* update user modal */}
-      <UpdateClientModal
+      <UpdateClientStakeholderModal
         open={openUpdateModal}
         setOpen={setOpenUpdateModal}
         setRefetch={setRefetch}
-        client={selectedClient}
+        stakeholder={selectedStakeholder}
+        clients={clients}
       />
 
       {/* delete user modal */}
-      <DeleteClientModal
+      <DeleteClientStakeholderModal
         open={openDeleteModal}
         setOpen={setOpenDeleteModal}
         setRefetch={setRefetch}
-        client={selectedClient}
+        stakeholder={selectedStakeholder}
       />
     </>
   );

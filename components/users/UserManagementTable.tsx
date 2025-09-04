@@ -30,6 +30,7 @@ import {
   IconChevronsRight,
   IconListNumbers,
 } from "@tabler/icons-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 export function UserManagementTable({
   users,
@@ -83,7 +84,7 @@ export function UserManagementTable({
     setOpenDetailsModal,
     setSelectedUser,
     setOpenUpdateModal,
-    setOpenDeleteModal
+    setOpenDeleteModal,
   });
 
   const table = useReactTable({
@@ -148,16 +149,16 @@ export function UserManagementTable({
             >
               Role
             </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full rounded border px-2 py-1 text-sm h-[36px]"
-            >
-              <option value="">All Roles</option>
-              <option value="Admin">Admin</option>
-              <option value="SuperAdmin">Super Admin</option>
-            </select>
+            <Select value={role === "" ? undefined : role} onValueChange={(value) => setRole(value)}>
+              <SelectTrigger id="role" className="w-full h-[36px] text-sm">
+                <SelectValue placeholder="All Roles" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="Admin">Admin</SelectItem>
+                <SelectItem value="SuperAdmin">Super Admin</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Deleted Status Filter */}
@@ -168,16 +169,19 @@ export function UserManagementTable({
             >
               User Status
             </label>
-            <select
-              id="deleted"
-              value={deletedStatus}
-              onChange={(e) => setDeletedStatus(e.target.value)}
-              className="w-full rounded border px-2 py-1 text-sm h-[36px]"
+            <Select
+              value={deletedStatus === "" ? "all" : deletedStatus}
+              onValueChange={(value) => setDeletedStatus(value)}
             >
-              <option value="">All Users</option>
-              <option value="true">Deleted Users</option>
-              <option value="false">Not Deleted Users</option>
-            </select>
+              <SelectTrigger id="deleted" className="w-full h-[36px] text-sm">
+                <SelectValue placeholder="All Users" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                <SelectItem value="all">All Users</SelectItem>
+                <SelectItem value="true">Deleted Users</SelectItem>
+                <SelectItem value="false">Not Deleted Users</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Access Scope Filter */}
@@ -235,7 +239,9 @@ export function UserManagementTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={row.original.isDeleted ? "text-muted-foreground" : ""}
+                  className={
+                    row.original.isDeleted ? "text-muted-foreground" : ""
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

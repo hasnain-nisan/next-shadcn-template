@@ -120,3 +120,11 @@
     @apply font-poppins;
   }
 }
+
+[data-slot="select-scroll-up-button"] {
+  display: none !important;
+}
+
+[data-slot="select-scroll-down-button"] {
+  display: none !important;
+}

@@ -29,10 +29,17 @@ import {
   IconListNumbers,
 } from "@tabler/icons-react";
 import { Client } from "@/types/client.types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { ClientStakeholder } from "@/types/stakeholder.types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
-export function ClientManagementTable({
-  clients,
+export function StakeholderManagementTable({
+  stakeholders,
   pageIndex,
   pageSize,
   totalPages,
@@ -42,15 +49,16 @@ export function ClientManagementTable({
   setSortOrder,
   name,
   setName,
-  clientCode,
-  setClientCode,
+  clientId,
+  setClientId,
   deletedStatus,
   setDeletedStatus,
-  setSelectedClient,
+  setSelectedStakeholder,
   setOpenUpdateModal,
   setOpenDeleteModal,
+  clients,
 }: Readonly<{
-  clients: Client[];
+  stakeholders: ClientStakeholder[];
   pageIndex: number;
   pageSize: number;
   totalPages: number;
@@ -60,23 +68,37 @@ export function ClientManagementTable({
   setSortOrder: (order: "asc" | "desc" | null) => void;
   name: string;
   setName: (email: string) => void;
-  clientCode: string;
-  setClientCode: (clientCode: string) => void;
+  clientId: string;
+  setClientId: (clientId: string) => void;
   deletedStatus: string;
   setDeletedStatus: (deletedStatus: string) => void;
-  setSelectedClient: React.Dispatch<React.SetStateAction<Client | null>>;
+  setSelectedStakeholder: React.Dispatch<
+    React.SetStateAction<ClientStakeholder | null>
+  >;
   setOpenUpdateModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
+  clients: Client[];
 }>) {
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [searchTerm, setSearchTerm] = React.useState("");
 
-  const columns = GetTableColumns({setSelectedClient, setOpenUpdateModal, setOpenDeleteModal});
+  const filteredClients = React.useMemo(() => {
+    return clients.filter((client) =>
+      client.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, clients]);
+
+  const columns = GetTableColumns({
+    setSelectedStakeholder,
+    setOpenUpdateModal,
+    setOpenDeleteModal,
+  });
 
   const table = useReactTable({
-    data: clients,
+    data: stakeholders,
     columns: columns,
     // onSortingChange: (updater) => {
     //   const newSorting =
@@ -129,21 +151,48 @@ export function ClientManagementTable({
             />
           </div>
 
-          {/* Client code Filter */}
+          {/* Client Filter Dropdown */}
           <div className="flex flex-col lg:flex-1">
             <label
-              htmlFor="clientCode"
+              htmlFor="clientId"
               className="text-sm text-muted-foreground mb-1"
             >
-              Client Code
+              Client
             </label>
-            <Input
-              id="clientCode"
-              placeholder="Filter by client code..."
-              value={clientCode}
-              onChange={(e) => setClientCode(e.target.value)}
-              className="w-full text-sm"
-            />
+            <Select
+              value={clientId}
+              onValueChange={(value) => setClientId(value)}
+            >
+              <SelectTrigger id="clientId" className="w-full text-sm h-[36px]">
+                <SelectValue placeholder="Select a client..." />
+              </SelectTrigger>
+              <SelectContent
+                className="max-h-[300px] overflow-y-auto w-full"
+                style={{ width: "var(--radix-select-trigger-width)" }}
+              >
+                <div className="px-2 py-2 sticky top-[-5px] bg-background z-10">
+                  <Input
+                    placeholder="Search clients..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="text-sm"
+                  />
+                </div>
+                {/* All Clients Option */}
+                <SelectItem value="all">All Clients</SelectItem>
+                {filteredClients.length > 0 ? (
+                  filteredClients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">
+                    No clients found
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Deleted Status Filter */}
@@ -152,7 +201,7 @@ export function ClientManagementTable({
               htmlFor="deleted"
               className="text-sm text-muted-foreground mb-1"
             >
-              Client Status
+              User Status
             </label>
             <Select
               value={deletedStatus === "" ? "all" : deletedStatus}

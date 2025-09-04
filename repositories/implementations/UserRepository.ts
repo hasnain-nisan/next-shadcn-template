@@ -40,11 +40,14 @@ export class UserRepository implements IUserRepository {
     }
 
     if (params?.role) {
-      query.append("role", params.role);
+      query.append("role", params.role === "all" ? "" : params.role);
     }
 
     if (params?.deletedStatus) {
-      query.append("isDeleted", params.deletedStatus);
+      query.append(
+        "isDeleted",
+        params.deletedStatus === "all" ? "" : params.deletedStatus
+      );
     }
 
     if (params?.accessScopes?.length) {

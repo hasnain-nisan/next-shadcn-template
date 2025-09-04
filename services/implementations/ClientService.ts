@@ -1,7 +1,4 @@
 import { RepositoryFactory } from "@/repositories/RepositoryFactory";
-import { IUserService } from "../interfaces/IUserService";
-import { IUserRepository } from "@/repositories/interfaces/IUserRepository";
-import { User } from "@/types/user.types";
 import { IClientService } from "../interfaces/IClientService";
 import { Client } from "@/types/client.types";
 import { IClientRepository } from "@/repositories/interfaces/IClientRepository";

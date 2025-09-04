@@ -42,7 +42,10 @@ export class ClientRepository implements IClientRepository {
     }
 
     if (params?.deletedStatus) {
-      query.append("isDeleted", params.deletedStatus);
+      query.append(
+        "isDeleted",
+        params.deletedStatus === "all" ? "" : params.deletedStatus
+      );
     }
 
     const endpoint = `${API_ENDPOINTS.clients.getAll}?${query.toString()}`;
@@ -54,25 +57,25 @@ export class ClientRepository implements IClientRepository {
     return makeApiRequest<Client>(`${API_ENDPOINTS.clients.getById(id)}`);
   }
 
-    async createClient(client: Partial<Client>): Promise<Client> {
-      return makeApiRequest<Client>(API_ENDPOINTS.clients.create, {
-        method: "POST",
-        body: JSON.stringify(client),
-      });
-    }
+  async createClient(client: Partial<Client>): Promise<Client> {
+    return makeApiRequest<Client>(API_ENDPOINTS.clients.create, {
+      method: "POST",
+      body: JSON.stringify(client),
+    });
+  }
 
-    async updateClient(id: string, client: Partial<Client>): Promise<Client> {
-      return makeApiRequest<Client>(`${API_ENDPOINTS.clients.update(id)}`, {
-        method: "PUT",
-        body: JSON.stringify(client),
-      });
-    }
+  async updateClient(id: string, client: Partial<Client>): Promise<Client> {
+    return makeApiRequest<Client>(`${API_ENDPOINTS.clients.update(id)}`, {
+      method: "PUT",
+      body: JSON.stringify(client),
+    });
+  }
 
-    async deleteClient(id: string): Promise<void> {
-      await makeApiRequest<void>(`${API_ENDPOINTS.clients.delete(id)}`, {
-        method: "DELETE",
-      });
-    }
+  async deleteClient(id: string): Promise<void> {
+    await makeApiRequest<void>(`${API_ENDPOINTS.clients.delete(id)}`, {
+      method: "DELETE",
+    });
+  }
 
   // async toggleFavorite(id: string): Promise<Note> {
   //   return makeApiRequest<Note>(`${API_ENDPOINTS.notes.toggleFavorite(id)}`, {

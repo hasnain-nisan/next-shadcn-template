@@ -1,8 +1,10 @@
 import { AuthRepository } from "./implementations/AuthRepository";
 import { ClientRepository } from "./implementations/ClientRepository";
+import { ClientStakeholderRepository } from "./implementations/ClientStakeholderRepository";
 import { UserRepository } from "./implementations/UserRepository";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
 import { IClientRepository } from "./interfaces/IClientRepository";
+import { IClientStakeholderRepository } from "./interfaces/IClientStakeholderRepository";
 import { IUserRepository } from "./interfaces/IUserRepository";
 
 export class RepositoryFactory {
@@ -25,5 +27,9 @@ export class RepositoryFactory {
 
   static getClientRepository(): IClientRepository {
     return this.getRepository("client", () => new ClientRepository());
+  }
+
+  static getClientStakeholderRepository(): IClientStakeholderRepository {
+    return this.getRepository("clientStakeholder", () => new ClientStakeholderRepository());
   }
 }
