@@ -51,8 +51,6 @@ export class ClientService implements IClientService {
     try {
       return await this.clientRepository.updateClient(id, client);
     } catch (error) {
-      console.log("error in user service", error);
-      
       throw this.handleError(error);
     }
   }

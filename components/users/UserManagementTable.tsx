@@ -190,26 +190,6 @@ export function UserManagementTable({
               selectedScopes={accessScopes}
               setSelectedScopes={setAccessScopes}
             />
-
-            {/* <label
-              htmlFor="accessScope"
-              className="text-sm text-muted-foreground mb-1"
-            >
-              Access Scope
-            </label>
-            <select
-              id="accessScope"
-              value={""}
-              onChange={(e) => console.log(e.target.value)}
-              className="w-full rounded border px-2 py-1 text-sm"
-            >
-              <option value="">All Access Scopes</option>
-              <option value="canManageUsers">Manage Users</option>
-              <option value="canManageClients">Manage Clients</option>
-              <option value="canManageProjects">Manage Projects</option>
-              <option value="canManageInterviews">Manage Interviews</option>
-              <option value="canManageStakeholders">Manage Stakeholders</option>
-            </select> */}
           </div>
         </div>
       </div>

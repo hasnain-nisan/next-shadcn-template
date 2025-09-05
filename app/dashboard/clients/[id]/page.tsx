@@ -10,6 +10,12 @@ import { ServiceFactory } from "@/services/ServiceFactory";
 import { Client } from "@/types/client.types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function ClientDetailsPage({
   params,
@@ -81,109 +87,225 @@ export default function ClientDetailsPage({
           <>
             {/* Info Section */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Client Info</CardTitle>
-              </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm text-muted-foreground">
-                  <div>
-                    <span className="font-medium text-foreground">Name:</span>
-                    <br />
-                    {client.name}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Client Code:
-                    </span>
-                    <br />
-                    <Badge variant="outline">{client.clientCode}</Badge>
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Created At:
-                    </span>
-                    <br />
-                    {new Date(client.createdAt).toLocaleString()}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Created By:
-                    </span>
-                    <br />
-                    {client.createdBy?.email || "—"}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Updated At:
-                    </span>
-                    <br />
-                    {new Date(client.updatedAt).toLocaleString()}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Updated By:
-                    </span>
-                    <br />
-                    {client.updatedBy?.email || "—"}
-                  </div>
-                </div>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="text-sm text-muted-foreground"
+                >
+                  <AccordionItem value="client">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Client Info
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-6 pt-4">
+                      {/* Row 1: Name, Code, Status */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">
+                            Name:
+                          </span>
+                          <p className="text-black">{client.name}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">
+                            Code:
+                          </span>
+                          <Badge variant="outline" className="px-3 py-1">
+                            {client.clientCode}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">
+                            Status:
+                          </span>
+                          <Badge
+                            className={`px-3 py-1 ${
+                              client.isDeleted
+                                ? "bg-red-600 text-white"
+                                : "bg-green-600 text-white"
+                            }`}
+                          >
+                            {client.isDeleted ? "Deleted" : "Active"}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Row 2: CreatedBy & UpdatedBy */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                        <div>
+                          <span className="font-medium text-foreground">
+                            Created By:
+                          </span>
+                          <p className="mt-1 text-black">
+                            {client.createdBy?.email || "—"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(client.createdAt).toLocaleString()}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-foreground">
+                            Updated By:
+                          </span>
+                          <p className="mt-1 text-black">
+                            {client.updatedBy?.email || "—"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(client.updatedAt).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
+
+            {/* Stakeholders section */}
+            <Card>
+              <CardContent>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="text-sm text-muted-foreground"
+                >
+                  <AccordionItem value="stakeholders">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Stakeholders
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                      {client.stakeholders?.length > 0 ? (
+                        <div className="flex flex-wrap items-center gap-3">
+                          {client.stakeholders.map((s: any) => (
+                            <Badge
+                              key={s.id}
+                              variant="outline"
+                              className="px-3 py-1"
+                            >
+                              {s.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="italic text-muted-foreground">
+                          No stakeholders assigned
+                        </p>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </CardContent>
             </Card>
 
             {/* Projects Section */}
-            {client.projects.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Projects</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  {client.projects.map((project, index) => (
-                    <div key={index}>
-                      <span className="font-medium">Project {index + 1}:</span>{" "}
-                      {project.name || "Unnamed Project"}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Stakeholders Section */}
-            {client.stakeholders.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Stakeholders</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  {client.stakeholders.map((stakeholder, index) => (
-                    <div key={index}>
-                      <span className="font-medium">
-                        Stakeholder {index + 1}:
-                      </span>{" "}
-                      {stakeholder.name || "Unnamed Stakeholder"}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardContent>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="text-sm text-muted-foreground"
+                >
+                  <AccordionItem value="projects">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Projects
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      {client.projects.length === 0 ? (
+                        <div className="italic text-muted-foreground">
+                          No projects assigned to this client yet.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                          {client.projects.map((project, index) => (
+                            <div key={index} className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Project Name:
+                                </span>
+                                <p className="text-black">
+                                  {project.name || "Unnamed Project"}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Status:
+                                </span>
+                                <Badge variant="outline" className="px-3 py-1">
+                                  {project.status || "Unknown"}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Deadline:
+                                </span>
+                                <p className="text-black">
+                                  {project.deadline
+                                    ? new Date(
+                                        project.deadline
+                                      ).toLocaleDateString()
+                                    : "—"}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
 
             {/* Interviews Section */}
-            {client.interviews.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Interviews</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  {client.interviews.map((interview, index) => (
-                    <div key={index}>
-                      <span className="font-medium">
-                        Interview {index + 1}:
-                      </span>{" "}
-                      {interview.title || "Untitled Interview"}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardContent>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="text-sm text-muted-foreground"
+                >
+                  <AccordionItem value="interviews">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Interviews
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      {client.interviews.length === 0 ? (
+                        <div className="italic text-muted-foreground">
+                          No interviews linked to this client yet.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                          {client.interviews.map((interview, index) => (
+                            <div key={index} className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Interview Title:
+                                </span>
+                                <p className="text-black">
+                                  {interview.title || `Interview ${index + 1}`}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Date:
+                                </span>
+                                <p className="text-black">
+                                  {interview.date
+                                    ? new Date(
+                                        interview.date
+                                      ).toLocaleDateString()
+                                    : "—"}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
           </>
         ) : (
           <div className="text-center text-sm text-muted-foreground py-10">

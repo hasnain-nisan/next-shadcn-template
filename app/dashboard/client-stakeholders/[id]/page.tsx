@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import * as React from "react";
@@ -7,29 +6,39 @@ import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
-import { Client } from "@/types/client.types";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { ClientStakeholder } from "@/types/stakeholder.types";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
-export default function ClientDetailsPage({
+export default function ClientStakeholderDetailsPage({
   params,
 }: Readonly<{ params: Promise<{ id: string }> }>) {
   const { id } = React.use(params);
 
-  const [client, setClient] = useState<Client | null>(null);
+  const [clientStakeholder, setClientStakeholder] =
+    useState<ClientStakeholder | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchClient = async () => {
       try {
-        const clientService = ServiceFactory.getClientService();
-        const data = (await clientService.getClientById(id)) as unknown as {
-          data: Client;
+        const clientStakeholderService =
+          ServiceFactory.getClientStakeholderService();
+        const data = (await clientStakeholderService.getById(
+          id
+        )) as unknown as {
+          data: ClientStakeholder;
         };
-        setClient(data as unknown as Client);
+        setClientStakeholder(data as unknown as ClientStakeholder);
       } catch (err) {
-        setError("Failed to load client details.");
+        setError("Failed to load client stakeholder details.");
       } finally {
         setLoading(false);
       }
@@ -47,10 +56,10 @@ export default function ClientDetailsPage({
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <Link
-          href="/dashboard/clients"
+          href="/dashboard/client-stakeholders"
           className="hover:text-foreground font-medium"
         >
-          Clients
+          Client Stakeholders
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <span className="text-foreground font-semibold">Details</span>
@@ -59,10 +68,11 @@ export default function ClientDetailsPage({
       {/* Header */}
       <div className="px-4 lg:px-6 mb-5">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Client Details
+          Client Stakeholder Details
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          View client profile, creator info, and engagement metadata.
+          Explore stakeholder identity, associated client, and activity
+          insights.
         </p>
       </div>
 
@@ -72,122 +82,180 @@ export default function ClientDetailsPage({
           <div className="flex justify-center items-center py-10">
             <IconLoader2 className="animate-spin text-muted-foreground h-5 w-5" />
             <span className="ml-2 text-sm text-muted-foreground">
-              Loading client details...
+              Loading client stakeholder details...
             </span>
           </div>
         ) : error ? (
           <div className="text-center text-sm text-red-500 py-10">{error}</div>
-        ) : client ? (
+        ) : clientStakeholder ? (
           <>
             {/* Info Section */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Client Info</CardTitle>
-              </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm text-muted-foreground">
-                  <div>
-                    <span className="font-medium text-foreground">Name:</span>
-                    <br />
-                    {client.name}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Client Code:
-                    </span>
-                    <br />
-                    <Badge variant="outline">{client.clientCode}</Badge>
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Created At:
-                    </span>
-                    <br />
-                    {new Date(client.createdAt).toLocaleString()}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Created By:
-                    </span>
-                    <br />
-                    {client.createdBy?.email || "—"}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Updated At:
-                    </span>
-                    <br />
-                    {new Date(client.updatedAt).toLocaleString()}
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">
-                      Updated By:
-                    </span>
-                    <br />
-                    {client.updatedBy?.email || "—"}
-                  </div>
-                </div>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="text-sm text-muted-foreground"
+                >
+                  <AccordionItem value="stakeholder">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Stakeholder Details
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-6 pt-4">
+                      {/* Stakeholder Info Row */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-4">
+                        {/* Left Column */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">
+                              Name:
+                            </span>
+                            <p className="capitalize text-black">
+                              {clientStakeholder.name}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">
+                              Email:
+                            </span>
+                            <Badge variant="outline" className="px-3 py-1">
+                              {clientStakeholder.email}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {/* Right Column */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">
+                              Status:
+                            </span>
+                            <Badge
+                              className={`px-3 py-1 ${
+                                clientStakeholder.isDeleted
+                                  ? "bg-red-600 text-white"
+                                  : "bg-green-600 text-white"
+                              }`}
+                            >
+                              {clientStakeholder.isDeleted
+                                ? "Deleted"
+                                : "Active"}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">
+                              Phone:
+                            </span>
+                            <Badge variant="outline" className="px-3 py-1">
+                              {clientStakeholder.phone}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Client Info Row */}
+                      <div className="flex flex-wrap items-center gap-4">
+                        <span className="font-medium text-foreground">
+                          Client Name:
+                        </span>
+                        <Badge variant="outline" className="px-3 py-1">
+                          {clientStakeholder.client.name}
+                        </Badge>
+                      </div>
+
+                      {/* Audit Info Row */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                        <div>
+                          <span className="font-medium text-foreground">
+                            Created By:
+                          </span>
+                          <p className="mt-1 text-black">
+                            {clientStakeholder.createdBy?.email || "—"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(
+                              clientStakeholder.createdAt
+                            ).toLocaleString()}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-foreground">
+                            Updated By:
+                          </span>
+                          <p className="mt-1 text-black">
+                            {clientStakeholder.updatedBy?.email || "—"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(
+                              clientStakeholder.updatedAt
+                            ).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </CardContent>
             </Card>
 
             {/* Projects Section */}
-            {client.projects.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Projects</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  {client.projects.map((project, index) => (
-                    <div key={index}>
-                      <span className="font-medium">Project {index + 1}:</span>{" "}
-                      {project.name || "Unnamed Project"}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Stakeholders Section */}
-            {client.stakeholders.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Stakeholders</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  {client.stakeholders.map((stakeholder, index) => (
-                    <div key={index}>
-                      <span className="font-medium">
-                        Stakeholder {index + 1}:
-                      </span>{" "}
-                      {stakeholder.name || "Unnamed Stakeholder"}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Interviews Section */}
-            {client.interviews.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Interviews</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  {client.interviews.map((interview, index) => (
-                    <div key={index}>
-                      <span className="font-medium">
-                        Interview {index + 1}:
-                      </span>{" "}
-                      {interview.title || "Untitled Interview"}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
+            <Card>
+              <CardContent>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="text-sm text-muted-foreground"
+                >
+                  <AccordionItem value="projects">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Projects
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      {clientStakeholder.projects.length === 0 ? (
+                        <div className="text-muted-foreground italic">
+                          No projects assigned to this stakeholder yet.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                          {clientStakeholder.projects.map((project, index) => (
+                            <div key={index} className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Project Name:
+                                </span>
+                                <p className="text-black">{project.name}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Status:
+                                </span>
+                                <Badge variant="outline" className="px-3 py-1">
+                                  {project.status}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Deadline:
+                                </span>
+                                <p className="text-black">
+                                  {new Date(
+                                    project.deadline
+                                  ).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
           </>
         ) : (
           <div className="text-center text-sm text-muted-foreground py-10">
-            No client data found.
+            No client stakeholder data found.
           </div>
         )}
       </div>

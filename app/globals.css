@@ -128,3 +128,7 @@
 [data-slot="select-scroll-down-button"] {
   display: none !important;
 }
+
+[data-slot="accordion-trigger"] {
+  padding: 0px !important;
+}

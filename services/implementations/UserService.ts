@@ -52,8 +52,6 @@ export class UserService implements IUserService {
     try {
       return await this.userRepository.updateUser(id, user);
     } catch (error) {
-      console.log("error in user service", error);
-      
       throw this.handleError(error);
     }
   }

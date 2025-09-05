@@ -51,7 +51,6 @@ export class ClientStakeholderService implements IClientStakeholderService {
     try {
       return await this.clientStakeholderRepository.update(id, data);
     } catch (error) {
-      console.log("error in user service", error);
       throw this.handleError(error);
     }
   }
