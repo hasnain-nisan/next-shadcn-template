@@ -1,0 +1,25 @@
+import { Project } from "@/types/project.types";
+
+export interface IProjectRepository {
+  getAll(params?: {
+    page?: number;
+    limit?: number;
+    sortField?: string;
+    sortOrder?: "asc" | "desc";
+    name?: string;
+    clientId?: string;
+    clientTeam?: string;
+    stakeholderId?: string;
+    deletedStatus?: string;
+  }): Promise<{
+    items: Project[];
+    total: number;
+    currentPage: number;
+    totalPages: number;
+  }>;
+
+  create(data: Partial<Project>): Promise<Project>;
+  update(id: string, data: Partial<Project>): Promise<Project>;
+  delete(id: string): Promise<void>;
+  getById(id: string): Promise<Project>;
+}

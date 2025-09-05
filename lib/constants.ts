@@ -34,6 +34,14 @@ export const API_ENDPOINTS: ApiEndpoints = {
     getById: (id: string) => `/stakeholder/${id}`,
     // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
   },
+  projects: {
+    getAll: "/project",
+    create: "/project",
+    update: (id: string) => `/project/${id}`,
+    delete: (id: string) => `/project/${id}`,
+    getById: (id: string) => `/project/${id}`,
+    // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
+  },
 };
 
 export const ROUTES = {

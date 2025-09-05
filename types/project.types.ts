@@ -1,0 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Client } from "./client.types";
+import { ClientStakeholder } from "./stakeholder.types";
+import { UserRef } from "./user.types";
+
+export interface Project {
+  id: string;
+  name: string;
+  clientTeam: string | null;
+  client: Client;
+  stakeholders: ClientStakeholder[];
+  createdBy: UserRef;
+  updatedBy: UserRef;
+  interviews: any[];
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
