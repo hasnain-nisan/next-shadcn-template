@@ -159,12 +159,12 @@ export function ClientManagementTable({
               onValueChange={(value) => setDeletedStatus(value)}
             >
               <SelectTrigger id="deleted" className="w-full h-[36px] text-sm">
-                <SelectValue placeholder="All Users" />
+                <SelectValue placeholder="All Clients" />
               </SelectTrigger>
               <SelectContent className="w-full">
-                <SelectItem value="all">All Users</SelectItem>
-                <SelectItem value="true">Deleted Users</SelectItem>
-                <SelectItem value="false">Not Deleted Users</SelectItem>
+                <SelectItem value="all">All Clients</SelectItem>
+                <SelectItem value="true">Deleted Clients</SelectItem>
+                <SelectItem value="false">Not Deleted Clients</SelectItem>
               </SelectContent>
             </Select>
           </div>

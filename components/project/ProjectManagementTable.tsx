@@ -225,19 +225,19 @@ export function ProjectManagementTable({
               htmlFor="deleted"
               className="text-sm text-muted-foreground mb-1"
             >
-              User Status
+              Project Status
             </label>
             <Select
               value={deletedStatus === "" ? "all" : deletedStatus}
               onValueChange={(value) => setDeletedStatus(value)}
             >
               <SelectTrigger id="deleted" className="w-full h-[36px] text-sm">
-                <SelectValue placeholder="All Users" />
+                <SelectValue placeholder="All Projects" />
               </SelectTrigger>
               <SelectContent className="w-full">
-                <SelectItem value="all">All Users</SelectItem>
-                <SelectItem value="true">Deleted Users</SelectItem>
-                <SelectItem value="false">Not Deleted Users</SelectItem>
+                <SelectItem value="all">All Projects</SelectItem>
+                <SelectItem value="true">Deleted Projects</SelectItem>
+                <SelectItem value="false">Not Deleted Projects</SelectItem>
               </SelectContent>
             </Select>
           </div>
