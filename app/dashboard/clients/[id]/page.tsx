@@ -175,7 +175,7 @@ export default function ClientDetailsPage({
                     <AccordionContent className="pt-4">
                       {client.stakeholders?.length > 0 ? (
                         <div className="flex flex-wrap items-center gap-3">
-                          {client.stakeholders.map((s: any) => (
+                          {client.stakeholders.map((s) => (
                             <Badge
                               key={s.id}
                               variant="outline"
