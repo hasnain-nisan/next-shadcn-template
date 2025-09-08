@@ -12,6 +12,7 @@ import { Client } from "@/types/client.types";
 import { Project } from "@/types/project.types";
 import { Interview } from "@/types/interview.types";
 import { InterviewManagementTable } from "@/components/interview/InterviewManagementTable";
+import { CreateInterviewModal } from "@/components/interview/CreateInterviewModal";
 
 export default function InterviewsPage() {
   const [refetch, setRefetch] = useState(false);
@@ -277,12 +278,12 @@ export default function InterviewsPage() {
       </div>
 
       {/* create client modal */}
-      {/* <CreateProjectModal
+      <CreateInterviewModal
         open={openCreateModal}
         setOpen={setOpenCreateModal}
         setRefetch={setRefetch}
         clients={clients}
-      /> */}
+      />
 
       {/* user info modal */}
       {/* <UserDetailsModal

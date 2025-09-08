@@ -7,7 +7,7 @@ export default function Home() {
       {/* Sticky Navbar */}
       <header className="sticky top-0 z-50 w-full bg-background border-b border-border px-6 py-4 flex items-center justify-between">
         <BrandLogo
-          label="Acme Inc."
+          label="Transparent Partner"
           iconSize={20}
           containerSize={32}
           className="text-foreground"
@@ -31,7 +31,7 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col items-center justify-center gap-10 px-6 py-16 text-center">
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome to Acme Inc.
+          Welcome to Transparent Partner
         </h1>
         <p className="text-muted-foreground max-w-md text-sm">
           Build scalable apps with modern UI and backend architecture. Start by

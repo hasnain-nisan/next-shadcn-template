@@ -39,7 +39,7 @@ export function LoginForm({
       password: data.password,
       redirect: false,
     });
-    
+
     if (result?.error) {
       toast.error(result.error);
     } else {
@@ -56,7 +56,7 @@ export function LoginForm({
             <div className="flex flex-col gap-6">
               <div className="flex justify-center">
                 <BrandLogo
-                  label="Acme Inc."
+                  label="Transparent Partner"
                   iconSize={20}
                   containerSize={32}
                   className="text-foreground"
@@ -66,7 +66,7 @@ export function LoginForm({
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
                 <p className="text-muted-foreground text-balance">
-                  Login to your Acme Inc account
+                  Login to your Transparent Partner account
                 </p>
               </div>
 

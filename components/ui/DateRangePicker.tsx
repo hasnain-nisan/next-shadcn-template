@@ -43,8 +43,11 @@ export function DateRangePicker({
 
   const handleSelect = (range: DateRange | undefined) => {
     console.log(range?.from, range?.to);
-    console.log(normalizeToMidnightUTC(range?.from), normalizeToMidnightUTC(range?.to));
-    
+    console.log(
+      normalizeToMidnightUTC(range?.from),
+      normalizeToMidnightUTC(range?.to)
+    );
+
     setStartDate(normalizeToMidnightUTC(range?.from));
     setEndDate(normalizeToMidnightUTC(range?.to));
   };
@@ -79,6 +82,16 @@ export function DateRangePicker({
           onSelect={handleSelect}
           numberOfMonths={2}
         />
+        <Button
+          variant="ghost"
+          className="w-full text-sm text-muted-foreground"
+          onClick={() => {
+            setStartDate(null);
+            setEndDate(null);
+          }}
+        >
+          Reset Date Range
+        </Button>
       </PopoverContent>
     </Popover>
   );

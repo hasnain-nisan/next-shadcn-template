@@ -76,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5 hover:bg-transparent"
             >
               <BrandLogo
-                label="Acme Inc."
+                label="Transparent Partner"
                 iconSize={20}
                 containerSize={32}
                 className="text-foreground flex justify-center mb-5"
@@ -96,11 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }
         />
       </SidebarContent>
-      <SidebarFooter>
-        {
-          session && <NavUser user={user} />
-        }
-      </SidebarFooter>
+      <SidebarFooter>{session && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>
   );
 }

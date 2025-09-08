@@ -23,8 +23,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { MultiSelect } from "@/components/ui/multi-select";
-import type { ClientStakeholder } from "@/types/stakeholder.types";
 
 type Props = {
   open: boolean;
@@ -33,14 +31,18 @@ type Props = {
   clients: { id: string; name: string }[];
 };
 
-type CreateProjectFormValues = {
+type CreateInterviewFormValues = {
   name: string;
-  clientTeam?: string;
+  date: string;
+  gDriveId?: string;
+  requestDistillation?: string;
+  requestCoaching?: string;
+  requestUserStories?: string;
   clientId: string;
-  stakeholderIds: string[];
+  projectId: string;
 };
 
-export function CreateProjectModal({
+export function CreateInterviewModal({
   open,
   setOpen,
   setRefetch,
@@ -54,64 +56,60 @@ export function CreateProjectModal({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<CreateProjectFormValues>({
+  } = useForm<CreateInterviewFormValues>({
     defaultValues: {
       name: "",
-      clientTeam: "",
+      date: "",
+      gDriveId: "",
+      requestDistillation: "",
+      requestCoaching: "",
+      requestUserStories: "",
       clientId: "",
-      stakeholderIds: [],
+      projectId: "",
     },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [clientId, setClientId] = useState("all");
-  const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
+  const clientId = watch("clientId");
 
-  // Fetch stakeholders when clientId changes
   useEffect(() => {
-    const fetchStakeholders = async () => {
+    const fetchProjects = async () => {
       try {
-        const clientStakeholderService =
-          ServiceFactory.getClientStakeholderService();
-        const result = await clientStakeholderService.getAll({
+        const projectService = ServiceFactory.getProjectService();
+        const result = await projectService.getAll({
           page: 1,
           limit: Number.MAX_SAFE_INTEGER,
           clientId: clientId !== "all" ? clientId : undefined,
           deletedStatus: "false",
         });
-        setStakeholders(result.items);
+        setProjects(result.items);
       } catch (error) {
-        console.error("Failed to fetch stakeholders:", error);
+        console.error("Failed to fetch projects:", error);
       }
     };
 
     if (clientId && clientId !== "") {
-      fetchStakeholders();
+      fetchProjects();
     } else {
-      setStakeholders([]);
+      setProjects([]);
+      setValue("projectId", "");
     }
-  }, [clientId]);
+  }, [clientId, setValue]);
 
-  // Reset form and state when modal closes
   useEffect(() => {
     if (!open) {
-      reset({
-        name: "",
-        clientTeam: "",
-        clientId: "",
-        stakeholderIds: [],
-      });
-      setClientId("all");
-      setStakeholders([]);
+      reset();
+      setProjects([]);
     }
   }, [open, reset]);
 
-  const onSubmit = async (data: CreateProjectFormValues) => {
+  const onSubmit = async (data: CreateInterviewFormValues) => {
     try {
       setIsSubmitting(true);
-      const projectService = ServiceFactory.getProjectService();
-      await projectService.create(data);
-      toast.success("Project created successfully");
+      const interviewService = ServiceFactory.getInterviewService();
+      await interviewService.create(data);
+      toast.success("Interview created successfully");
       setOpen(false);
       setRefetch(true);
     } catch (error) {
@@ -127,20 +125,20 @@ export function CreateProjectModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="mb-5">
-          <DialogTitle>Create Project</DialogTitle>
+          <DialogTitle>Create Interview</DialogTitle>
           <DialogDescription>
-            Provide project details and assign stakeholders.
+            Provide interview details and link to client/project.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Project Name */}
+          {/* Interview Name */}
           <div>
-            <Label className="mb-2">Project Name</Label>
+            <Label className="mb-2">Interview Name</Label>
             <Input
               type="text"
               {...register("name", {
-                required: "Project name must not be empty",
+                required: "Interview name must not be empty",
                 validate: (v) => v.trim() !== "" || "Name cannot be empty",
               })}
             />
@@ -149,23 +147,17 @@ export function CreateProjectModal({
             )}
           </div>
 
-          {/* Client Team (optional) */}
+          {/* Interview Date */}
           <div>
-            <Label className="mb-2">Client Team</Label>
+            <Label className="mb-2">Interview Date</Label>
             <Input
-              type="text"
-              {...register("clientTeam", {
-                validate: (v) =>
-                  v === undefined ||
-                  v.trim() === "" ||
-                  v.trim().length > 0 ||
-                  "Client team must not be empty",
+              type="date"
+              {...register("date", {
+                required: "Date is required",
               })}
             />
-            {errors.clientTeam && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.clientTeam.message}
-              </p>
+            {errors.date && (
+              <p className="text-xs text-red-500 mt-1">{errors.date.message}</p>
             )}
           </div>
 
@@ -186,8 +178,6 @@ export function CreateProjectModal({
                   value={field.value}
                   onValueChange={(value) => {
                     field.onChange(value);
-                    setClientId(value);
-                    setValue("stakeholderIds", []); // Reset stakeholders when client changes
                   }}
                 >
                   <SelectTrigger className="w-full h-[36px] text-sm">
@@ -210,47 +200,63 @@ export function CreateProjectModal({
             )}
           </div>
 
-          {/* Stakeholder Multi-Select */}
+          {/* Project Dropdown (enabled only if client is selected) */}
           <div>
-            <Label className="mb-2">Stakeholders</Label>
+            <Label className="mb-2">Project</Label>
             <Controller
-              name="stakeholderIds"
+              name="projectId"
               control={control}
               rules={{
-                required: "At least one stakeholder must be assigned",
+                required: "Project is required",
                 validate: (v) =>
-                  (Array.isArray(v) && v.length > 0) ||
-                  "At least one stakeholder must be assigned",
+                  (typeof v === "string" && v.trim() !== "") ||
+                  "Project is required",
               }}
-              render={({ field }) => {
-                const clientSelected = !!watch("clientId");
-
-                return (
-                  <>
-                    <MultiSelect
-                      options={stakeholders.map((s) => ({
-                        label: s.name,
-                        value: s.id,
-                      }))}
-                      selected={field.value}
-                      onChange={field.onChange}
-                      placeholder="Select stakeholders..."
-                      disabled={!clientSelected}
-                    />
-                    {!clientSelected && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Select a client first to enable stakeholder selection.
-                      </p>
-                    )}
-                  </>
-                );
-              }}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={!clientId}
+                >
+                  <SelectTrigger className="w-full h-[36px] text-sm">
+                    <SelectValue placeholder="Select a project..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px] overflow-y-auto w-full">
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             />
-            {errors.stakeholderIds && (
+            {errors.projectId && (
               <p className="text-xs text-red-500 mt-1">
-                {errors.stakeholderIds.message}
+                {errors.projectId.message}
               </p>
             )}
+          </div>
+
+          {/* Optional Fields */}
+          <div>
+            <Label className="mb-2">Google Drive ID</Label>
+            <Input type="text" {...register("gDriveId")} />
+          </div>
+
+          <div>
+            <Label className="mb-2">Request Distillation</Label>
+            <Input type="url" {...register("requestDistillation")} />
+          </div>
+
+          <div>
+            <Label className="mb-2">Request Coaching</Label>
+            <Input type="url" {...register("requestCoaching")} />
+          </div>
+
+          <div>
+            <Label className="mb-2">Request User Stories</Label>
+            <Input type="url" {...register("requestUserStories")} />
           </div>
 
           {/* Actions */}

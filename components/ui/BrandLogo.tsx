@@ -12,7 +12,7 @@ interface BrandLogoProps {
 
 export function BrandLogo({
   href = "/",
-  label = "Acme Inc.",
+  label = "Transparent Partners",
   iconSize = 16,
   containerSize = 24,
   className,
