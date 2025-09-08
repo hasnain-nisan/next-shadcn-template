@@ -1,4 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Interview } from "./interview.types";
+import { Project } from "./project.types";
+import { ClientStakeholder } from "./stakeholder.types";
 import { UserRef } from "./user.types";
 
 export interface Client {
@@ -7,9 +9,9 @@ export interface Client {
   clientCode: string;
   createdBy: UserRef;
   updatedBy: UserRef | null;
-  stakeholders: any[]; // Replace `any` with `Stakeholder` type if available
-  projects: any[]; // Replace `any` with `Project` type if available
-  interviews: any[]; // Replace `any` with `Interview` type if available
+  stakeholders: ClientStakeholder[];
+  projects: Project[];
+  interviews: Interview[];
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;

@@ -1,0 +1,50 @@
+import { Interview } from "@/types/interview.types";
+
+export interface IInterviewService {
+  getAll(params?: {
+    page?: number;
+    limit?: number;
+    sortField?: string | null;
+    sortOrder?: "asc" | "desc" | null;
+    name?: string;
+    clientId?: string;
+    projectId?: string;
+    deletedStatus?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<{
+    items: Interview[];
+    total: number;
+    currentPage: number;
+    totalPages: number;
+  }>;
+
+  create(data: {
+    name: string;
+    date: string;
+    gDriveId?: string;
+    requestDistillation?: string;
+    requestCoaching?: string;
+    requestUserStories?: string;
+    clientId: string;
+    projectId: string;
+  }): Promise<Interview>;
+
+  update(
+    id: string,
+    data: {
+      name?: string;
+      date?: string;
+      gDriveId?: string;
+      requestDistillation?: string;
+      requestCoaching?: string;
+      requestUserStories?: string;
+      clientId?: string;
+      projectId?: string;
+    }
+  ): Promise<Interview>;
+
+  delete(id: string): Promise<void>;
+
+  getById(id: string): Promise<Interview>;
+}

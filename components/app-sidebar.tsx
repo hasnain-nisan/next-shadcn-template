@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     access.canManageInterviews && {
       title: "Discovery Interview",
-      url: "/dashboard/discovery-interview",
+      url: "/dashboard/discovery-interviews",
       icon: IconMessages,
     },
   ].filter(Boolean);

@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client } from './client.types';
+import { Project } from './project.types';
 import { UserRef } from './user.types';
 
 export interface ClientStakeholder {
@@ -10,7 +10,7 @@ export interface ClientStakeholder {
   client: Client;
   createdBy: UserRef;
   updatedBy: UserRef | null;
-  projects: any[];
+  projects: Project[];
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;

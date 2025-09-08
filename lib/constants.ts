@@ -42,6 +42,14 @@ export const API_ENDPOINTS: ApiEndpoints = {
     getById: (id: string) => `/project/${id}`,
     // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
   },
+  interviews: {
+    getAll: "/interview",
+    create: "/interview",
+    update: (id: string) => `/interview/${id}`,
+    delete: (id: string) => `/interview/${id}`,
+    getById: (id: string) => `/interview/${id}`,
+    // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
+  },
 };
 
 export const ROUTES = {

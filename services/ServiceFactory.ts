@@ -8,6 +8,8 @@ import { IClientStakeholderService } from "./interfaces/IClientStakeholderServic
 import { ClientStakeholderService } from "./implementations/ClientStakeholderService";
 import { IProjectService } from "./interfaces/IProjectService";
 import { ProjectService } from "./implementations/ProjectService";
+import { IInterviewService } from "./interfaces/IInterviewService";
+import { InterviewService } from "./implementations/InterviewService";
 
 export class ServiceFactory {
   private static readonly instances = new Map<string, unknown>();
@@ -40,5 +42,9 @@ export class ServiceFactory {
 
   static getProjectService(): IProjectService {
     return this.getService("projectService", () => new ProjectService());
+  }
+
+  static getInterviewService(): IInterviewService {
+    return this.getService("interviewService", () => new InterviewService());
   }
 }

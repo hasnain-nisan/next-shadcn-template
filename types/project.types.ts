@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client } from "./client.types";
+import { Interview } from "./interview.types";
 import { ClientStakeholder } from "./stakeholder.types";
 import { UserRef } from "./user.types";
 
@@ -11,7 +11,7 @@ export interface Project {
   stakeholders: ClientStakeholder[];
   createdBy: UserRef;
   updatedBy: UserRef;
-  interviews: any[];
+  interviews: Interview[];
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;
