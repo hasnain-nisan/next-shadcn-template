@@ -5,17 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { IconLoader2, IconPlus } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Client } from "@/types/client.types";
 import { ClientStakeholder } from "@/types/stakeholder.types";
 import { Project } from "@/types/project.types";
 import { ProjectManagementTable } from "@/components/project/ProjectManagementTable";
+import { CreateProjectModal } from "@/components/project/CreateProjectModal";
+import { UpdateProjectModal } from "@/components/project/UpdateProjectModal";
+import { DeleteProjectModal } from "@/components/project/DeleteProjectModal";
 
 export default function ProjectsPage() {
   const [refetch, setRefetch] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+  const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
@@ -33,8 +37,10 @@ export default function ProjectsPage() {
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedProject, setSelectedProject] =
-    useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const [searchTermClient, setSearchTermClient] = useState("");
+  const [searchTermStakeholder, setSearchTermStakeholder] = useState("");
 
   const debouncedName = useDebouncedValue(name, 500);
   const debouncedClientTeam = useDebouncedValue(clientTeam, 500);
@@ -92,6 +98,41 @@ export default function ProjectsPage() {
       setLoading(false);
     }
   };
+
+  const fetchStakeholders = async () => {
+    try {
+      const clientStakeholderService =
+        ServiceFactory.getClientStakeholderService();
+      const result = await clientStakeholderService.getAll({
+        page: 1,
+        limit: Number.MAX_SAFE_INTEGER,
+        sortField: undefined,
+        sortOrder: undefined,
+        name: undefined,
+        clientId: clientId !== "all" ? clientId : undefined,
+        deletedStatus: "false",
+      });
+      setStakeholders(result.items);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStakeholders();
+  }, [clientId]);
+
+  const filteredStakeholders = useMemo(() => {
+    return stakeholders.filter((stakeholder) =>
+      stakeholder.name.toLowerCase().includes(searchTermStakeholder.toLowerCase())
+    );
+  }, [searchTermStakeholder, stakeholders]);
+
+  const filteredClients = useMemo(() => {
+    return clients.filter((client) =>
+      client.name.toLowerCase().includes(searchTermClient.toLowerCase())
+    );
+  }, [searchTermClient, clients]);
 
   useEffect(() => {
     fetchClients();
@@ -222,18 +263,23 @@ export default function ProjectsPage() {
             setSelectedProject={setSelectedProject}
             setOpenUpdateModal={setOpenUpdateModal}
             setOpenDeleteModal={setOpenDeleteModal}
-            clients={clients}
+            filteredClients={filteredClients}
+            searchTermClient={searchTermClient}
+            setSearchTermClient={setSearchTermClient}
+            filteredStakeholders={filteredStakeholders}
+            searchTermStakeholder={searchTermStakeholder}
+            setSearchTermStakeholder={setSearchTermStakeholder}
           />
         )}
       </div>
 
       {/* create client modal */}
-      {/* <CreateClientStakeholderModal
+      <CreateProjectModal
         open={openCreateModal}
         setOpen={setOpenCreateModal}
         setRefetch={setRefetch}
         clients={clients}
-      /> */}
+      />
 
       {/* user info modal */}
       {/* <UserDetailsModal
@@ -243,21 +289,21 @@ export default function ProjectsPage() {
       /> */}
 
       {/* update user modal */}
-      {/* <UpdateClientStakeholderModal
+      <UpdateProjectModal
         open={openUpdateModal}
         setOpen={setOpenUpdateModal}
         setRefetch={setRefetch}
-        stakeholder={selectedStakeholder}
+        project={selectedProject}
         clients={clients}
-      /> */}
+      />
 
       {/* delete user modal */}
-      {/* <DeleteClientStakeholderModal
+      <DeleteProjectModal
         open={openDeleteModal}
         setOpen={setOpenDeleteModal}
         setRefetch={setRefetch}
-        stakeholder={selectedStakeholder}
-      /> */}
+        project={selectedProject}
+      />
     </>
   );
 }

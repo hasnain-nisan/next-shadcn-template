@@ -38,6 +38,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Project } from "@/types/project.types";
+import { ServiceFactory } from "@/services/ServiceFactory";
 
 export function ProjectManagementTable({
   projects,
@@ -61,7 +62,12 @@ export function ProjectManagementTable({
   setSelectedProject,
   setOpenUpdateModal,
   setOpenDeleteModal,
-  clients,
+  filteredClients,
+  searchTermClient,
+  setSearchTermClient,
+  filteredStakeholders,
+  searchTermStakeholder,
+  setSearchTermStakeholder,
 }: Readonly<{
   projects: Project[];
   pageIndex: number;
@@ -84,19 +90,17 @@ export function ProjectManagementTable({
   setSelectedProject: React.Dispatch<React.SetStateAction<Project | null>>;
   setOpenUpdateModal: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
-  clients: Client[];
+  filteredClients: Client[];
+  searchTermClient: string;
+  setSearchTermClient: React.Dispatch<React.SetStateAction<string>>;
+  filteredStakeholders: ClientStakeholder[];
+  searchTermStakeholder: string;
+  setSearchTermStakeholder: React.Dispatch<React.SetStateAction<string>>;
 }>) {
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [searchTerm, setSearchTerm] = React.useState("");
-
-  const filteredClients = React.useMemo(() => {
-    return clients.filter((client) =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, clients]);
 
   const columns = GetTableColumns({
     setSelectedProject,
@@ -197,8 +201,8 @@ export function ProjectManagementTable({
                 <div className="px-2 py-2 sticky top-[-5px] bg-background z-10">
                   <Input
                     placeholder="Search clients..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchTermClient}
+                    onChange={(e) => setSearchTermClient(e.target.value)}
                     className="text-sm"
                   />
                 </div>
@@ -213,6 +217,50 @@ export function ProjectManagementTable({
                 ) : (
                   <div className="px-3 py-2 text-sm text-muted-foreground">
                     No clients found
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Stakeholder Filter Dropdown */}
+          <div className="flex flex-col lg:flex-1">
+            <label
+              htmlFor="stakeholderId"
+              className="text-sm text-muted-foreground mb-1"
+            >
+              Stakeholders
+            </label>
+            <Select
+              value={stakeholderId}
+              onValueChange={(value) => setStakeholderId(value)}
+            >
+              <SelectTrigger id="stakeholderId" className="w-full text-sm h-[36px]">
+                <SelectValue placeholder="Select a stakeholder..." />
+              </SelectTrigger>
+              <SelectContent
+                className="max-h-[300px] overflow-y-auto w-full"
+                style={{ width: "var(--radix-select-trigger-width)" }}
+              >
+                <div className="px-2 py-2 sticky top-[-5px] bg-background z-10">
+                  <Input
+                    placeholder="Search stakeholders..."
+                    value={searchTermStakeholder}
+                    onChange={(e) => setSearchTermStakeholder(e.target.value)}
+                    className="text-sm"
+                  />
+                </div>
+                {/* All Stakeholder Option */}
+                <SelectItem value="all">All Stakeholders</SelectItem>
+                {filteredStakeholders.length > 0 ? (
+                  filteredStakeholders.map((stakeholder) => (
+                    <SelectItem key={stakeholder.id} value={stakeholder.id}>
+                      {stakeholder.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">
+                    No stakeholder found
                   </div>
                 )}
               </SelectContent>

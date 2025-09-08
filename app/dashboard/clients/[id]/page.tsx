@@ -33,6 +33,7 @@ export default function ClientDetailsPage({
           data: Client;
         };
         setClient(data as unknown as Client);
+        console.log(data);
       } catch (err) {
         setError("Failed to load client details.");
       } finally {
@@ -229,21 +230,16 @@ export default function ClientDetailsPage({
                                 <span className="font-medium text-foreground">
                                   Status:
                                 </span>
-                                <Badge variant="outline" className="px-3 py-1">
-                                  {project.status || "Unknown"}
+                                <Badge
+                                  variant="outline"
+                                  className={`px-3 py-1 ${
+                                    project.isDeleted
+                                      ? "border-red-500 text-red-600"
+                                      : "border-green-500 text-green-600"
+                                  }`}
+                                >
+                                  {project.isDeleted ? "Deleted" : "Active"}
                                 </Badge>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Deadline:
-                                </span>
-                                <p className="text-black">
-                                  {project.deadline
-                                    ? new Date(
-                                        project.deadline
-                                      ).toLocaleDateString()
-                                    : "—"}
-                                </p>
                               </div>
                             </div>
                           ))}

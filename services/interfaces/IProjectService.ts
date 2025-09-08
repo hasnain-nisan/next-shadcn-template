@@ -18,10 +18,20 @@ export interface IProjectService {
     totalPages: number;
   }>;
 
-  create(data: Partial<Project>): Promise<Project>;
+  create(data: {
+    name?: string;
+    clientTeam?: string;
+    clientId?: string;
+    stakeholderIds?: string[];
+  }): Promise<Project>;
   update(
     id: string,
-    data: Partial<Project>
+    data: {
+      name?: string;
+      clientTeam?: string;
+      clientId?: string;
+      stakeholderIds?: string[];
+    }
   ): Promise<Project>;
   delete(id: string): Promise<void>;
   getById(id: string): Promise<Project>;

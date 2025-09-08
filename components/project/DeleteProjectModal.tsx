@@ -13,21 +13,21 @@ import { Badge } from "@/components/ui/badge";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { ServiceFactory } from "@/services/ServiceFactory";
-import { ClientStakeholder } from "@/types/stakeholder.types";
+import { Project } from "@/types/project.types";
 import { toast } from "sonner";
 
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefetch: (state: boolean) => void;
-  stakeholder: ClientStakeholder | null;
+  project: Project | null;
 };
 
-export function DeleteClientStakeholderModal({
+export function DeleteProjectModal({
   open,
   setOpen,
   setRefetch,
-  stakeholder,
+  project,
 }: Readonly<Props>) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,12 +36,12 @@ export function DeleteClientStakeholderModal({
   };
 
   const handleDelete = async () => {
-    if (!stakeholder) return;
+    if (!project) return;
     try {
       setIsSubmitting(true);
-      const stakeholderService = ServiceFactory.getClientStakeholderService();
-      await stakeholderService.delete(stakeholder.id);
-      toast.success("Stakeholder deleted successfully");
+      const projectService = ServiceFactory.getProjectService();
+      await projectService.delete(project.id);
+      toast.success("Project deleted successfully");
       setOpen(false);
       setRefetch(true);
     } catch (error) {
@@ -53,7 +53,7 @@ export function DeleteClientStakeholderModal({
     }
   };
 
-  if (!stakeholder) return null;
+  if (!project) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -63,32 +63,30 @@ export function DeleteClientStakeholderModal({
             Confirm Deletion
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Are you sure you want to delete this stakeholder? This action cannot
-            be undone.
+            Are you sure you want to delete this project? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 text-sm">
           <p>
-            <span className="font-medium text-muted-foreground">Name:</span>{" "}
-            {stakeholder.name}
+            <span className="font-medium text-muted-foreground">
+              Project Name:
+            </span>{" "}
+            {project.name}
           </p>
-          {stakeholder.email && (
-            <p>
-              <span className="font-medium text-muted-foreground">Email:</span>{" "}
-              <Badge className="text-xs">{stakeholder.email}</Badge>
-            </p>
-          )}
-          {stakeholder.phone && (
-            <p>
-              <span className="font-medium text-muted-foreground">Phone:</span>{" "}
-              <Badge className="text-xs">{stakeholder.phone}</Badge>
-            </p>
-          )}
-          {stakeholder.client && (
+          {project.client && (
             <p>
               <span className="font-medium text-muted-foreground">Client:</span>{" "}
-              <Badge className="text-xs">{stakeholder.client.name}</Badge>
+              <Badge className="text-xs">{project.client.name}</Badge>
+            </p>
+          )}
+          {project.clientTeam && (
+            <p>
+              <span className="font-medium text-muted-foreground">
+                Client Team:
+              </span>{" "}
+              <Badge className="text-xs">{project.clientTeam}</Badge>
             </p>
           )}
         </div>
