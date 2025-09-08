@@ -277,7 +277,7 @@ export default function ClientDetailsPage({
                                   Interview Title:
                                 </span>
                                 <p className="text-black">
-                                  {interview.title || `Interview ${index + 1}`}
+                                  {interview.name || `Interview ${index + 1}`}
                                 </p>
                               </div>
                               <div className="flex items-center gap-2">
