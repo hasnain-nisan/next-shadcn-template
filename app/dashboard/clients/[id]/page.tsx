@@ -171,7 +171,7 @@ export default function ClientDetailsPage({
                 >
                   <AccordionItem value="stakeholders">
                     <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Stakeholders
+                      Stakeholders ({client.stakeholders?.length || 0})
                     </AccordionTrigger>
                     <AccordionContent className="pt-4">
                       {client.stakeholders?.length > 0 ? (
@@ -207,7 +207,7 @@ export default function ClientDetailsPage({
                 >
                   <AccordionItem value="projects">
                     <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Projects
+                      Projects ({client.projects?.length || 0})
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-4">
                       {client.projects.length === 0 ? (
@@ -217,7 +217,7 @@ export default function ClientDetailsPage({
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                           {client.projects.map((project, index) => (
-                            <div key={index} className="space-y-2">
+                            <div key={index} className="space-y-2 border p-4 rounded-md">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
                                   Project Name:
