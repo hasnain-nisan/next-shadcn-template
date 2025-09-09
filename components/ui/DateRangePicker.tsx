@@ -80,7 +80,7 @@ export function DateRangePicker({
           mode="range"
           selected={selected}
           onSelect={handleSelect}
-          numberOfMonths={2}
+          numberOfMonths={typeof window !== "undefined" && window.innerWidth < 640 ? 1 : 2}
         />
         <Button
           variant="ghost"

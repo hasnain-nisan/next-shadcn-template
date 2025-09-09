@@ -13,6 +13,8 @@ import { Project } from "@/types/project.types";
 import { Interview } from "@/types/interview.types";
 import { InterviewManagementTable } from "@/components/interview/InterviewManagementTable";
 import { CreateInterviewModal } from "@/components/interview/CreateInterviewModal";
+import { UpdateInterviewModal } from "@/components/interview/UpdateInterviewModal";
+import { DeleteInterviewModal } from "@/components/interview/DeleteInterviewModal";
 
 export default function InterviewsPage() {
   const [refetch, setRefetch] = useState(false);
@@ -292,22 +294,23 @@ export default function InterviewsPage() {
         user={selectedUser}
       /> */}
 
-      {/* update user modal */}
-      {/* <UpdateProjectModal
+      {/* update modal */}
+      <UpdateInterviewModal
         open={openUpdateModal}
         setOpen={setOpenUpdateModal}
         setRefetch={setRefetch}
-        project={selectedProject}
+        interview={selectedInterview}
+        setSelectedInterview={setSelectedInterview}
         clients={clients}
-      /> */}
+      />
 
       {/* delete user modal */}
-      {/* <DeleteProjectModal
+      <DeleteInterviewModal
         open={openDeleteModal}
         setOpen={setOpenDeleteModal}
         setRefetch={setRefetch}
-        project={selectedProject}
-      /> */}
+        interview={selectedInterview}
+      />
     </>
   );
 }

@@ -75,7 +75,8 @@ export const GetTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => {
-        const date = new Date(row.original.date).toLocaleString();
+        // const date = new Date(row.original.date).toLocaleString();
+        const date = new Date(row.original.date).toLocaleDateString();
         return <div className="ml-3 text-sm font-medium">{date}</div>;
       },
     },
@@ -156,6 +157,20 @@ export const GetTableColumns = ({
         const renderField = (label: string, value?: string | null) => {
           const isLink =
             value?.startsWith("http://") || value?.startsWith("https://");
+
+          const getShortLabel = (url: string) => {
+            try {
+              const parsed = new URL(url);
+              return (
+                parsed.hostname +
+                parsed.pathname.slice(0, 20) +
+                (parsed.pathname.length > 20 ? "…" : "")
+              );
+            } catch {
+              return url.slice(0, 30) + "…";
+            }
+          };
+
           return (
             <div>
               <span className="text-muted-foreground font-medium">
@@ -169,7 +184,7 @@ export const GetTableColumns = ({
                     rel="noopener noreferrer"
                     className="underline break-all"
                   >
-                    {value}
+                    {getShortLabel(value)}
                   </a>
                 ) : (
                   <span className="text-foreground">{value}</span>
@@ -258,7 +273,7 @@ export const GetTableColumns = ({
               <DropdownMenuItem
                 className="cursor-pointer flex items-center gap-2"
                 onClick={() => {
-                  router.push(`/dashboard/interviews/${interview.id}`);
+                  router.push(`/dashboard/discovery-interviews/${interview.id}`);
                 }}
               >
                 <IconEye size={16} />
@@ -294,7 +309,7 @@ export const GetTableColumns = ({
                 }}
               >
                 <IconTrash size={16} />
-                Delete project
+                Delete interview
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

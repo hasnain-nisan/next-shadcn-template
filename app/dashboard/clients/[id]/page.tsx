@@ -131,28 +131,33 @@ export default function ClientDetailsPage({
                       </div>
 
                       {/* Row 2: CreatedBy & UpdatedBy */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Created By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {client.createdBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(client.createdAt).toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Updated By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {client.updatedBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(client.updatedAt).toLocaleString()}
-                          </p>
+                      <div className="pt-6 border-t space-y-4">
+                        <h3 className="font-semibold text-foreground">
+                          Audit Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Created By:
+                            </span>
+                            <p className="text-black">
+                              {client.createdBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(client.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Updated By:
+                            </span>
+                            <p className="text-black">
+                              {client.updatedBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(client.updatedAt).toLocaleString()}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </AccordionContent>
@@ -217,7 +222,10 @@ export default function ClientDetailsPage({
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                           {client.projects.map((project, index) => (
-                            <div key={index} className="space-y-2 border p-4 rounded-md">
+                            <div
+                              key={index}
+                              className="space-y-2 border p-4 rounded-md"
+                            >
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
                                   Project Name:
@@ -261,7 +269,7 @@ export default function ClientDetailsPage({
                 >
                   <AccordionItem value="interviews">
                     <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Interviews
+                      Interviews ({client.interviews?.length || 0})
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-4">
                       {client.interviews.length === 0 ? (
@@ -271,7 +279,10 @@ export default function ClientDetailsPage({
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                           {client.interviews.map((interview, index) => (
-                            <div key={index} className="space-y-2">
+                            <div
+                              key={index}
+                              className="space-y-2 border p-4 rounded-md"
+                            >
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
                                   Interview Title:

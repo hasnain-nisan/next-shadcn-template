@@ -26,7 +26,6 @@ export default function ProjectDetailsPage({
   const [error, setError] = useState<string | null>(null);
 
   console.log(project);
-  
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -176,28 +175,33 @@ export default function ProjectDetailsPage({
                       </div>
 
                       {/* Audit Info Row */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Created By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {project.createdBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(project.createdAt).toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Updated By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {project.updatedBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(project.updatedAt).toLocaleString()}
-                          </p>
+                      <div className="pt-6 border-t space-y-4">
+                        <h3 className="font-semibold text-foreground">
+                          Audit Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Created By:
+                            </span>
+                            <p className="text-black">
+                              {project.createdBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(project.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Updated By:
+                            </span>
+                            <p className="text-black">
+                              {project.updatedBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(project.updatedAt).toLocaleString()}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </AccordionContent>

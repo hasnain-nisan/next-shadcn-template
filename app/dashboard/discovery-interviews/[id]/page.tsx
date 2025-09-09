@@ -8,7 +8,6 @@ import { IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Project } from "@/types/project.types";
 import {
   Accordion,
   AccordionContent,
@@ -16,35 +15,33 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-export default function ProjectDetailsPage({
+import type { Interview } from "@/types/interview.types";
+
+export default function InterviewDetailsPage({
   params,
 }: Readonly<{ params: Promise<{ id: string }> }>) {
   const { id } = React.use(params);
 
-  const [project, setProject] = useState<Project | null>(null);
+  const [interview, setInterview] = useState<Interview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  console.log(project);
-  
-
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchInterview = async () => {
       try {
-        const projectService = ServiceFactory.getProjectService();
-        const data = (await projectService.getById(id)) as unknown as {
-          data: Project;
+        const interviewService = ServiceFactory.getInterviewService();
+        const data = (await interviewService.getById(id)) as unknown as {
+          data: Interview;
         };
-        console.log(data);
-        setProject(data as unknown as Project);
+        setInterview(data as unknown as Interview);
       } catch (err) {
-        setError("Failed to load project details.");
+        setError("Failed to load interview details.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProject();
+    fetchInterview();
   }, [id]);
 
   return (
@@ -56,10 +53,10 @@ export default function ProjectDetailsPage({
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <Link
-          href="/dashboard/projects"
+          href="/dashboard/interviews"
           className="hover:text-foreground font-medium"
         >
-          Projects
+          Interviews
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <span className="text-foreground font-semibold">Details</span>
@@ -68,11 +65,10 @@ export default function ProjectDetailsPage({
       {/* Header */}
       <div className="px-4 lg:px-6 mb-5">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Project Details
+          Interview Details
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Explore project information, client details, stakeholders, and
-          interviews.
+          Explore interview information, client, project, and audit logs.
         </p>
       </div>
 
@@ -82,240 +78,264 @@ export default function ProjectDetailsPage({
           <div className="flex justify-center items-center py-10">
             <IconLoader2 className="animate-spin text-muted-foreground h-5 w-5" />
             <span className="ml-2 text-sm text-muted-foreground">
-              Loading project details...
+              Loading interview details...
             </span>
           </div>
         ) : error ? (
           <div className="text-center text-sm text-red-500 py-10">{error}</div>
-        ) : project ? (
+        ) : interview ? (
           <>
-            {/* Project Info Section */}
+            {/* Interview Info Section */}
             <Card>
               <CardContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="text-sm text-muted-foreground"
-                >
-                  <AccordionItem value="project">
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="interview">
                     <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Project Details
+                      Interview Information
                     </AccordionTrigger>
                     <AccordionContent className="space-y-6 pt-4">
-                      {/* Project Info Row */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-4">
-                        {/* Left Column */}
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                          <div>
                             <span className="font-medium text-foreground">
                               Name:
                             </span>
-                            <p className="text-black">{project.name}</p>
+                            <p className="text-black">{interview.name}</p>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div>
                             <span className="font-medium text-foreground">
-                              Client Team:
+                              Date:
                             </span>
-                            <Badge variant="outline" className="px-3 py-1">
-                              {project.clientTeam}
-                            </Badge>
+                            <p className="text-black">
+                              {new Date(interview.date).toLocaleDateString()}
+                            </p>
                           </div>
                         </div>
-
-                        {/* Right Column */}
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
+                        <div className="space-y-3">
+                          <div>
                             <span className="font-medium text-foreground">
                               Status:
                             </span>
                             <Badge
                               className={`px-3 py-1 ${
-                                project.isDeleted
+                                interview.isDeleted
                                   ? "bg-red-600 text-white"
                                   : "bg-green-600 text-white"
                               }`}
                             >
-                              {project.isDeleted ? "Deleted" : "Active"}
+                              {interview.isDeleted ? "Inactive" : "Active"}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div>
                             <span className="font-medium text-foreground">
-                              Project ID:
+                              Interview ID:
                             </span>
                             <Badge
                               variant="outline"
                               className="px-3 py-1 font-mono text-xs"
                             >
-                              {project.id}
+                              {interview.id}
                             </Badge>
                           </div>
                         </div>
                       </div>
 
-                      {/* Client Info Row */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div className="flex flex-wrap items-center gap-2">
+                      {/* Links */}
+                      <div className="space-y-2">
+                        {interview.gDriveId && (
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Google Drive:
+                            </span>{" "}
+                            <a
+                              href={interview.gDriveId}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              View Document
+                            </a>
+                          </div>
+                        )}
+                        {interview.requestDistillation && (
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Request Distillation:
+                            </span>{" "}
+                            <a
+                              href={interview.requestDistillation}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              Open Link
+                            </a>
+                          </div>
+                        )}
+                        {interview.requestCoaching && (
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Request Coaching:
+                            </span>{" "}
+                            <a
+                              href={interview.requestCoaching}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              Open Link
+                            </a>
+                          </div>
+                        )}
+                        {interview.requestUserStories && (
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Request User Stories:
+                            </span>{" "}
+                            <a
+                              href={interview.requestUserStories}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              Open Link
+                            </a>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Audit Info (moved here) */}
+                      <div className="pt-6 border-t space-y-4">
+                        <h3 className="font-semibold text-foreground">
+                          Audit Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Created By:
+                            </span>
+                            <p className="text-black">
+                              {interview.createdBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(interview.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Updated By:
+                            </span>
+                            <p className="text-black">
+                              {interview.updatedBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(interview.updatedAt).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
+
+            {/* Client Section */}
+            <Card>
+              <CardContent>
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="client">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Client Information
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                      <div className="space-y-2">
+                        <div>
                           <span className="font-medium text-foreground">
                             Client Name:
-                          </span>
-                          <Badge variant="outline" className="px-3 py-1">
-                            {project.client.name}
+                          </span>{" "}
+                          <Badge variant="outline">
+                            {interview.client.name}
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div>
                           <span className="font-medium text-foreground">
                             Client Code:
-                          </span>
-                          <Badge
-                            variant="outline"
-                            className="px-3 py-1 font-mono"
-                          >
-                            {project.client.clientCode}
+                          </span>{" "}
+                          <Badge variant="outline" className="font-mono">
+                            {interview.client.clientCode}
                           </Badge>
                         </div>
                       </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
 
-                      {/* Audit Info Row */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Created By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {project.createdBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(project.createdAt).toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Updated By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {project.updatedBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(project.updatedAt).toLocaleString()}
-                          </p>
+            {/* Project Section */}
+            <Card>
+              <CardContent>
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="project">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Project Information
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-4">
+                      <div>
+                        <span className="font-medium text-foreground">
+                          Project Name:
+                        </span>{" "}
+                        <Badge variant="outline">
+                          {interview.project.name}
+                        </Badge>
+                      </div>
+                      <div>
+                        <span className="font-medium text-foreground">
+                          Client Team:
+                        </span>{" "}
+                        <Badge variant="outline">
+                          {interview.project.clientTeam}
+                        </Badge>
+                      </div>
+
+                      {/* Stakeholders */}
+                      <div>
+                        <span className="font-medium text-foreground">
+                          Stakeholders (
+                          {interview.project.stakeholders?.length || 0})
+                        </span>
+                        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {interview.project.stakeholders?.map((s) => (
+                            <div
+                              key={s.id}
+                              className="p-3 border rounded-lg space-y-2"
+                            >
+                              <div>
+                                <span className="font-medium">Name:</span>{" "}
+                                {s.name}
+                              </div>
+                              <div>
+                                <span className="font-medium">Email:</span>{" "}
+                                <Badge variant="outline">{s.email}</Badge>
+                              </div>
+                              <div>
+                                <span className="font-medium">Phone:</span>{" "}
+                                <Badge variant="outline">{s.phone}</Badge>
+                              </div>
+                              <Badge
+                                className={`px-3 py-1 ${
+                                  s.isDeleted
+                                    ? "bg-red-600 text-white"
+                                    : "bg-green-600 text-white"
+                                }`}
+                              >
+                                {s.isDeleted ? "Inactive" : "Active"}
+                              </Badge>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
-
-            {/* Stakeholders Section */}
-            <Card>
-              <CardContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="text-sm text-muted-foreground"
-                >
-                  <AccordionItem value="stakeholders">
-                    <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Stakeholders ({project.stakeholders?.length || 0})
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-4">
-                      {!project.stakeholders ||
-                      project.stakeholders.length === 0 ? (
-                        <div className="text-muted-foreground italic">
-                          No stakeholders assigned to this project yet.
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {project.stakeholders.map((stakeholder, index) => (
-                            <div
-                              key={stakeholder.id}
-                              className="space-y-3 p-4 border rounded-lg"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Name:
-                                </span>
-                                <p className="text-black capitalize">
-                                  {stakeholder.name}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Email:
-                                </span>
-                                <Badge variant="outline" className="px-3 py-1">
-                                  {stakeholder.email}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Phone:
-                                </span>
-                                <Badge variant="outline" className="px-3 py-1">
-                                  {stakeholder.phone}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Status:
-                                </span>
-                                <Badge
-                                  className={`px-3 py-1 ${
-                                    stakeholder.isDeleted
-                                      ? "bg-red-600 text-white"
-                                      : "bg-green-600 text-white"
-                                  }`}
-                                >
-                                  {stakeholder.isDeleted
-                                    ? "Inactive"
-                                    : "Active"}
-                                </Badge>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
-
-            {/* Interviews Section */}
-            <Card>
-              <CardContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="text-sm text-muted-foreground"
-                >
-                  <AccordionItem value="interviews">
-                    <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Interviews ({project.interviews?.length || 0})
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-4">
-                      {!project.interviews ||
-                      project.interviews.length === 0 ? (
-                        <div className="text-muted-foreground italic">
-                          No interviews scheduled for this project yet.
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 gap-6">
-                          {project.interviews.map((interview, index) => (
-                            <div
-                              key={index}
-                              className="space-y-3 p-4 border rounded-lg"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Interview #{index + 1}
-                                </span>
-                              </div>
-                              {/* Add more interview fields based on your interview type structure */}
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -324,7 +344,7 @@ export default function ProjectDetailsPage({
           </>
         ) : (
           <div className="text-center text-sm text-muted-foreground py-10">
-            No project data found.
+            No interview data found.
           </div>
         )}
       </div>

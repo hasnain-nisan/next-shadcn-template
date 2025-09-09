@@ -13,21 +13,21 @@ import { Badge } from "@/components/ui/badge";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { ServiceFactory } from "@/services/ServiceFactory";
-import { Project } from "@/types/project.types";
+import { Interview } from "@/types/interview.types";
 import { toast } from "sonner";
 
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefetch: (state: boolean) => void;
-  project: Project | null;
+  interview: Interview | null;
 };
 
-export function DeleteProjectModal({
+export function DeleteInterviewModal({
   open,
   setOpen,
   setRefetch,
-  project,
+  interview,
 }: Readonly<Props>) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,12 +36,12 @@ export function DeleteProjectModal({
   };
 
   const handleDelete = async () => {
-    if (!project) return;
+    if (!interview) return;
     try {
       setIsSubmitting(true);
-      const projectService = ServiceFactory.getProjectService();
-      await projectService.delete(project.id);
-      toast.success("Project deleted successfully");
+      const interviewService = ServiceFactory.getInterviewService();
+      await interviewService.delete(interview.id);
+      toast.success("Interview deleted successfully");
       setOpen(false);
       setRefetch(true);
     } catch (error) {
@@ -53,7 +53,7 @@ export function DeleteProjectModal({
     }
   };
 
-  if (!project) return null;
+  if (!interview) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -63,30 +63,30 @@ export function DeleteProjectModal({
             Confirm Deletion
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Are you sure you want to delete this project? This action cannot be
-            undone.
+            Are you sure you want to delete this interview? This action cannot
+            be undone.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 text-sm">
           <p>
             <span className="font-medium text-muted-foreground">
-              Project Name:
+              Interview Name:
             </span>{" "}
-            {project.name}
+            {interview.name}
           </p>
-          {project.client && (
+          {interview.client && (
             <p>
               <span className="font-medium text-muted-foreground">Client:</span>{" "}
-              <Badge className="text-xs">{project.client.name}</Badge>
+              <Badge className="text-xs">{interview.client.name}</Badge>
             </p>
           )}
-          {project.clientTeam && (
+          {interview.project && (
             <p>
               <span className="font-medium text-muted-foreground">
-                Client Team:
+                Project:
               </span>{" "}
-              <Badge className="text-xs">{project.clientTeam}</Badge>
+              <Badge className="text-xs">{interview.project.name}</Badge>
             </p>
           )}
         </div>

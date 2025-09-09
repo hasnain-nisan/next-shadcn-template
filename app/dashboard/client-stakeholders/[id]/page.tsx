@@ -164,32 +164,33 @@ export default function ClientStakeholderDetailsPage({
                       </div>
 
                       {/* Audit Info Row */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Created By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {clientStakeholder.createdBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(
-                              clientStakeholder.createdAt
-                            ).toLocaleString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-foreground">
-                            Updated By:
-                          </span>
-                          <p className="mt-1 text-black">
-                            {clientStakeholder.updatedBy?.email || "—"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(
-                              clientStakeholder.updatedAt
-                            ).toLocaleString()}
-                          </p>
+                      <div className="pt-6 border-t space-y-4">
+                        <h3 className="font-semibold text-foreground">
+                          Audit Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Created By:
+                            </span>
+                            <p className="text-black">
+                              {clientStakeholder.createdBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(clientStakeholder.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">
+                              Updated By:
+                            </span>
+                            <p className="text-black">
+                              {clientStakeholder.updatedBy?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(clientStakeholder.updatedAt).toLocaleString()}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </AccordionContent>
@@ -218,7 +219,10 @@ export default function ClientStakeholderDetailsPage({
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                           {clientStakeholder.projects.map((project, index) => (
-                            <div key={index} className="space-y-2 border p-4 rounded-md">
+                            <div
+                              key={index}
+                              className="space-y-2 border p-4 rounded-md"
+                            >
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
                                   Project Name:
