@@ -37,6 +37,16 @@ export function ChartInterviewTrend({
   // ✅ No more filtering, just use all data
   const data = React.useMemo(() => interviewTrend ?? [], [interviewTrend]);
 
+  const hasData = data && data.length > 0;
+
+  if (!hasData) {
+    return (
+      <div className="flex h-64 items-center justify-center text-muted-foreground border rounded-md">
+        No interview data available for the selected period
+      </div>
+    );
+  }
+
   return (
     <Card className="@container/card">
       <CardHeader>
