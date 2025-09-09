@@ -50,6 +50,9 @@ export const API_ENDPOINTS: ApiEndpoints = {
     getById: (id: string) => `/interview/${id}`,
     // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
   },
+  dashboard: {
+    analytics: "/dashboard/analytics",
+  },
 };
 
 export const ROUTES = {

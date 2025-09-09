@@ -69,4 +69,7 @@ export interface ApiEndpoints {
     getById: (id: string) => string;
     // toggleFavorite: (id: string) => string;
   };
+  dashboard: {
+    analytics: string;
+  };
 }
