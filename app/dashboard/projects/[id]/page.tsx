@@ -25,8 +25,6 @@ export default function ProjectDetailsPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  console.log(project);
-
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -34,7 +32,6 @@ export default function ProjectDetailsPage({
         const data = (await projectService.getById(id)) as unknown as {
           data: Project;
         };
-        console.log(data);
         setProject(data as unknown as Project);
       } catch (err) {
         setError("Failed to load project details.");

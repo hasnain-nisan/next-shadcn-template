@@ -18,6 +18,13 @@ import { IconEye, IconEyeOff, IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { User } from "@/types/user.types";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 type Props = {
   open: boolean;
@@ -29,13 +36,47 @@ type CreateUserFormValues = {
   email: string;
   password: string;
   confirmPassword: string;
-  role: "Admin";
+  role: "" | "Admin" | "InterviewUser";
   accessScopes: {
-    canManageUsers?: boolean;
-    canManageClients?: boolean;
-    canManageProjects?: boolean;
-    canManageInterviews?: boolean;
-    canManageStakeholders?: boolean;
+    // Users
+    canAccessUsers?: boolean;
+    canCreateUsers?: boolean;
+    canUpdateUsers?: boolean;
+    canDeleteUsers?: boolean;
+
+    // Clients
+    canAccessClients?: boolean;
+    canCreateClients?: boolean;
+    canUpdateClients?: boolean;
+    canDeleteClients?: boolean;
+
+    // Stakeholders
+    canAccessStakeholders?: boolean;
+    canCreateStakeholders?: boolean;
+    canUpdateStakeholders?: boolean;
+    canDeleteStakeholders?: boolean;
+
+    // Projects
+    canAccessProjects?: boolean;
+    canCreateProjects?: boolean;
+    canUpdateProjects?: boolean;
+    canDeleteProjects?: boolean;
+
+    // Interviews
+    canAccessInterviews?: boolean;
+    canCreateInterviews?: boolean;
+    canUpdateInterviews?: boolean;
+    canDeleteInterviews?: boolean;
+
+    // N8N Configs
+    canAccessConfig?: boolean;
+    canCreateConfig?: boolean;
+    canUpdateConfig?: boolean;
+    canDeleteConfig?: boolean;
+
+    // Admin Settings
+    canAccessAdminSettings?: boolean;
+    canUpdateAdminSettings?: boolean;
   };
 };
 
@@ -56,13 +97,47 @@ export function CreateUserModal({
       email: "",
       password: "",
       confirmPassword: "",
-      role: "Admin",
+      role: "",
       accessScopes: {
-        canManageUsers: false,
-        canManageClients: false,
-        canManageProjects: false,
-        canManageInterviews: false,
-        canManageStakeholders: false,
+        // Users
+        canAccessUsers: false,
+        canCreateUsers: false,
+        canUpdateUsers: false,
+        canDeleteUsers: false,
+
+        // Clients
+        canAccessClients: false,
+        canCreateClients: false,
+        canUpdateClients: false,
+        canDeleteClients: false,
+
+        // Stakeholders
+        canAccessStakeholders: false,
+        canCreateStakeholders: false,
+        canUpdateStakeholders: false,
+        canDeleteStakeholders: false,
+
+        // Projects
+        canAccessProjects: false,
+        canCreateProjects: false,
+        canUpdateProjects: false,
+        canDeleteProjects: false,
+
+        // Interviews
+        canAccessInterviews: false,
+        canCreateInterviews: false,
+        canUpdateInterviews: false,
+        canDeleteInterviews: false,
+
+        // N8N Configs
+        canAccessConfig: false,
+        canCreateConfig: false,
+        canUpdateConfig: false,
+        canDeleteConfig: false,
+
+        // Admin Settings
+        canAccessAdminSettings: false,
+        canUpdateAdminSettings: false,
       },
     },
   });
@@ -183,15 +258,33 @@ export function CreateUserModal({
           </div>
 
           {/* Role */}
-          <div>
-            <Label className="mb-2">Role</Label>
-            <select
-              className="w-full rounded border px-2 py-1 text-sm"
-              {...register("role", { required: true })}
-            >
-              <option value="Admin">Admin</option>
-            </select>
-          </div>
+          <Controller
+            name="role"
+            control={control}
+            rules={{ required: "Role is required" }}
+            render={({ field, fieldState }) => (
+              <div>
+                <Label className="mb-2 block">Role</Label>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full h-[36px] text-sm">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="InterviewUser">
+                      Interview User
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {fieldState.error && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
 
           {/* Access Scopes Selector */}
           <Controller
@@ -199,6 +292,8 @@ export function CreateUserModal({
             control={control}
             render={({ field }) => (
               <AccessScopeSelector
+                type="create"
+                role={watch("role")}
                 value={field.value}
                 onChange={field.onChange}
               />

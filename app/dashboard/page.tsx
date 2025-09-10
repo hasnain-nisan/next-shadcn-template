@@ -71,7 +71,6 @@ export default function DashboardPage() {
         fromDate: startDate || undefined,
         toDate: endDate || undefined,
       });
-      console.log(result);
 
       setAnalytics(result);
     } catch (error) {

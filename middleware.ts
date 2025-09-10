@@ -11,11 +11,13 @@ export default withAuth(
     const isExpired = !!token?.accessTokenExp && token.accessTokenExp < now;
 
     const routeAccessMap: { [key: string]: string } = {
-      "/dashboard/users": "canManageUsers",
-      "/dashboard/clients": "canManageClients",
-      "/dashboard/projects": "canManageProjects",
-      "/dashboard/discovery-interview": "canManageInterviews",
-      "/dashboard/client-stakeholders": "canManageStakeholders",
+      "/dashboard/users": "canAccessUsers",
+      "/dashboard/clients": "canAccessClients",
+      "/dashboard/projects": "canAccessProjects",
+      "/dashboard/discovery-interview": "canAccessInterviews",
+      "/dashboard/client-stakeholders": "canAccessStakeholders",
+      "/dashboard/n8n-configs": "canAccessConfig", // New
+      "/dashboard/settings": "canAccessAdminSettings", // New
     };
 
     // access scope check

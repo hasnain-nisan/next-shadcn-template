@@ -9,6 +9,8 @@ import {
   IconMessages,
   IconUsers,
   IconUserStar,
+  IconSettings,
+  IconAdjustmentsHorizontal,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -39,30 +41,43 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navMain = [
     { title: "Dashboard", url: "/dashboard", icon: IconLayoutDashboard },
-    access.canManageUsers && {
+
+    access.canAccessUsers && {
       title: "Users",
       url: "/dashboard/users",
       icon: IconUsers,
     },
-    access.canManageClients && {
+    access.canAccessClients && {
       title: "Clients",
       url: "/dashboard/clients",
       icon: IconBriefcase,
     },
-    access.canManageStakeholders && {
+    access.canAccessStakeholders && {
       title: "Client Stakeholders",
       url: "/dashboard/client-stakeholders",
       icon: IconUserStar,
     },
-    access.canManageProjects && {
+    access.canAccessProjects && {
       title: "Projects",
       url: "/dashboard/projects",
       icon: IconFolder,
     },
-    access.canManageInterviews && {
+    access.canAccessInterviews && {
       title: "Discovery Interview",
       url: "/dashboard/discovery-interviews",
       icon: IconMessages,
+    },
+
+    // New menu items
+    access.canAccessConfig && {
+      title: "N8N Configs",
+      url: "/dashboard/n8n-configs",
+      icon: IconAdjustmentsHorizontal,
+    },
+    access.canAccessAdminSettings && {
+      title: "Settings",
+      url: "/dashboard/settings",
+      icon: IconSettings,
     },
   ].filter(Boolean);
 

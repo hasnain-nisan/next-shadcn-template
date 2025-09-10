@@ -20,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getTableColumns } from "./TableColumns";
 import type { User } from "@/types/user.types";
 import { AccessScopeFilter } from "./AccessScopeFilter";
 import {
@@ -30,7 +29,14 @@ import {
   IconChevronsRight,
   IconListNumbers,
 } from "@tabler/icons-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { GetTableColumns } from "./TableColumns";
 
 export function UserManagementTable({
   users,
@@ -80,7 +86,7 @@ export function UserManagementTable({
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const columns = getTableColumns({
+  const columns = GetTableColumns({
     setOpenDetailsModal,
     setSelectedUser,
     setOpenUpdateModal,
@@ -149,7 +155,10 @@ export function UserManagementTable({
             >
               Role
             </label>
-            <Select value={role === "" ? undefined : role} onValueChange={(value) => setRole(value)}>
+            <Select
+              value={role === "" ? undefined : role}
+              onValueChange={(value) => setRole(value)}
+            >
               <SelectTrigger id="role" className="w-full h-[36px] text-sm">
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
@@ -157,6 +166,7 @@ export function UserManagementTable({
                 <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="Admin">Admin</SelectItem>
                 <SelectItem value="SuperAdmin">Super Admin</SelectItem>
+                <SelectItem value="InterviewUser">Interview User</SelectItem>
               </SelectContent>
             </Select>
           </div>

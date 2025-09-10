@@ -14,8 +14,12 @@ import { CreateUserModal } from "@/components/users/CreateUserModal";
 import { UserDetailsModal } from "@/components/users/UserDetailsModal";
 import { UpdateUserModal } from "@/components/users/UpdateUserModal";
 import { DeleteUserModal } from "@/components/users/DeleteUserModal";
+import { useSession } from "next-auth/react";
 
 export default function UsersPage() {
+  const { data: session, status } = useSession();
+  const canCreateUsers = session?.user?.accessScopes?.canCreateUsers ?? false;
+
   const [refetch, setRefetch] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,6 +147,7 @@ export default function UsersPage() {
           <Button
             className="h-8 px-3 text-sm"
             onClick={() => setOpenCreateModal(true)}
+            disabled={!canCreateUsers}
           >
             <IconPlus className="size-4" />
             <span>Create New</span>

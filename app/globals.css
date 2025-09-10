@@ -132,3 +132,7 @@
 [data-slot="accordion-trigger"] {
   padding: 0px !important;
 }
+
+[data-slot="accordion-item"] {
+  border-width: 0px !important;
+}

@@ -42,12 +42,6 @@ export function DateRangePicker({
   };
 
   const handleSelect = (range: DateRange | undefined) => {
-    console.log(range?.from, range?.to);
-    console.log(
-      normalizeToMidnightUTC(range?.from),
-      normalizeToMidnightUTC(range?.to)
-    );
-
     setStartDate(normalizeToMidnightUTC(range?.from));
     setEndDate(normalizeToMidnightUTC(range?.to));
   };

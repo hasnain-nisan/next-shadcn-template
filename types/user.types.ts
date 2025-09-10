@@ -1,9 +1,43 @@
 export interface AccessScopes {
-  canManageUsers: boolean;
-  canManageClients: boolean;
-  canManageProjects: boolean;
-  canManageInterviews: boolean;
-  canManageStakeholders: boolean;
+  // User Management
+  canAccessUsers?: boolean;
+  canCreateUsers?: boolean;
+  canUpdateUsers?: boolean;
+  canDeleteUsers?: boolean;
+
+  // Client Management
+  canAccessClients?: boolean;
+  canCreateClients?: boolean;
+  canUpdateClients?: boolean;
+  canDeleteClients?: boolean;
+
+  // Stakeholder Management
+  canAccessStakeholders?: boolean;
+  canCreateStakeholders?: boolean;
+  canUpdateStakeholders?: boolean;
+  canDeleteStakeholders?: boolean;
+
+  // Project Management
+  canAccessProjects?: boolean;
+  canCreateProjects?: boolean;
+  canUpdateProjects?: boolean;
+  canDeleteProjects?: boolean;
+
+  // Interview Management
+  canAccessInterviews?: boolean;
+  canCreateInterviews?: boolean;
+  canUpdateInterviews?: boolean;
+  canDeleteInterviews?: boolean;
+
+  // TPConfig / N8N Configs
+  canAccessConfig?: boolean;
+  canCreateConfig?: boolean;
+  canUpdateConfig?: boolean;
+  canDeleteConfig?: boolean;
+
+  // Admin Settings
+  canAccessAdminSettings?: boolean;
+  canUpdateAdminSettings?: boolean;
 }
 
 export interface UserRef {

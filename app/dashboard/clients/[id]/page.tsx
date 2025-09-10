@@ -33,7 +33,6 @@ export default function ClientDetailsPage({
           data: Client;
         };
         setClient(data as unknown as Client);
-        console.log(data);
       } catch (err) {
         setError("Failed to load client details.");
       } finally {

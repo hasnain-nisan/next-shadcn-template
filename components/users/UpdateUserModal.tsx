@@ -18,6 +18,7 @@ import { IconEye, IconEyeOff, IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { User } from "@/types/user.types";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 type Props = {
   open: boolean;
@@ -77,7 +78,7 @@ export function UpdateUserModal({
     if (user) {
       reset({
         email: user.email,
-        role: user.role as "Admin" | "SuperAdmin",
+        role: user.role as "Admin" | "InterviewUser",
         accessScopes: user.accessScopes,
         password: "",
         confirmPassword: "",
@@ -100,7 +101,9 @@ export function UpdateUserModal({
         role: data.role,
         accessScopes: data.accessScopes as unknown as User["accessScopes"],
         password: data.password?.trim() ? data.password.trim() : undefined,
-        confirmPassword: data.confirmPassword?.trim() ? data.confirmPassword.trim() : undefined,
+        confirmPassword: data.confirmPassword?.trim()
+          ? data.confirmPassword.trim()
+          : undefined,
       });
       toast.success("User updated successfully");
       reset();
@@ -141,16 +144,27 @@ export function UpdateUserModal({
           </div>
 
           {/* Role */}
-          <div>
-            <Label className="mb-2">Role</Label>
-            <select
-              className="w-full rounded border px-2 py-1 text-sm"
-              {...register("role", { required: true })}
-            >
-              <option value="Admin">Admin</option>
-              {/* <option value="SuperAdmin">SuperAdmin</option> */}
-            </select>
-          </div>
+          <Controller
+            name="role"
+            control={control}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <div>
+                <Label className="mb-2 block">Role</Label>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full h-[36px] text-sm">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="InterviewUser">
+                      Interview User
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          />
 
           {/* Access Scopes Selector */}
           <Controller
@@ -158,6 +172,8 @@ export function UpdateUserModal({
             control={control}
             render={({ field }) => (
               <AccessScopeSelector
+                type="update"
+                role={watch("role")}
                 value={field.value}
                 onChange={field.onChange}
               />
@@ -175,7 +191,8 @@ export function UpdateUserModal({
           {/* Password Section Label */}
           <div>
             <p className="text-sm text-muted-foreground font-medium mt-8">
-              To change the user&apos;s password, please fill in the fields below.
+              To change the user&apos;s password, please fill in the fields
+              below.
             </p>
           </div>
 
