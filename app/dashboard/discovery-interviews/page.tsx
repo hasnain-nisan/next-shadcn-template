@@ -15,8 +15,13 @@ import { InterviewManagementTable } from "@/components/interview/InterviewManage
 import { CreateInterviewModal } from "@/components/interview/CreateInterviewModal";
 import { UpdateInterviewModal } from "@/components/interview/UpdateInterviewModal";
 import { DeleteInterviewModal } from "@/components/interview/DeleteInterviewModal";
+import { useSession } from "next-auth/react";
 
 export default function InterviewsPage() {
+  const {data: session} = useSession();
+  const accessScopes = session?.user?.accessScopes || {};
+  const canCreateInterviews = accessScopes.canCreateInterviews ?? false;
+
   const [refetch, setRefetch] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -37,7 +42,9 @@ export default function InterviewsPage() {
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
+    null
+  );
 
   const [searchTermClient, setSearchTermClient] = useState("");
   const [searchTermProject, setSearchTermProject] = useState("");
@@ -102,8 +109,7 @@ export default function InterviewsPage() {
 
   const fetchProjects = async () => {
     try {
-      const projectService =
-        ServiceFactory.getProjectService();
+      const projectService = ServiceFactory.getProjectService();
       const result = await projectService.getAll({
         page: 1,
         limit: Number.MAX_SAFE_INTEGER,
@@ -125,9 +131,7 @@ export default function InterviewsPage() {
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) =>
-      project.name
-        .toLowerCase()
-        .includes(searchTermProject.toLowerCase())
+      project.name.toLowerCase().includes(searchTermProject.toLowerCase())
     );
   }, [searchTermProject, projects]);
 
@@ -223,16 +227,20 @@ export default function InterviewsPage() {
       <div className="px-4 lg:px-6 mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">Interviews</h1>
-          <Button className="h-8 px-3 text-sm" onClick={() => setOpenCreateModal(true)}>
+          <Button
+            className="h-8 px-3 text-sm"
+            onClick={() => setOpenCreateModal(true)}
+            disabled={!canCreateInterviews}
+          >
             <IconPlus className="size-4" />
             <span>Create New</span>
           </Button>
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
-          Manage discovery interviews linked to clients and projects. Filter by date, client, or project.
+          Manage discovery interviews linked to clients and projects. Filter by
+          date, client, or project.
         </p>
       </div>
-
 
       {/* Data Table */}
       <div className="px-4 lg:px-6">

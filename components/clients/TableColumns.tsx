@@ -14,6 +14,7 @@ import { IconEdit, IconEye, IconTrash } from "@tabler/icons-react";
 import { ColumnDef } from "@tanstack/react-table";
 import type { Client } from "@/types/client.types"; // Make sure this type matches your structure
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export const GetTableColumns = ({
   setSelectedClient,
@@ -25,6 +26,13 @@ export const GetTableColumns = ({
   setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 }): ColumnDef<Client>[] => {
   const router = useRouter();
+
+  const { data: session } = useSession();
+  const accessScopes = session?.user?.accessScopes || {};
+
+  const canViewClients = accessScopes.canAccessClients ?? false;
+  const canUpdateClients = accessScopes.canUpdateClients ?? false;
+  const canDeleteClients = accessScopes.canDeleteClients ?? false;
 
   return [
     {
@@ -157,24 +165,35 @@ export const GetTableColumns = ({
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
+
+              {/* View */}
               <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2"
+                disabled={!canViewClients}
+                className={`flex items-center gap-2 ${
+                  !canViewClients
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
+                }`}
                 onClick={() => {
-                  // setSelectedClient(client);
-                  // setOpenDetailsModal(true);
-                  router.push(`/dashboard/clients/${client.id}`);
+                  if (canViewClients) {
+                    router.push(`/dashboard/clients/${client.id}`);
+                  }
                 }}
               >
                 <IconEye size={16} />
                 View client details
               </DropdownMenuItem>
+
+              {/* Update */}
               <DropdownMenuItem
-                disabled={client.isDeleted}
-                className={`cursor-pointer flex items-center gap-2 ${
-                  client.isDeleted ? "opacity-50 pointer-events-none" : ""
+                disabled={!canUpdateClients || client.isDeleted}
+                className={`flex items-center gap-2 ${
+                  !canUpdateClients || client.isDeleted
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!client.isDeleted) {
+                  if (canUpdateClients && !client.isDeleted) {
                     setSelectedClient(client);
                     setOpenUpdateModal(true);
                   }
@@ -183,15 +202,17 @@ export const GetTableColumns = ({
                 <IconEdit size={16} />
                 Update client details
               </DropdownMenuItem>
+
+              {/* Delete */}
               <DropdownMenuItem
-                disabled={client.isDeleted}
+                disabled={!canDeleteClients || client.isDeleted}
                 className={`text-destructive flex items-center gap-2 ${
-                  client.isDeleted
+                  !canDeleteClients || client.isDeleted
                     ? "opacity-50 pointer-events-none"
                     : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!client.isDeleted) {
+                  if (canDeleteClients && !client.isDeleted) {
                     setSelectedClient(client);
                     setOpenDeleteModal(true);
                   }

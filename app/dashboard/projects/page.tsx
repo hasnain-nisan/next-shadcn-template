@@ -15,8 +15,13 @@ import { ProjectManagementTable } from "@/components/project/ProjectManagementTa
 import { CreateProjectModal } from "@/components/project/CreateProjectModal";
 import { UpdateProjectModal } from "@/components/project/UpdateProjectModal";
 import { DeleteProjectModal } from "@/components/project/DeleteProjectModal";
+import { useSession } from "next-auth/react";
 
 export default function ProjectsPage() {
+  const { data: session } = useSession();
+  const accessScopes = session?.user?.accessScopes || {};
+  const canCreateProjects = accessScopes.canCreateProjects ?? false;
+
   const [refetch, setRefetch] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
@@ -124,7 +129,9 @@ export default function ProjectsPage() {
 
   const filteredStakeholders = useMemo(() => {
     return stakeholders.filter((stakeholder) =>
-      stakeholder.name.toLowerCase().includes(searchTermStakeholder.toLowerCase())
+      stakeholder.name
+        .toLowerCase()
+        .includes(searchTermStakeholder.toLowerCase())
     );
   }, [searchTermStakeholder, stakeholders]);
 
@@ -219,6 +226,7 @@ export default function ProjectsPage() {
           <Button
             className="h-8 px-3 text-sm"
             onClick={() => setOpenCreateModal(true)}
+            disabled={!canCreateProjects}
           >
             <IconPlus className="size-4" />
             <span>Create New</span>

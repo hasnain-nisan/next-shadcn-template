@@ -224,7 +224,7 @@ export function ProjectManagementTable({
           </div>
 
           {/* Stakeholder Filter Dropdown */}
-          <div className="flex flex-col lg:flex-1">
+          {/* <div className="flex flex-col lg:flex-1">
             <label
               htmlFor="stakeholderId"
               className="text-sm text-muted-foreground mb-1"
@@ -250,7 +250,6 @@ export function ProjectManagementTable({
                     className="text-sm"
                   />
                 </div>
-                {/* All Stakeholder Option */}
                 <SelectItem value="all">All Stakeholders</SelectItem>
                 {filteredStakeholders.length > 0 ? (
                   filteredStakeholders.map((stakeholder) => (
@@ -265,7 +264,7 @@ export function ProjectManagementTable({
                 )}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           {/* Deleted Status Filter */}
           <div className="flex flex-col lg:flex-1">

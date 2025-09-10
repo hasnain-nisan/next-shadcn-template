@@ -1,3 +1,4 @@
+import { Interview } from '@/types/interview.types';
 import { Client } from './client.types';
 import { Project } from './project.types';
 import { UserRef } from './user.types';
@@ -10,7 +11,7 @@ export interface ClientStakeholder {
   client: Client;
   createdBy: UserRef;
   updatedBy: UserRef | null;
-  projects: Project[];
+  interviews: Interview[];
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;

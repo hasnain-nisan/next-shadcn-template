@@ -14,8 +14,13 @@ import { StakeholderManagementTable } from "@/components/client-stakeholder/Stak
 import { CreateClientStakeholderModal } from "@/components/client-stakeholder/CreateClientStakeholderModal";
 import { UpdateClientStakeholderModal } from "@/components/client-stakeholder/UpdateClientStakeholderModal";
 import { DeleteClientStakeholderModal } from "@/components/client-stakeholder/DeleteClientStakeholderModal";
+import { useSession } from "next-auth/react";
 
 export default function ClientsPage() {
+  const { data: session, status } = useSession();
+  const canCreateStakeholders =
+    session?.user?.accessScopes?.canCreateStakeholders ?? false;
+
   const [refetch, setRefetch] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
@@ -158,6 +163,7 @@ export default function ClientsPage() {
           <Button
             className="h-8 px-3 text-sm"
             onClick={() => setOpenCreateModal(true)}
+            disabled={!canCreateStakeholders}
           >
             <IconPlus className="size-4" />
             <span>Create New</span>

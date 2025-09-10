@@ -9,10 +9,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { IconBriefcase, IconEdit, IconEye, IconTrash } from "@tabler/icons-react";
+import {
+  IconBriefcase,
+  IconEdit,
+  IconEye,
+  IconTrash,
+} from "@tabler/icons-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { ClientStakeholder } from "@/types/stakeholder.types";
+import { useSession } from "next-auth/react";
 
 export const GetTableColumns = ({
   setSelectedStakeholder,
@@ -26,6 +32,13 @@ export const GetTableColumns = ({
   setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 }): ColumnDef<ClientStakeholder>[] => {
   const router = useRouter();
+
+  const { data: session } = useSession();
+  const accessScopes = session?.user?.accessScopes || {};
+
+  const canViewStakeholders = accessScopes.canAccessStakeholders ?? false;
+  const canUpdateStakeholders = accessScopes.canUpdateStakeholders ?? false;
+  const canDeleteStakeholders = accessScopes.canDeleteStakeholders ?? false;
 
   return [
     {
@@ -159,23 +172,31 @@ export const GetTableColumns = ({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2"
+                className={`flex items-center gap-2 ${
+                  !canViewStakeholders
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
+                }`}
                 onClick={() => {
-                  router.push(
-                    `/dashboard/client-stakeholders/${stakeholder.id}`
-                  );
+                  if (canViewStakeholders) {
+                    router.push(
+                      `/dashboard/client-stakeholders/${stakeholder.id}`
+                    );
+                  }
                 }}
               >
                 <IconEye size={16} />
                 View stakeholder details
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled={stakeholder.isDeleted}
-                className={`cursor-pointer flex items-center gap-2 ${
-                  stakeholder.isDeleted ? "opacity-50 pointer-events-none" : ""
+                disabled={!canUpdateStakeholders || stakeholder.isDeleted}
+                className={`flex items-center gap-2 ${
+                  !canUpdateStakeholders || stakeholder.isDeleted
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!stakeholder.isDeleted) {
+                  if (canUpdateStakeholders && !stakeholder.isDeleted) {
                     setSelectedStakeholder(stakeholder);
                     setOpenUpdateModal(true);
                   }
@@ -185,14 +206,14 @@ export const GetTableColumns = ({
                 Update stakeholder
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled={stakeholder.isDeleted}
+                disabled={!canDeleteStakeholders || stakeholder.isDeleted}
                 className={`text-destructive flex items-center gap-2 ${
-                  stakeholder.isDeleted
+                  !canDeleteStakeholders || stakeholder.isDeleted
                     ? "opacity-50 pointer-events-none"
                     : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!stakeholder.isDeleted) {
+                  if ( canDeleteStakeholders && !stakeholder.isDeleted) {
                     setSelectedStakeholder(stakeholder);
                     setOpenDeleteModal(true);
                   }

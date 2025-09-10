@@ -25,6 +25,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { Interview } from "@/types/interview.types";
+import { useSession } from "next-auth/react";
 
 export const GetTableColumns = ({
   setSelectedInterview,
@@ -36,6 +37,12 @@ export const GetTableColumns = ({
   setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 }): ColumnDef<Interview>[] => {
   const router = useRouter();
+
+  const { data: session } = useSession();
+  const accessScopes = session?.user?.accessScopes || {};
+  const canViewInterviews = accessScopes.canAccessInterviews ?? false;
+  const canUpdateInterviews = accessScopes.canUpdateInterviews ?? false;
+  const canDeleteInterviews = accessScopes.canDeleteInterviews ?? false;
 
   return [
     {
@@ -271,9 +278,17 @@ export const GetTableColumns = ({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2"
+                className={`flex items-center gap-2 ${
+                  !canViewInterviews
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
+                }`}
                 onClick={() => {
-                  router.push(`/dashboard/discovery-interviews/${interview.id}`);
+                  if (canViewInterviews) {
+                    router.push(
+                      `/dashboard/discovery-interviews/${interview.id}`
+                    );
+                  }
                 }}
               >
                 <IconEye size={16} />
@@ -281,11 +296,13 @@ export const GetTableColumns = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={interview.isDeleted}
-                className={`cursor-pointer flex items-center gap-2 ${
-                  interview.isDeleted ? "opacity-50 pointer-events-none" : ""
+                className={`flex items-center gap-2 ${
+                  !canUpdateInterviews || interview.isDeleted
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!interview.isDeleted) {
+                  if (canUpdateInterviews && !interview.isDeleted) {
                     setSelectedInterview(interview);
                     setOpenUpdateModal(true);
                   }
@@ -296,13 +313,13 @@ export const GetTableColumns = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={interview.isDeleted}
-                className={`text-destructive flex items-center gap-2 ${
-                  interview.isDeleted
+                className={`flex items-center gap-2 ${
+                  !canDeleteInterviews || interview.isDeleted
                     ? "opacity-50 pointer-events-none"
                     : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!interview.isDeleted) {
+                  if ( canDeleteInterviews && !interview.isDeleted) {
                     setSelectedInterview(interview);
                     setOpenDeleteModal(true);
                   }

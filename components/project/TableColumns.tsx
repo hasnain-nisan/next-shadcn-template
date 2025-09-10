@@ -24,6 +24,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { Project } from "@/types/project.types";
+import { useSession } from "next-auth/react";
 
 export const GetTableColumns = ({
   setSelectedProject,
@@ -35,6 +36,13 @@ export const GetTableColumns = ({
   setOpenDeleteModal: React.Dispatch<React.SetStateAction<boolean>>;
 }): ColumnDef<Project>[] => {
   const router = useRouter();
+
+  const { data: session } = useSession();
+  const accessScopes = session?.user?.accessScopes || {};
+
+  const canViewProjects = accessScopes.canAccessProjects ?? false;
+  const canUpdateProjects = accessScopes.canUpdateProjects ?? false;
+  const canDeleteProjects = accessScopes.canDeleteProjects ?? false;
 
   return [
     {
@@ -111,41 +119,41 @@ export const GetTableColumns = ({
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "stakeholders",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-auto p-0 hover:bg-transparent"
-        >
-          <UserCog className="h-4 w-4" />
-          Stakeholders
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const stakeholders = row.original.stakeholders || [];
+    // {
+    //   accessorKey: "stakeholders",
+    //   header: ({ column }) => (
+    //     <Button
+    //       variant="ghost"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //       className="h-auto p-0 hover:bg-transparent"
+    //     >
+    //       <UserCog className="h-4 w-4" />
+    //       Stakeholders
+    //     </Button>
+    //   ),
+    //   cell: ({ row }) => {
+    //     const stakeholders = row.original.stakeholders || [];
 
-        return (
-          <div className="flex flex-wrap gap-2 ml-3">
-            {stakeholders.length > 0 ? (
-              stakeholders.map((s) => (
-                <span
-                  key={s.id}
-                  className="inline-block rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
-                >
-                  {s.name}
-                </span>
-              ))
-            ) : (
-              <span className="text-sm text-muted-foreground">—</span>
-            )}
-          </div>
-        );
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
+    //     return (
+    //       <div className="flex flex-wrap gap-2 ml-3">
+    //         {stakeholders.length > 0 ? (
+    //           stakeholders.map((s) => (
+    //             <span
+    //               key={s.id}
+    //               className="inline-block rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
+    //             >
+    //               {s.name}
+    //             </span>
+    //           ))
+    //         ) : (
+    //           <span className="text-sm text-muted-foreground">—</span>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "createdAt",
       header: ({ column }) => (
@@ -223,21 +231,29 @@ export const GetTableColumns = ({
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="cursor-pointer flex items-center gap-2"
+                className={`flex items-center gap-2 ${
+                  !canViewProjects
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
+                }`}
                 onClick={() => {
-                  router.push(`/dashboard/projects/${project.id}`);
+                  if (canViewProjects) {
+                    router.push(`/dashboard/projects/${project.id}`);
+                  }
                 }}
               >
                 <IconEye size={16} />
                 View project details
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled={project.isDeleted}
-                className={`cursor-pointer flex items-center gap-2 ${
-                  project.isDeleted ? "opacity-50 pointer-events-none" : ""
+                disabled={!canUpdateProjects || project.isDeleted}
+                className={`flex items-center gap-2 ${
+                  !canUpdateProjects || project.isDeleted
+                    ? "opacity-50 pointer-events-none"
+                    : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!project.isDeleted) {
+                  if (canUpdateProjects && !project.isDeleted) {
                     setSelectedProject(project);
                     setOpenUpdateModal(true);
                   }
@@ -247,14 +263,14 @@ export const GetTableColumns = ({
                 Update project
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled={project.isDeleted}
+                disabled={!canDeleteProjects || project.isDeleted}
                 className={`text-destructive flex items-center gap-2 ${
-                  project.isDeleted
+                  !canDeleteProjects || project.isDeleted
                     ? "opacity-50 pointer-events-none"
                     : "cursor-pointer"
                 }`}
                 onClick={() => {
-                  if (!project.isDeleted) {
+                  if (canDeleteProjects && !project.isDeleted) {
                     setSelectedProject(project);
                     setOpenDeleteModal(true);
                   }

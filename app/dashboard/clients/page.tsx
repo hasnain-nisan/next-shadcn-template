@@ -14,8 +14,12 @@ import { ClientManagementTable } from "@/components/clients/ClientManagementTabl
 import { CreateClientModal } from "@/components/clients/CreateClientModal";
 import { UpdateClientModal } from "@/components/clients/UpdateClientModal";
 import { DeleteClientModal } from "@/components/clients/DeleteClientModal";
+import { useSession } from "next-auth/react";
 
 export default function ClientsPage() {
+  const { data: session, status } = useSession();
+  const canCreateClients = session?.user?.accessScopes?.canCreateClients ?? false;
+
   const [refetch, setRefetch] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +41,6 @@ export default function ClientsPage() {
   const debouncedName = useDebouncedValue(name, 500);
   const debouncedClientCode = useDebouncedValue(clientCode, 500);
 
-
   const fetchClients = async (
     page = 1,
     limit = 10,
@@ -45,7 +48,7 @@ export default function ClientsPage() {
     sortOrder?: "asc" | "desc" | null,
     name?: string,
     clientCode?: string,
-    deletedStatus?: string,
+    deletedStatus?: string
   ) => {
     try {
       const clientService = ServiceFactory.getClientService();
@@ -79,7 +82,7 @@ export default function ClientsPage() {
       sortOrder,
       debouncedName,
       debouncedClientCode,
-      deletedStatus,
+      deletedStatus
     );
   }, [
     pageSize,
@@ -99,7 +102,7 @@ export default function ClientsPage() {
       sortOrder,
       debouncedName,
       debouncedClientCode,
-      deletedStatus,
+      deletedStatus
     );
   }, [pageIndex]);
 
@@ -113,7 +116,7 @@ export default function ClientsPage() {
       sortOrder,
       debouncedName,
       debouncedClientCode,
-      deletedStatus,
+      deletedStatus
     );
     setRefetch(false);
   }, [refetch]);
@@ -141,14 +144,14 @@ export default function ClientsPage() {
           <Button
             className="h-8 px-3 text-sm"
             onClick={() => setOpenCreateModal(true)}
+            disabled={!canCreateClients}
           >
             <IconPlus className="size-4" />
             <span>Create New</span>
           </Button>
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
-          Manage client profiles and monitor engagement
-          workflows.
+          Manage client profiles and monitor engagement workflows.
         </p>
       </div>
 

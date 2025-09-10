@@ -199,7 +199,7 @@ export default function ClientStakeholderDetailsPage({
               </CardContent>
             </Card>
 
-            {/* Projects Section */}
+            {/* Interview Section */}
             <Card>
               <CardContent>
                 <Accordion
@@ -207,27 +207,27 @@ export default function ClientStakeholderDetailsPage({
                   collapsible
                   className="text-sm text-muted-foreground"
                 >
-                  <AccordionItem value="projects">
+                  <AccordionItem value="interviews">
                     <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Projects ({clientStakeholder.projects?.length || 0})
+                      Interviews ({clientStakeholder.interviews?.length || 0})
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-4">
-                      {clientStakeholder.projects.length === 0 ? (
+                      {clientStakeholder.interviews.length === 0 ? (
                         <div className="text-muted-foreground italic">
-                          No projects assigned to this stakeholder yet.
+                          No interviews have been assigned to this stakeholder yet.
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                          {clientStakeholder.projects.map((project, index) => (
+                          {clientStakeholder.interviews.map((interview, index) => (
                             <div
                               key={index}
                               className="space-y-2 border p-4 rounded-md"
                             >
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
-                                  Project Name:
+                                  Interview Name:
                                 </span>
-                                <p className="text-black">{project.name}</p>
+                                <p className="text-black">{interview.name}</p>
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
@@ -236,12 +236,12 @@ export default function ClientStakeholderDetailsPage({
                                 <Badge
                                   variant="outline"
                                   className={`px-3 py-1 ${
-                                    project.isDeleted
+                                    interview.isDeleted
                                       ? "border-red-500 text-red-600"
                                       : "border-green-500 text-green-600"
                                   }`}
                                 >
-                                  {project.isDeleted ? "Deleted" : "Active"}
+                                  {interview.isDeleted ? "Deleted" : "Active"}
                                 </Badge>
                               </div>
                             </div>
