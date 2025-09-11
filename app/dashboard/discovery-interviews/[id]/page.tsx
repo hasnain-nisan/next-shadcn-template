@@ -298,44 +298,6 @@ export default function InterviewDetailsPage({
                           {interview.project.clientTeam}
                         </Badge>
                       </div>
-
-                      {/* Stakeholders */}
-                      <div>
-                        <span className="font-medium text-foreground">
-                          Stakeholders (
-                          {interview.project.stakeholders?.length || 0})
-                        </span>
-                        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {interview.project.stakeholders?.map((s) => (
-                            <div
-                              key={s.id}
-                              className="p-3 border rounded-lg space-y-2"
-                            >
-                              <div>
-                                <span className="font-medium">Name:</span>{" "}
-                                {s.name}
-                              </div>
-                              <div>
-                                <span className="font-medium">Email:</span>{" "}
-                                <Badge variant="outline">{s.email}</Badge>
-                              </div>
-                              <div>
-                                <span className="font-medium">Phone:</span>{" "}
-                                <Badge variant="outline">{s.phone}</Badge>
-                              </div>
-                              <Badge
-                                className={`px-3 py-1 ${
-                                  s.isDeleted
-                                    ? "bg-red-600 text-white"
-                                    : "bg-green-600 text-white"
-                                }`}
-                              >
-                                {s.isDeleted ? "Inactive" : "Active"}
-                              </Badge>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

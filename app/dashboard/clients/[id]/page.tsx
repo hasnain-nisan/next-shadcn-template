@@ -15,6 +15,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { CreateInterviewModal } from "@/components/interview/CreateInterviewModal";
+import { se } from "date-fns/locale";
+import { set } from "zod";
+import { useSession } from "next-auth/react";
 
 export default function ClientDetailsPage({
   params,
@@ -25,6 +30,16 @@ export default function ClientDetailsPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [refetch, setRefetch] = useState(false);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [projectId, setProjectId] = useState<string>("");
+
+  const { data: session } = useSession();
+  const accessScopes = session?.user?.accessScopes || {};
+  const canCreateInterviews = accessScopes.canCreateInterviews ?? false;
+
+
   useEffect(() => {
     const fetchClient = async () => {
       try {
@@ -33,6 +48,7 @@ export default function ClientDetailsPage({
           data: Client;
         };
         setClient(data as unknown as Client);
+        setClients([data as unknown as Client]);
       } catch (err) {
         setError("Failed to load client details.");
       } finally {
@@ -223,8 +239,9 @@ export default function ClientDetailsPage({
                           {client.projects.map((project, index) => (
                             <div
                               key={index}
-                              className="space-y-2 border p-4 rounded-md"
+                              className="space-y-3 border p-4 rounded-md shadow-sm bg-white"
                             >
+                              {/* Project Name */}
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
                                   Project Name:
@@ -233,6 +250,8 @@ export default function ClientDetailsPage({
                                   {project.name || "Unnamed Project"}
                                 </p>
                               </div>
+
+                              {/* Status */}
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-foreground">
                                   Status:
@@ -247,6 +266,23 @@ export default function ClientDetailsPage({
                                 >
                                   {project.isDeleted ? "Deleted" : "Active"}
                                 </Badge>
+                              </div>
+
+                              {/* Action Button */}
+                              <div className="pt-3">
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => {
+                                    setProjectId(project.id)
+                                    setOpenCreateModal(true)
+                                  }
+                                  }
+                                  disabled={project.isDeleted || !canCreateInterviews}
+                                >
+                                  Request Interview
+                                </Button>
                               </div>
                             </div>
                           ))}
@@ -318,6 +354,15 @@ export default function ClientDetailsPage({
           </div>
         )}
       </div>
+
+      <CreateInterviewModal
+        open={openCreateModal}
+        setOpen={setOpenCreateModal}
+        setRefetch={setRefetch}
+        clients={clients}
+        id={client?.id}
+        projectId={projectId}
+      />
     </>
   );
 }

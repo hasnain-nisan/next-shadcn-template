@@ -29,12 +29,15 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { MultiSelect } from "../ui/multi-select";
+import { set } from "zod";
 
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefetch: (state: boolean) => void;
   clients: { id: string; name: string }[];
+  id?: string;
+  projectId?: string;
 };
 
 type CreateInterviewFormValues = {
@@ -54,6 +57,8 @@ export function CreateInterviewModal({
   setOpen,
   setRefetch,
   clients,
+  id,
+  projectId,
 }: Readonly<Props>) {
   const {
     register,
@@ -72,7 +77,7 @@ export function CreateInterviewModal({
       requestDistillation: "",
       requestCoaching: "",
       requestUserStories: "",
-      clientId: "",
+      clientId: id || "",
       projectId: "",
       stakeholderIds: [],
     },
@@ -86,6 +91,18 @@ export function CreateInterviewModal({
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [isLoadingStakeholders, setIsLoadingStakeholders] = useState(false);
   const clientId = watch("clientId");
+
+  useEffect(() => {
+    if (open && id) {
+      setValue("clientId", id);
+    }
+  }, [open, id, setValue]);
+
+  useEffect(() => {
+    if (open && projectId) {
+      setValue("projectId", projectId);
+    }
+  }, [open, projectId, setValue]);
 
   // Fetch projects when client changes
   useEffect(() => {
@@ -107,10 +124,17 @@ export function CreateInterviewModal({
           deletedStatus: "false",
         });
 
-        setProjects(result.items);
-        // Reset project selection when client changes and clear validation errors
-        setValue("projectId", "");
-        clearErrors("projectId");
+        if (projectId) {
+          setProjects(
+            result.items.filter((project) => project.id === projectId)
+          );
+          setValue("projectId", projectId);
+        } else {
+          setProjects(result.items);
+          // Reset project selection when client changes and clear validation errors
+          setValue("projectId", "");
+          clearErrors("projectId");
+        }
       } catch (error) {
         console.error("Failed to fetch projects:", error);
         toast.error("Failed to fetch projects");
@@ -230,7 +254,7 @@ export function CreateInterviewModal({
             {/* Interview Name */}
             <div>
               <Label htmlFor="name" className="mb-2 block">
-                Interview Name 
+                Interview Name
                 {/* <span className="text-red-500">*</span> */}
               </Label>
               <Input
@@ -252,7 +276,7 @@ export function CreateInterviewModal({
             {/* Interview Date */}
             <div>
               <Label className="mb-2 block">
-                Interview Date 
+                Interview Date
                 {/* <span className="text-red-500">*</span> */}
               </Label>
               <Controller
@@ -315,7 +339,7 @@ export function CreateInterviewModal({
             {/* Client Dropdown */}
             <div>
               <Label className="mb-2 block">
-                Client 
+                Client
                 {/* <span className="text-red-500">*</span> */}
               </Label>
               <Controller
@@ -356,7 +380,7 @@ export function CreateInterviewModal({
             {/* Project Dropdown */}
             <div>
               <Label className="mb-2 block">
-                Project 
+                Project
                 {/* <span className="text-red-500">*</span> */}
               </Label>
               <Controller
@@ -411,7 +435,7 @@ export function CreateInterviewModal({
             {/* Stakeholders Multi-Select */}
             <div>
               <Label className="mb-2 block">
-                Stakeholders 
+                Stakeholders
                 {/* <span className="text-red-500">*</span> */}
               </Label>
               <Controller
