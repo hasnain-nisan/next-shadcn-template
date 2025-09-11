@@ -56,6 +56,8 @@ export function InterviewManagementTable({
   setClientId,
   projectId,
   setProjectId,
+  stakeholderId,
+  setStakeholderId,
   startDate,
   setStartDate,
   endDate,
@@ -71,6 +73,9 @@ export function InterviewManagementTable({
   filteredProjects,
   searchTermProject,
   setSearchTermProject,
+  filteredStakeholders,
+  searchTermStakeholder,
+  setSearchTermStakeholder,
 }: Readonly<{
   interviews: Interview[];
   pageIndex: number;
@@ -86,6 +91,8 @@ export function InterviewManagementTable({
   setClientId: (clientId: string) => void;
   projectId: string;
   setProjectId: (projectId: string) => void;
+  stakeholderId: string;
+  setStakeholderId: (stakeholderId: string) => void;
   startDate: string | null;
   setStartDate: React.Dispatch<React.SetStateAction<string | null>>;
   endDate: string | null;
@@ -101,6 +108,9 @@ export function InterviewManagementTable({
   filteredProjects: Project[];
   searchTermProject: string;
   setSearchTermProject: React.Dispatch<React.SetStateAction<string>>;
+  filteredStakeholders: ClientStakeholder[];
+  searchTermStakeholder: string;
+  setSearchTermStakeholder: React.Dispatch<React.SetStateAction<string>>;
 }>) {
   const [sorting, setSorting] = React.useState([]);
   const [columnFilters, setColumnFilters] = React.useState([]);
@@ -148,8 +158,8 @@ export function InterviewManagementTable({
 
   return (
     <div>
-      <div className="w-full mb-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:gap-6">
+      <div className="w-full mb-5 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Name Filter */}
           <div className="flex flex-col lg:flex-1">
             <label
@@ -223,10 +233,7 @@ export function InterviewManagementTable({
               value={projectId}
               onValueChange={(value) => setProjectId(value)}
             >
-              <SelectTrigger
-                id="projectId"
-                className="w-full text-sm h-[36px]"
-              >
+              <SelectTrigger id="projectId" className="w-full text-sm h-[36px]">
                 <SelectValue placeholder="Select a project..." />
               </SelectTrigger>
               <SelectContent
@@ -258,7 +265,53 @@ export function InterviewManagementTable({
             </Select>
           </div>
 
-          { /* Date Filter */}
+          {/* Stakeholder Filter */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="stakeholderId"
+              className="text-sm text-muted-foreground mb-1"
+            >
+              Stakeholder
+            </label>
+            <Select
+              value={stakeholderId}
+              onValueChange={(value) => setStakeholderId(value)}
+            >
+              <SelectTrigger
+                id="stakeholderId"
+                className="w-full text-sm h-[36px]"
+              >
+                <SelectValue placeholder="Select a stakeholder..." />
+              </SelectTrigger>
+              <SelectContent
+                className="max-h-[300px] overflow-y-auto w-full"
+                style={{ width: "var(--radix-select-trigger-width)" }}
+              >
+                <div className="px-2 py-2 sticky top-[-5px] bg-background z-10">
+                  <Input
+                    placeholder="Search stakeholders..."
+                    value={searchTermStakeholder}
+                    onChange={(e) => setSearchTermStakeholder(e.target.value)}
+                    className="text-sm"
+                  />
+                </div>
+                <SelectItem value="all">All stakeholders</SelectItem>
+                {filteredStakeholders.length > 0 ? (
+                  filteredStakeholders.map((stakeholder) => (
+                    <SelectItem key={stakeholder.id} value={stakeholder.id}>
+                      {stakeholder.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">
+                    No stakeholders found
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Date Filter */}
           <div className="flex flex-col lg:flex-1">
             <label
               htmlFor="date"

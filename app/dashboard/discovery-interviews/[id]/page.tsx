@@ -341,6 +341,81 @@ export default function InterviewDetailsPage({
                 </Accordion>
               </CardContent>
             </Card>
+
+            {/* Stakeholders Section */}
+            <Card>
+              <CardContent>
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="text-sm text-muted-foreground"
+                >
+                  <AccordionItem value="stakeholders">
+                    <AccordionTrigger className="text-base font-semibold text-foreground">
+                      Stakeholders ({interview.stakeholders?.length || 0})
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      {!interview.stakeholders ||
+                      interview.stakeholders.length === 0 ? (
+                        <div className="text-muted-foreground italic">
+                          No stakeholders assigned to this interview yet.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {interview.stakeholders.map((stakeholder, index) => (
+                            <div
+                              key={stakeholder.id}
+                              className="space-y-3 p-4 border rounded-lg"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Name:
+                                </span>
+                                <p className="text-black capitalize">
+                                  {stakeholder.name}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Email:
+                                </span>
+                                <Badge variant="outline" className="px-3 py-1">
+                                  {stakeholder.email}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Phone:
+                                </span>
+                                <Badge variant="outline" className="px-3 py-1">
+                                  {stakeholder.phone}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">
+                                  Status:
+                                </span>
+                                <Badge
+                                  className={`px-3 py-1 ${
+                                    stakeholder.isDeleted
+                                      ? "bg-red-600 text-white"
+                                      : "bg-green-600 text-white"
+                                  }`}
+                                >
+                                  {stakeholder.isDeleted
+                                    ? "Inactive"
+                                    : "Active"}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
           </>
         ) : (
           <div className="text-center text-sm text-muted-foreground py-10">

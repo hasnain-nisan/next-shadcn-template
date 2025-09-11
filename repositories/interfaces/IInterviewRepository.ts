@@ -9,6 +9,7 @@ export interface IInterviewRepository {
     name?: string;
     clientId?: string;
     projectId?: string;
+    stakeholderId?: string;
     deletedStatus?: string;
     startDate?: string;
     endDate?: string;

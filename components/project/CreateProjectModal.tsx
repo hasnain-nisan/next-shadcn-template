@@ -38,6 +38,7 @@ type CreateProjectFormValues = {
   clientTeam?: string;
   clientId: string;
   // stakeholderIds: string[];
+  description: string;
 };
 
 export function CreateProjectModal({
@@ -60,6 +61,7 @@ export function CreateProjectModal({
       clientTeam: "",
       clientId: "",
       // stakeholderIds: [],
+      description: "",
     },
   });
 
@@ -100,6 +102,7 @@ export function CreateProjectModal({
         clientTeam: "",
         clientId: "",
         // stakeholderIds: [],
+        description: "",
       });
       setClientId("all");
       // setStakeholders([]);
@@ -252,6 +255,25 @@ export function CreateProjectModal({
               </p>
             )}
           </div> */}
+
+          {/* Description */}
+          <div>
+            <Label className="mb-2">Description</Label>
+            <textarea
+              className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              rows={4}
+              {...register("description", {
+                required: "Project description is required",
+                validate: (v) =>
+                  v.trim() !== "" || "Description cannot be empty",
+              })}
+            />
+            {errors.description && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
 
           {/* Actions */}
           <DialogFooter>

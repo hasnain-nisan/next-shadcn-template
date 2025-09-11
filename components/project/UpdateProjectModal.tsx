@@ -38,6 +38,7 @@ type UpdateProjectFormValues = {
   name?: string;
   clientTeam?: string;
   clientId?: string;
+  description?: string;
 };
 
 export function UpdateProjectModal({
@@ -58,18 +59,20 @@ export function UpdateProjectModal({
       name: "",
       clientTeam: "",
       clientId: "",
+      description: "",
     },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Populate form when modal opens or project changes
+  // Populate form when modal opens with a project
   useEffect(() => {
     if (open && project) {
       reset({
         name: project.name ?? "",
         clientTeam: project.clientTeam ?? "",
         clientId: project.client?.id ?? "",
+        description: project.description ?? "",
       });
     }
   }, [open, project, reset]);
@@ -80,6 +83,7 @@ export function UpdateProjectModal({
         name: "",
         clientTeam: "",
         clientId: "",
+        description: "",
       });
     }
     setOpen(isOpen);
@@ -93,10 +97,10 @@ export function UpdateProjectModal({
         name: data.name?.trim() || undefined,
         clientTeam: data.clientTeam?.trim() || undefined,
         clientId: data.clientId,
+        description: data.description?.trim() || undefined,
       });
       toast.success("Project updated successfully");
-      reset();
-      setOpen(false);
+      setOpen(false); // closing triggers handleOpenChange → reset
       setRefetch(true);
     } catch (error) {
       toast.error(
@@ -175,6 +179,28 @@ export function UpdateProjectModal({
                 </Select>
               )}
             />
+          </div>
+
+          {/* Description */}
+          <div>
+            <Label className="mb-2">Description</Label>
+            <textarea
+              className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              rows={4}
+              {...register("description", {
+                required: "Description is required",
+                validate: (v) =>
+                  v === undefined ||
+                  v.trim() === "" ||
+                  v.trim().length > 0 ||
+                  "Description must not be empty if provided",
+              })}
+            />
+            {errors.description && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           {/* Actions */}

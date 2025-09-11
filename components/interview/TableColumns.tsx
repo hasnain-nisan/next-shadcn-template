@@ -124,7 +124,7 @@ export const GetTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => {
-        const stakeholders = row.original.project?.stakeholders || [];
+        const stakeholders = row.original.stakeholders || [];
         return (
           <div className="flex flex-wrap gap-2 ml-3">
             {stakeholders.length > 0 ? (

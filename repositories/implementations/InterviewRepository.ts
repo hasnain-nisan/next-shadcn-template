@@ -14,6 +14,7 @@ export class InterviewRepository implements IInterviewRepository {
     name?: string;
     clientId?: string;
     projectId?: string;
+    stakeholderId?: string;
     deletedStatus?: string;
     startDate?: string;
     endDate?: string;
@@ -45,6 +46,10 @@ export class InterviewRepository implements IInterviewRepository {
     if (params?.projectId) {
       const projectIdValue = params.projectId === "all" ? "" : params.projectId;
       queryParts.push(`projectId=${encodeURIComponent(projectIdValue)}`);
+    }
+    if (params?.stakeholderId) {
+      const stakeholderIdValue = params.stakeholderId === "all" ? "" : params.stakeholderId;
+      queryParts.push(`stakeholderId=${encodeURIComponent(stakeholderIdValue)}`);
     }
     if (params?.deletedStatus) {
       const deletedStatusValue =

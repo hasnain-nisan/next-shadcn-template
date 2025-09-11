@@ -1,3 +1,4 @@
+import { description } from './../../components/chart-area-interactive';
 import { Project } from "@/types/project.types";
 
 export interface IProjectService {
@@ -22,7 +23,7 @@ export interface IProjectService {
     name?: string;
     clientTeam?: string;
     clientId?: string;
-    stakeholderIds?: string[];
+    // stakeholderIds?: string[];
   }): Promise<Project>;
   update(
     id: string,
@@ -30,7 +31,8 @@ export interface IProjectService {
       name?: string;
       clientTeam?: string;
       clientId?: string;
-      stakeholderIds?: string[];
+      // stakeholderIds?: string[];
+      description?: string;
     }
   ): Promise<Project>;
   delete(id: string): Promise<void>;

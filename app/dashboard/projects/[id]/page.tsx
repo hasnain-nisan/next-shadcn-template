@@ -171,6 +171,16 @@ export default function ProjectDetailsPage({
                         </div>
                       </div>
 
+                      {/* Project Description */}
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-foreground">
+                          Description
+                        </h3>
+                        <p className="text-black whitespace-pre-line">
+                          {project.description || "No description provided"}
+                        </p>
+                      </div>
+
                       {/* Audit Info Row */}
                       <div className="pt-6 border-t space-y-4">
                         <h3 className="font-semibold text-foreground">
@@ -208,7 +218,7 @@ export default function ProjectDetailsPage({
             </Card>
 
             {/* Stakeholders Section */}
-            <Card>
+            {/* <Card>
               <CardContent>
                 <Accordion
                   type="single"
@@ -280,7 +290,7 @@ export default function ProjectDetailsPage({
                   </AccordionItem>
                 </Accordion>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Interviews Section */}
             <Card>

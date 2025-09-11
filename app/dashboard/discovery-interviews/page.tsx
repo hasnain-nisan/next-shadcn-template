@@ -16,9 +16,10 @@ import { CreateInterviewModal } from "@/components/interview/CreateInterviewModa
 import { UpdateInterviewModal } from "@/components/interview/UpdateInterviewModal";
 import { DeleteInterviewModal } from "@/components/interview/DeleteInterviewModal";
 import { useSession } from "next-auth/react";
+import { ClientStakeholder } from "@/types/stakeholder.types";
 
 export default function InterviewsPage() {
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const accessScopes = session?.user?.accessScopes || {};
   const canCreateInterviews = accessScopes.canCreateInterviews ?? false;
 
@@ -26,6 +27,7 @@ export default function InterviewsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -35,6 +37,7 @@ export default function InterviewsPage() {
   const [name, setName] = useState("");
   const [clientId, setClientId] = useState("all");
   const [projectId, setProjectId] = useState("all");
+  const [stakeholderId, setStakeholderId] = useState("all");
   const [deletedStatus, setDeletedStatus] = useState("");
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
@@ -48,6 +51,7 @@ export default function InterviewsPage() {
 
   const [searchTermClient, setSearchTermClient] = useState("");
   const [searchTermProject, setSearchTermProject] = useState("");
+  const [searchTermStakeholder, setSearchTermStakeholder] = useState("");
 
   const debouncedName = useDebouncedValue(name, 500);
 
@@ -59,6 +63,7 @@ export default function InterviewsPage() {
     name?: string,
     clientId?: string,
     projectId?: string,
+    stakeholderId?: string,
     deletedStatus?: string,
     startDate?: string | undefined,
     endDate?: string | undefined
@@ -73,6 +78,7 @@ export default function InterviewsPage() {
         name,
         clientId,
         projectId,
+        stakeholderId,
         deletedStatus,
         startDate,
         endDate,
@@ -125,8 +131,27 @@ export default function InterviewsPage() {
     }
   };
 
+  const fetchStakeholders = async () => {
+    try {
+      const service = ServiceFactory.getClientStakeholderService();
+      const result = await service.getAll({
+        page: 1,
+        limit: Number.MAX_SAFE_INTEGER,
+        sortField: undefined,
+        sortOrder: undefined,
+        name: undefined,
+        clientId: clientId !== "all" ? clientId : undefined,
+        deletedStatus: "false",
+      });
+      setStakeholders(result.items);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
+    fetchStakeholders();
   }, [clientId]);
 
   const filteredProjects = useMemo(() => {
@@ -140,6 +165,12 @@ export default function InterviewsPage() {
       client.name.toLowerCase().includes(searchTermClient.toLowerCase())
     );
   }, [searchTermClient, clients]);
+
+  const filteredStakeholders = useMemo(() => {
+    return stakeholders.filter((stakeholder) =>
+      stakeholder.name.toLowerCase().includes(searchTermStakeholder.toLowerCase())
+    );
+  }, [searchTermStakeholder, stakeholders]);
 
   useEffect(() => {
     fetchClients();
@@ -157,6 +188,7 @@ export default function InterviewsPage() {
       debouncedName,
       clientId,
       projectId,
+      stakeholderId,
       deletedStatus,
       startDate ?? undefined,
       endDate ?? undefined
@@ -168,6 +200,7 @@ export default function InterviewsPage() {
     debouncedName,
     clientId,
     projectId,
+    stakeholderId,
     deletedStatus,
     startDate,
     endDate,
@@ -183,6 +216,7 @@ export default function InterviewsPage() {
       debouncedName,
       clientId,
       projectId,
+      stakeholderId,
       deletedStatus,
       startDate ?? undefined,
       endDate ?? undefined
@@ -200,6 +234,7 @@ export default function InterviewsPage() {
       debouncedName,
       clientId,
       projectId,
+      stakeholderId,
       deletedStatus,
       startDate ?? undefined,
       endDate ?? undefined
@@ -267,6 +302,8 @@ export default function InterviewsPage() {
             setClientId={setClientId}
             projectId={projectId}
             setProjectId={setProjectId}
+            stakeholderId={stakeholderId}
+            setStakeholderId={setStakeholderId}
             startDate={startDate}
             setStartDate={setStartDate}
             endDate={endDate}
@@ -283,6 +320,9 @@ export default function InterviewsPage() {
             filteredProjects={filteredProjects}
             searchTermProject={searchTermProject}
             setSearchTermProject={setSearchTermProject}
+            filteredStakeholders={filteredStakeholders}
+            searchTermStakeholder={searchTermStakeholder}
+            setSearchTermStakeholder={setSearchTermStakeholder}
           />
         )}
       </div>

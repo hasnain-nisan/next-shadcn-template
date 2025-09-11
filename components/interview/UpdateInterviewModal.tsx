@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   Dialog,
@@ -15,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { toast } from "sonner";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectTrigger,
@@ -31,6 +32,8 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { MultiSelect } from "@/components/ui/multi-select";
 import type { Interview } from "@/types/interview.types";
 import type { Client } from "@/types/client.types";
 import type { Project } from "@/types/project.types";
@@ -53,6 +56,7 @@ type UpdateInterviewFormValues = {
   requestUserStories?: string;
   clientId?: string;
   projectId?: string;
+  stakeholderIds?: string[];
 };
 
 export function UpdateInterviewModal({
@@ -70,6 +74,7 @@ export function UpdateInterviewModal({
     control,
     watch,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm<UpdateInterviewFormValues>({
     defaultValues: {
@@ -81,125 +86,153 @@ export function UpdateInterviewModal({
       requestUserStories: "",
       clientId: "",
       projectId: "",
+      stakeholderIds: [],
     },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const originalClientIdRef = useRef<string>("");
-  const lastInterviewIdRef = useRef<string>("");
+  const [stakeholders, setStakeholders] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [isLoadingStakeholders, setIsLoadingStakeholders] = useState(false);
+  const [originalClientId, setOriginalClientId] = useState("");
 
   const clientId = watch("clientId");
+  const projectId = watch("projectId");
+  const stakeholderIds = watch("stakeholderIds");
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      reset();
+  // Reset everything when modal closes
+  useEffect(() => {
+    if (!open) {
+      reset({
+        name: "",
+        date: "",
+        gDriveId: "",
+        requestDistillation: "",
+        requestCoaching: "",
+        requestUserStories: "",
+        clientId: "",
+        projectId: "",
+        stakeholderIds: [],
+      });
       setProjects([]);
-      setIsInitialLoad(true);
-      originalClientIdRef.current = "";
-      lastInterviewIdRef.current = "";
+      setStakeholders([]);
+      setOriginalClientId("");
       setSelectedInterview(null);
     }
-    setOpen(isOpen);
-  };
+  }, [open, reset, setSelectedInterview]);
 
-  // Ensure projectId gets synced after projects load
+  // Populate form with interview data when modal opens
   useEffect(() => {
-    if (!interview) return;
-
-    const projectIdFromInterview = interview.project?.id ?? "";
-    if (
-      projects.length > 0 &&
-      projectIdFromInterview &&
-      !watch("projectId") // only set if not already set
-    ) {
-      setValue("projectId", projectIdFromInterview);
-    }
-  }, [projects, interview, setValue, watch]);
-
-  // Hydrate form when modal opens or interview changes
-  useEffect(() => {
-    if (!open || !interview) {
-      return;
-    }
-
-    // Check if this is a different interview or if we need to re-hydrate
-    const currentInterviewId = interview.id;
-    const needsHydration = lastInterviewIdRef.current !== currentInterviewId;
-
-    if (needsHydration) {
-      setIsInitialLoad(true);
-      const originalClientId = interview.client?.id ?? "";
-      originalClientIdRef.current = originalClientId;
-      lastInterviewIdRef.current = currentInterviewId;
-
-      reset({
+    if (open && interview) {
+      const interviewData = {
         name: interview.name ?? "",
         date: interview.date ?? "",
         gDriveId: interview.gDriveId ?? "",
         requestDistillation: interview.requestDistillation ?? "",
         requestCoaching: interview.requestCoaching ?? "",
         requestUserStories: interview.requestUserStories ?? "",
-        clientId: originalClientId,
+        clientId: interview.client?.id ?? "",
         projectId: interview.project?.id ?? "",
-      });
+        stakeholderIds: interview.stakeholders?.map((s) => s.id) ?? [],
+      };
+
+      reset(interviewData);
+      setOriginalClientId(interview.client?.id ?? "");
     }
   }, [open, interview, reset]);
 
-  // Fetch projects when clientId changes
+  // Fetch projects and stakeholders when clientId changes
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchProjectsAndStakeholders = async () => {
       if (!clientId || clientId === "") {
         setProjects([]);
+        setStakeholders([]);
         return;
       }
 
       try {
-        const projectService = ServiceFactory.getProjectService();
-        const result = await projectService.getAll({
-          page: 1,
-          limit: Number.MAX_SAFE_INTEGER,
-          clientId,
-          deletedStatus: "false",
-        });
-        setProjects(result.items);
+        setIsLoadingProjects(true);
+        setIsLoadingStakeholders(true);
 
-        // After fetching projects for the first time, mark initial load as complete
-        if (isInitialLoad) {
-          setIsInitialLoad(false);
+        const [projectResult, stakeholderResult] = await Promise.all([
+          ServiceFactory.getProjectService().getAll({
+            page: 1,
+            limit: Number.MAX_SAFE_INTEGER,
+            clientId,
+            deletedStatus: "false",
+          }),
+          ServiceFactory.getClientStakeholderService().getAll({
+            page: 1,
+            limit: Number.MAX_SAFE_INTEGER,
+            clientId,
+            deletedStatus: "false",
+          }),
+        ]);
+
+        setProjects(projectResult.items);
+        setStakeholders(stakeholderResult.items);
+
+        // If client changed from original, reset project and stakeholders
+        if (clientId !== originalClientId) {
+          setValue("projectId", "");
+          setValue("stakeholderIds", []);
+          clearErrors("projectId");
+          clearErrors("stakeholderIds");
         }
       } catch (error) {
-        console.error("Failed to fetch projects:", error);
+        console.error("Failed to fetch projects and stakeholders:", error);
+        toast.error("Failed to fetch projects and stakeholders");
         setProjects([]);
-        if (isInitialLoad) {
-          setIsInitialLoad(false);
-        }
+        setStakeholders([]);
+      } finally {
+        setIsLoadingProjects(false);
+        setIsLoadingStakeholders(false);
       }
     };
 
     if (clientId) {
-      fetchProjects();
+      fetchProjectsAndStakeholders();
     } else {
       setProjects([]);
-      if (isInitialLoad) {
-        setIsInitialLoad(false);
+      setStakeholders([]);
+    }
+  }, [clientId, originalClientId, setValue, clearErrors]);
+
+  // Set project and stakeholder values after they're loaded
+  useEffect(() => {
+    if (!interview || !open) return;
+
+    // Only set values if we're still on the original client
+    if (clientId === originalClientId) {
+      if (projects.length > 0 && interview.project?.id && !projectId) {
+        setValue("projectId", interview.project.id);
+      }
+
+      if (
+        stakeholders.length > 0 &&
+        interview.stakeholders?.length > 0 &&
+        (!stakeholderIds || stakeholderIds.length === 0)
+      ) {
+        setValue(
+          "stakeholderIds",
+          interview.stakeholders.map((s) => s.id)
+        );
       }
     }
-  }, [clientId, isInitialLoad]);
-
-  // Reset projectId when client changes (only after initial load)
-  useEffect(() => {
-    // Don't reset during initial load or if no interview is set
-    if (isInitialLoad || !interview || !originalClientIdRef.current) {
-      return;
-    }
-
-    // Only reset projectId if the client has actually changed from the original
-    if (clientId && clientId !== originalClientIdRef.current) {
-      setValue("projectId", "");
-    }
-  }, [clientId, setValue, interview, isInitialLoad]);
+  }, [
+    projects,
+    stakeholders,
+    interview,
+    setValue,
+    clientId,
+    originalClientId,
+    projectId,
+    stakeholderIds,
+    open,
+  ]);
 
   const onSubmit = async (data: UpdateInterviewFormValues) => {
     try {
@@ -214,10 +247,10 @@ export function UpdateInterviewModal({
         requestUserStories: data.requestUserStories?.trim() || undefined,
         clientId: data.clientId,
         projectId: data.projectId,
+        stakeholderIds: data.stakeholderIds,
       });
       toast.success("Interview updated successfully");
       setOpen(false);
-      setSelectedInterview(null);
       setRefetch(true);
     } catch (error) {
       toast.error(
@@ -228,165 +261,273 @@ export function UpdateInterviewModal({
     }
   };
 
+  const handleDateSelect = (
+    date: Date | undefined,
+    onChange: (value: string) => void
+  ) => {
+    if (date) {
+      const normalized = new Date(
+        Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+      ).toISOString();
+      onChange(normalized);
+    } else {
+      onChange("");
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-lg w-full md:max-w-4xl">
         <DialogHeader className="mb-5">
           <DialogTitle>Update Interview</DialogTitle>
           <DialogDescription>
-            Modify interview details. Changing the client will reset project
-            selection.
+            Modify interview details. Changing the client will reset project and
+            stakeholder selection.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Name */}
-          <div>
-            <Label className="mb-2">Interview Name</Label>
-            <Input type="text" {...register("name")} />
-          </div>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            {/* Name */}
+            <div>
+              <Label htmlFor="name" className="mb-2 block">
+                Interview Name
+              </Label>
+              <Input
+                id="name"
+                type="text"
+                {...register("name")}
+                placeholder="Enter interview name"
+              />
+            </div>
 
-          {/* Date */}
-          <div>
-            <Label className="mb-2">Interview Date</Label>
-            <Controller
-              name="date"
-              control={control}
-              render={({ field }) => {
-                const dateValue = field.value
-                  ? new Date(field.value)
-                  : undefined;
-                return (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value
-                          ? format(new Date(field.value), "PPP")
-                          : "Select a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={dateValue}
-                        onSelect={(date) => {
-                          if (date) {
-                            const localDate = new Date(
-                              date.getFullYear(),
-                              date.getMonth(),
-                              date.getDate()
-                            );
-                            field.onChange(localDate.toISOString());
-                          } else {
-                            field.onChange("");
+            {/* Date */}
+            <div>
+              <Label className="mb-2 block">Interview Date</Label>
+              <Controller
+                name="date"
+                control={control}
+                render={({ field }) => {
+                  const dateValue = field.value
+                    ? new Date(field.value)
+                    : undefined;
+
+                  return (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          type="button"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value
+                            ? format(new Date(field.value), "PPP")
+                            : "Select a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dateValue}
+                          onSelect={(date) =>
+                            handleDateSelect(date, field.onChange)
                           }
-                        }}
-                        initialFocus
+                          initialFocus
+                        />
+                        <Button
+                          variant="ghost"
+                          type="button"
+                          className="w-full text-sm text-muted-foreground"
+                          onClick={() => field.onChange("")}
+                        >
+                          Reset Date
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
+                  );
+                }}
+              />
+            </div>
+
+            {/* Client */}
+            <div>
+              <Label className="mb-2 block">Client</Label>
+              <Controller
+                name="clientId"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a client..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {clients.length > 0 ? (
+                        clients.map((client) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            {client.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-sm text-muted-foreground">
+                          No clients available
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            {/* Project */}
+            <div>
+              <Label className="mb-2 block">Project</Label>
+              <Controller
+                name="projectId"
+                control={control}
+                rules={{
+                  required: "Project is required",
+                  validate: (v) =>
+                    (typeof v === "string" && v.trim() !== "") ||
+                    "Project is required",
+                }}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={!clientId || isLoadingProjects}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={
+                          !clientId
+                            ? "Select a client first"
+                            : isLoadingProjects
+                            ? "Loading projects..."
+                            : "Select a project..."
+                        }
                       />
-                      <Button
-                        variant="ghost"
-                        className="w-full text-sm text-muted-foreground"
-                        onClick={() => field.onChange("")}
-                      >
-                        Reset Date
-                      </Button>
-                    </PopoverContent>
-                  </Popover>
-                );
-              }}
-            />
-          </div>
-
-          {/* Client */}
-          <div>
-            <Label className="mb-2">Client</Label>
-            <Controller
-              name="clientId"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full h-[36px] text-sm">
-                    <SelectValue placeholder="Select a client..." />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px] overflow-y-auto w-full">
-                    {clients.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {projects.length > 0 ? (
+                        projects.map((project) => (
+                          <SelectItem key={project.id} value={project.id}>
+                            {project.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-sm text-muted-foreground">
+                          {clientId && !isLoadingProjects
+                            ? "No projects available for this client"
+                            : "No projects available"}
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.projectId && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.projectId.message}
+                </p>
               )}
-            />
-          </div>
+            </div>
 
-          {/* Project */}
-          <div>
-            <Label className="mb-2">Project</Label>
-            <Controller
-              name="projectId"
-              control={control}
-              rules={{
-                required: "Project is required",
-                validate: (v) =>
-                  (typeof v === "string" && v.trim() !== "") ||
-                  "Project is required",
-              }}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={!clientId}
-                >
-                  <SelectTrigger className="w-full h-[36px] text-sm">
-                    <SelectValue placeholder="Select a project..." />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px] overflow-y-auto w-full">
-                    {projects.length > 0 ? (
-                      projects.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="px-4 py-2 text-sm text-muted-foreground">
-                        No projects available
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
+            {/* Stakeholders Multi-Select */}
+            <div>
+              <Label className="mb-2 block">Stakeholders</Label>
+              <Controller
+                name="stakeholderIds"
+                control={control}
+                rules={{
+                  required: "At least one stakeholder must be assigned",
+                  validate: (v) =>
+                    (Array.isArray(v) && v.length > 0) ||
+                    "At least one stakeholder must be assigned",
+                }}
+                render={({ field }) => {
+                  const clientSelected = !!watch("clientId");
+
+                  return (
+                    <>
+                      <MultiSelect
+                        options={stakeholders.map((s) => ({
+                          label: s.name,
+                          value: s.id,
+                        }))}
+                        selected={field.value || []}
+                        onChange={field.onChange}
+                        placeholder={
+                          !clientSelected
+                            ? "Select a client first"
+                            : isLoadingStakeholders
+                            ? "Loading stakeholders..."
+                            : "Select stakeholders..."
+                        }
+                        disabled={!clientSelected || isLoadingStakeholders}
+                      />
+                    </>
+                  );
+                }}
+              />
+              {errors.stakeholderIds && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.stakeholderIds.message}
+                </p>
               )}
-            />
-            {errors.projectId && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.projectId.message}
-              </p>
-            )}
-          </div>
+            </div>
 
-          {/* Optional Fields */}
-          <div>
-            <Label className="mb-2">Google Drive ID</Label>
-            <Input type="text" {...register("gDriveId")} />
-          </div>
+            {/* Optional Fields */}
+            <div>
+              <Label htmlFor="gDriveId" className="mb-2 block">
+                Google Drive ID
+              </Label>
+              <Input
+                id="gDriveId"
+                type="text"
+                {...register("gDriveId")}
+                placeholder="Enter Google Drive ID"
+              />
+            </div>
 
-          <div>
-            <Label className="mb-2">Request Distillation</Label>
-            <Input type="url" {...register("requestDistillation")} />
-          </div>
+            <div>
+              <Label htmlFor="requestDistillation" className="mb-2 block">
+                Request Distillation
+              </Label>
+              <Input
+                id="requestDistillation"
+                type="url"
+                {...register("requestDistillation")}
+                placeholder="Enter distillation URL"
+              />
+            </div>
 
-          <div>
-            <Label className="mb-2">Request Coaching</Label>
-            <Input type="url" {...register("requestCoaching")} />
-          </div>
+            <div>
+              <Label htmlFor="requestCoaching" className="mb-2 block">
+                Request Coaching
+              </Label>
+              <Input
+                id="requestCoaching"
+                type="url"
+                {...register("requestCoaching")}
+                placeholder="Enter coaching URL"
+              />
+            </div>
 
-          <div>
-            <Label className="mb-2">Request User Stories</Label>
-            <Input type="url" {...register("requestUserStories")} />
+            <div>
+              <Label htmlFor="requestUserStories" className="mb-2 block">
+                Request User Stories
+              </Label>
+              <Input
+                id="requestUserStories"
+                type="url"
+                {...register("requestUserStories")}
+                placeholder="Enter user stories URL"
+              />
+            </div>
           </div>
 
           {/* Actions */}
@@ -394,7 +535,8 @@ export function UpdateInterviewModal({
             <Button
               type="button"
               variant="outline"
-              onClick={() => handleOpenChange(false)}
+              onClick={() => setOpen(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
@@ -402,7 +544,7 @@ export function UpdateInterviewModal({
               {isSubmitting && (
                 <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {isSubmitting ? "Updating..." : "Update"}
+              {isSubmitting ? "Updating..." : "Update Interview"}
             </Button>
           </DialogFooter>
         </form>

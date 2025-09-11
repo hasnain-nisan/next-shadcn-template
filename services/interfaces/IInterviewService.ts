@@ -9,6 +9,7 @@ export interface IInterviewService {
     name?: string;
     clientId?: string;
     projectId?: string;
+    stakeholderId?: string;
     deletedStatus?: string;
     startDate?: string;
     endDate?: string;
@@ -41,6 +42,7 @@ export interface IInterviewService {
       requestUserStories?: string;
       clientId?: string;
       projectId?: string;
+      stakeholderIds?: string[];
     }
   ): Promise<Interview>;
 

@@ -18,6 +18,7 @@ export class InterviewService implements IInterviewService {
     name?: string;
     clientId?: string;
     projectId?: string;
+    stakeholderId?: string;
     deletedStatus?: string;
     startDate?: string;
     endDate?: string;

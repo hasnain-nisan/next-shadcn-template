@@ -1,6 +1,7 @@
 import { Client } from "./client.types";
 import { UserRef } from "./user.types";
 import { Project } from "./project.types";
+import { ClientStakeholder } from "./stakeholder.types";
 
 export interface Interview {
   id: string;
@@ -12,6 +13,7 @@ export interface Interview {
   requestUserStories: string | null;
   client: Client;
   project: Project;
+  stakeholders: ClientStakeholder[];
   createdBy: UserRef;
   updatedBy: UserRef;
   createdAt: string;
