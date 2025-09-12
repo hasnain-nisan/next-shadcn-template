@@ -72,4 +72,8 @@ export interface ApiEndpoints {
   dashboard: {
     analytics: string;
   };
+  adminSettings: {
+    getSingle: string;
+    update: (id: string) => string;
+  };
 }

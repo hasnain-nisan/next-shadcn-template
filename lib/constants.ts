@@ -53,6 +53,10 @@ export const API_ENDPOINTS: ApiEndpoints = {
   dashboard: {
     analytics: "/dashboard/analytics",
   },
+  adminSettings: {
+    getSingle: "/admin-settings",
+    update: (id: string) => `/admin-settings/${id}`,
+  },
 };
 
 export const ROUTES = {

@@ -1,3 +1,4 @@
+import { AdminSettingsRepository } from "./implementations/AdminSettingsRepository";
 import { AuthRepository } from "./implementations/AuthRepository";
 import { ClientRepository } from "./implementations/ClientRepository";
 import { ClientStakeholderRepository } from "./implementations/ClientStakeholderRepository";
@@ -5,6 +6,7 @@ import { DashboardRepository } from "./implementations/DashboardRepository";
 import { InterviewRepository } from "./implementations/InterviewRepository";
 import { ProjectRepository } from "./implementations/ProjectRepository";
 import { UserRepository } from "./implementations/UserRepository";
+import { IAdminSettingsRepository } from "./interfaces/IAdminSettingsRepository";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
 import { IClientRepository } from "./interfaces/IClientRepository";
 import { IClientStakeholderRepository } from "./interfaces/IClientStakeholderRepository";
@@ -52,5 +54,9 @@ export class RepositoryFactory {
 
   static getDashboardRepository(): IDashboardRepository {
     return this.getRepository("dashboard", () => new DashboardRepository());
+  }
+
+  static getAdminSettingsRepository(): IAdminSettingsRepository {
+    return this.getRepository("adminSettings", () => new AdminSettingsRepository());
   }
 }
