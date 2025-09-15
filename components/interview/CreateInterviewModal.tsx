@@ -484,19 +484,26 @@ export function CreateInterviewModal({
               )}
             </div>
 
-            {/* Optional Fields */}
             <div>
               <Label htmlFor="gDriveId" className="mb-2 block">
-                Google Drive ID
+                Google Drive ID <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="gDriveId"
                 type="text"
-                {...register("gDriveId")}
+                {...register("gDriveId", {
+                  required: "Google Drive ID is required",
+                })}
                 placeholder="Enter Google Drive ID"
               />
+              {errors.gDriveId && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.gDriveId.message}
+                </p>
+              )}
             </div>
 
+            {/* Optional Fields */}
             <div>
               <Label htmlFor="requestDistillation" className="mb-2 block">
                 Request Distillation
