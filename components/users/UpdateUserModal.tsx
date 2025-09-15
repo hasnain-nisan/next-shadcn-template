@@ -29,7 +29,7 @@ type Props = {
 
 type UpdateUserFormValues = {
   email: string;
-  role: "Admin" | "SuperAdmin";
+  role: "Admin" | "SuperAdmin" | "InterviewUser";
   password?: string;
   confirmPassword?: string;
   accessScopes: {
@@ -79,7 +79,7 @@ export function UpdateUserModal({
       reset({
         email: user.email,
         role: user.role as "Admin" | "InterviewUser",
-        accessScopes: user.accessScopes,
+        accessScopes: user.accessScopes as UpdateUserFormValues['accessScopes'],
         password: "",
         confirmPassword: "",
       });

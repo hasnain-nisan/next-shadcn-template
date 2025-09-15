@@ -307,7 +307,8 @@ export function CreateConfigModal({
                       ? {
                           required: "Interview tracker GDrive ID is required",
                           validate: (v) =>
-                            v.trim() !== "" || "This field cannot be empty",
+                            (typeof v === "string" ? v.trim() : "") !== "" ||
+                            "This field cannot be empty",
                         }
                       : {}),
                   })}
