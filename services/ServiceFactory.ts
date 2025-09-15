@@ -14,6 +14,8 @@ import { DashboardService } from "./implementations/DashboardService";
 import { IDashboardService } from "./interfaces/IDashboardService";
 import { IAdminSettingsService } from "./interfaces/IAdminSettingsService";
 import { AdminSettingsService } from "./implementations/AdminSettingsService";
+import { IConfigService } from "./interfaces/IConfigService";
+import { ConfigService } from "./implementations/ConfigService";
 
 export class ServiceFactory {
   private static readonly instances = new Map<string, unknown>();
@@ -57,6 +59,13 @@ export class ServiceFactory {
   }
 
   static getAdminSettingsService(): IAdminSettingsService {
-    return this.getService("adminSettingsService", () => new AdminSettingsService());
+    return this.getService(
+      "adminSettingsService",
+      () => new AdminSettingsService()
+    );
+  }
+
+  static getConfigService(): IConfigService {
+    return this.getService("configService", () => new ConfigService());
   }
 }

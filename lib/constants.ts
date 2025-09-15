@@ -57,6 +57,14 @@ export const API_ENDPOINTS: ApiEndpoints = {
     getSingle: "/admin-settings",
     update: (id: string) => `/admin-settings/${id}`,
   },
+  configs: {
+    getAll: "/config",
+    create: "/config",
+    update: (id: string) => `/config/${id}`,
+    delete: (id: string) => `/config/${id}`,
+    getById: (id: string) => `/config/${id}`,
+    // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
+  },
 };
 
 export const ROUTES = {

@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
+  IconAdjustmentsHorizontal,
   IconBriefcase,
   IconFolder,
   IconLayoutDashboard,
   IconMessages,
+  IconSettings,
   IconUsers,
   IconUserStar,
 } from "@tabler/icons-react";
@@ -32,6 +34,8 @@ export function SiteHeader() {
       url: "/dashboard/discovery-interview",
       icon: IconMessages,
     },
+    { title: "Settings", url: "/dashboard/settings", icon: IconSettings },
+    { title: "N8N Configs", url: "/dashboard/n8n-configs", icon: IconAdjustmentsHorizontal },
   ];
 
   const currentNav = [...navMain]

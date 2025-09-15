@@ -76,4 +76,12 @@ export interface ApiEndpoints {
     getSingle: string;
     update: (id: string) => string;
   };
+  configs: {
+    getAll: string;
+    create: string;
+    update: (id: string) => string;
+    delete: (id: string) => string;
+    getById: (id: string) => string;
+    // toggleFavorite: (id: string) => string;
+  };
 }
