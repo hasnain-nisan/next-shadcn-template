@@ -24,9 +24,9 @@ export interface IInterviewService {
     name: string;
     date: string;
     gDriveId?: string;
-    requestDistillation?: string;
-    requestCoaching?: string;
-    requestUserStories?: string;
+    requestDistillation?: boolean;
+    requestCoaching?: boolean;
+    requestUserStories?: boolean;
     clientId: string;
     projectId: string;
   }): Promise<Interview>;
@@ -37,9 +37,9 @@ export interface IInterviewService {
       name?: string;
       date?: string;
       gDriveId?: string;
-      requestDistillation?: string;
-      requestCoaching?: string;
-      requestUserStories?: string;
+      requestDistillation?: boolean;
+      requestCoaching?: boolean;
+      requestUserStories?: boolean;
       clientId?: string;
       projectId?: string;
       stakeholderIds?: string[];

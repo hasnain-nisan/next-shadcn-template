@@ -51,9 +51,9 @@ type UpdateInterviewFormValues = {
   name?: string;
   date?: string;
   gDriveId?: string;
-  requestDistillation?: string;
-  requestCoaching?: string;
-  requestUserStories?: string;
+  requestDistillation?: boolean;
+  requestCoaching?: boolean;
+  requestUserStories?: boolean;
   clientId?: string;
   projectId?: string;
   stakeholderIds?: string[];
@@ -81,9 +81,9 @@ export function UpdateInterviewModal({
       name: "",
       date: "",
       gDriveId: "",
-      requestDistillation: "",
-      requestCoaching: "",
-      requestUserStories: "",
+      requestDistillation: false,
+      requestCoaching: false,
+      requestUserStories: false,
       clientId: "",
       projectId: "",
       stakeholderIds: [],
@@ -110,9 +110,9 @@ export function UpdateInterviewModal({
         name: "",
         date: "",
         gDriveId: "",
-        requestDistillation: "",
-        requestCoaching: "",
-        requestUserStories: "",
+        requestDistillation: false,
+        requestCoaching: false,
+        requestUserStories: false,
         clientId: "",
         projectId: "",
         stakeholderIds: [],
@@ -127,13 +127,13 @@ export function UpdateInterviewModal({
   // Populate form with interview data when modal opens
   useEffect(() => {
     if (open && interview) {
-      const interviewData = {
+      const interviewData: UpdateInterviewFormValues  = {
         name: interview.name ?? "",
         date: interview.date ?? "",
         gDriveId: interview.gDriveId ?? "",
-        requestDistillation: interview.requestDistillation ?? "",
-        requestCoaching: interview.requestCoaching ?? "",
-        requestUserStories: interview.requestUserStories ?? "",
+        requestDistillation: !!interview.requestDistillation,
+        requestCoaching: !!interview.requestCoaching,
+        requestUserStories: !!interview.requestUserStories,
         clientId: interview.client?.id ?? "",
         projectId: interview.project?.id ?? "",
         stakeholderIds: interview.stakeholders?.map((s) => s.id) ?? [],
@@ -238,13 +238,15 @@ export function UpdateInterviewModal({
     try {
       setIsSubmitting(true);
       const interviewService = ServiceFactory.getInterviewService();
+      // console.log("=====================>", data);
+      
       await interviewService.update(interview!.id, {
         name: data.name?.trim() || undefined,
         date: data.date,
         gDriveId: data.gDriveId?.trim() || undefined,
-        requestDistillation: data.requestDistillation?.trim() || undefined,
-        requestCoaching: data.requestCoaching?.trim() || undefined,
-        requestUserStories: data.requestUserStories?.trim() || undefined,
+        requestDistillation: data.requestDistillation,
+        requestCoaching: data.requestCoaching,
+        requestUserStories: data.requestUserStories,
         clientId: data.clientId,
         projectId: data.projectId,
         stakeholderIds: data.stakeholderIds,
@@ -493,19 +495,52 @@ export function UpdateInterviewModal({
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="requestDistillation">
+                  Request Distillation
+                </Label>
+                <Input
+                  id="requestDistillation"
+                  type="checkbox"
+                  {...register("requestDistillation")}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="requestCoaching">
+                  Request Coaching
+                </Label>
+                <Input
+                  id="requestCoaching"
+                  type="checkbox"
+                  {...register("requestCoaching")}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="requestUserStories">
+                  Request User Stories
+                </Label>
+                <Input
+                  id="requestUserStories"
+                  type="checkbox"
+                  {...register("requestUserStories")}
+                />
+              </div>
+            </div>
+
+            {/* <div>
               <Label htmlFor="requestDistillation" className="mb-2 block">
-                Request Distillation
+                Request Coaching
               </Label>
               <Input
                 id="requestDistillation"
                 type="url"
                 {...register("requestDistillation")}
-                placeholder="Enter distillation URL"
+                placeholder="Enter Request Distillation URL"
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Label htmlFor="requestCoaching" className="mb-2 block">
                 Request Coaching
               </Label>
@@ -515,9 +550,9 @@ export function UpdateInterviewModal({
                 {...register("requestCoaching")}
                 placeholder="Enter coaching URL"
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Label htmlFor="requestUserStories" className="mb-2 block">
                 Request User Stories
               </Label>
@@ -527,7 +562,7 @@ export function UpdateInterviewModal({
                 {...register("requestUserStories")}
                 placeholder="Enter user stories URL"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Actions */}

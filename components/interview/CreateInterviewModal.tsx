@@ -44,9 +44,9 @@ type CreateInterviewFormValues = {
   name: string;
   date: string;
   gDriveId?: string;
-  requestDistillation?: string;
-  requestCoaching?: string;
-  requestUserStories?: string;
+  requestDistillation?: boolean;
+  requestCoaching?: boolean;
+  requestUserStories?: boolean;
   clientId: string;
   projectId: string;
   stakeholderIds: string[];
@@ -74,9 +74,9 @@ export function CreateInterviewModal({
       name: "",
       date: "",
       gDriveId: "",
-      requestDistillation: "",
-      requestCoaching: "",
-      requestUserStories: "",
+      requestDistillation: false,
+      requestCoaching: false,
+      requestUserStories: false,
       clientId: id || "",
       projectId: "",
       stakeholderIds: [],
@@ -504,19 +504,52 @@ export function CreateInterviewModal({
             </div>
 
             {/* Optional Fields */}
-            <div>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="requestDistillation">
+                  Request Distillation
+                </Label>
+                <Input
+                  id="requestDistillation"
+                  type="checkbox"
+                  {...register("requestDistillation")}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="requestCoaching">
+                  Request Coaching
+                </Label>
+                <Input
+                  id="requestCoaching"
+                  type="checkbox"
+                  {...register("requestCoaching")}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="requestUserStories">
+                  Request User Stories
+                </Label>
+                <Input
+                  id="requestUserStories"
+                  type="checkbox"
+                  {...register("requestUserStories")}
+                />
+              </div>
+            </div>
+
+            {/* <div>
               <Label htmlFor="requestDistillation" className="mb-2 block">
-                Request Distillation
+                 Request Distillation
               </Label>
               <Input
                 id="requestDistillation"
                 type="url"
-                {...register("requestDistillation")}
-                placeholder="Enter distillation URL"
+                {...register("requestCoaching")}
+                placeholder="Enter Request Distillation URL"
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Label htmlFor="requestCoaching" className="mb-2 block">
                 Request Coaching
               </Label>
@@ -526,9 +559,9 @@ export function CreateInterviewModal({
                 {...register("requestCoaching")}
                 placeholder="Enter coaching URL"
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Label htmlFor="requestUserStories" className="mb-2 block">
                 Request User Stories
               </Label>
@@ -538,7 +571,7 @@ export function CreateInterviewModal({
                 {...register("requestUserStories")}
                 placeholder="Enter user stories URL"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Actions */}

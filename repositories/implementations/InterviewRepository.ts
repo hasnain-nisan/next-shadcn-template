@@ -80,9 +80,9 @@ export class InterviewRepository implements IInterviewRepository {
       ...data,
       name: data.name?.trim() || undefined,
       gDriveId: data.gDriveId?.trim() || undefined,
-      requestDistillation: data.requestDistillation?.trim() || undefined,
-      requestCoaching: data.requestCoaching?.trim() || undefined,
-      requestUserStories: data.requestUserStories?.trim() || undefined,
+      requestDistillation: data.requestDistillation,
+      requestCoaching: data.requestCoaching,
+      requestUserStories: data.requestUserStories,
     };
 
     return makeApiRequest<Interview>(API_ENDPOINTS.interviews.create, {

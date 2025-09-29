@@ -162,14 +162,14 @@ export default function InterviewDetailsPage({
                             <span className="font-medium text-foreground">
                               Request Distillation:
                             </span>{" "}
-                            <a
+                            {/* <a
                               href={interview.requestDistillation}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline"
                             >
                               Open Link
-                            </a>
+                            </a> */}
                           </div>
                         )}
                         {interview.requestCoaching && (
@@ -177,14 +177,14 @@ export default function InterviewDetailsPage({
                             <span className="font-medium text-foreground">
                               Request Coaching:
                             </span>{" "}
-                            <a
+                            {/* <a
                               href={interview.requestCoaching}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline"
                             >
                               Open Link
-                            </a>
+                            </a> */}
                           </div>
                         )}
                         {interview.requestUserStories && (
@@ -192,14 +192,14 @@ export default function InterviewDetailsPage({
                             <span className="font-medium text-foreground">
                               Request User Stories:
                             </span>{" "}
-                            <a
+                            {/* <a
                               href={interview.requestUserStories}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline"
                             >
                               Open Link
-                            </a>
+                            </a> */}
                           </div>
                         )}
                       </div>

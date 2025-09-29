@@ -206,9 +206,9 @@ export const GetTableColumns = ({
         return (
           <div className="ml-3 text-sm space-y-1">
             {renderField("GDrive ID", gDriveId)}
-            {renderField("Distillation", requestDistillation)}
-            {renderField("Coaching", requestCoaching)}
-            {renderField("User Stories", requestUserStories)}
+            {/* {renderField("Distillation", requestDistillation)} */}
+            {/* {renderField("Coaching", requestCoaching)} */}
+            {/* {renderField("User Stories", requestUserStories)} */}
           </div>
         );
       },
