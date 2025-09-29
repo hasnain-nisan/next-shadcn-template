@@ -68,7 +68,7 @@ type CreateUserFormValues = {
     canUpdateInterviews?: boolean;
     canDeleteInterviews?: boolean;
 
-    // N8N Configs
+    // Configs
     canAccessConfig?: boolean;
     canCreateConfig?: boolean;
     canUpdateConfig?: boolean;
@@ -129,7 +129,7 @@ export function CreateUserModal({
         canUpdateInterviews: false,
         canDeleteInterviews: false,
 
-        // N8N Configs
+        // Configs
         canAccessConfig: false,
         canCreateConfig: false,
         canUpdateConfig: false,

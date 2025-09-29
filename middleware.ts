@@ -16,7 +16,7 @@ export default withAuth(
       "/dashboard/projects": "canAccessProjects",
       "/dashboard/discovery-interview": "canAccessInterviews",
       "/dashboard/client-stakeholders": "canAccessStakeholders",
-      "/dashboard/n8n-configs": "canAccessConfig", // New
+      "/dashboard/configs": "canAccessConfig", // New
       "/dashboard/settings": "canAccessAdminSettings", // New
     };
 

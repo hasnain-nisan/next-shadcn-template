@@ -180,7 +180,7 @@ export const GetTableColumns = ({
                 }`}
                 onClick={() => {
                   if (canViewConfigs) {
-                    router.push(`/dashboard/n8n-configs/${config.id}`);
+                    router.push(`/dashboard/configs/${config.id}`);
                   }
                 }}
               >

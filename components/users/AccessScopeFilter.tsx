@@ -66,7 +66,7 @@ const ACCESS_SCOPE_GROUPS = [
     ],
   },
   {
-    module: "N8N Configs",
+    module: "Configs",
     scopes: [
       { key: "canAccessConfig", label: "Access Configs" },
       { key: "canCreateConfig", label: "Create Configs" },

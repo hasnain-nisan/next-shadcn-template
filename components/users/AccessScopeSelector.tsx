@@ -70,7 +70,7 @@ const ACCESS_SCOPE_GROUPS = [
     ],
   },
   {
-    module: "N8N Configs",
+    module: "Configs",
     scopes: [
       { key: "canAccessConfig", label: "Access Configs" },
       { key: "canCreateConfig", label: "Create Configs" },
@@ -117,7 +117,7 @@ export function AccessScopeSelector({
 
   // Auto-update scopes when role changes
   useEffect(() => {
-    if(type === "update") return;
+    if (type === "update") return;
     if (role in ROLE_ACCESS_PRESETS) {
       const presetKeys = ROLE_ACCESS_PRESETS[role];
       const newValue: Record<string, boolean> = {};

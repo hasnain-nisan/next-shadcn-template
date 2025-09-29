@@ -52,10 +52,10 @@ export default function ProjectDetailsPage({
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <Link
-          href="/dashboard/n8n-configs"
+          href="/dashboard/configs"
           className="hover:text-foreground font-medium"
         >
-          N8N Configs
+          Configs
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <span className="text-foreground font-semibold">Details</span>

@@ -29,7 +29,7 @@ export interface AccessScopes {
   canUpdateInterviews?: boolean;
   canDeleteInterviews?: boolean;
 
-  // TPConfig / N8N Configs
+  // TPConfig / Configs
   canAccessConfig?: boolean;
   canCreateConfig?: boolean;
   canUpdateConfig?: boolean;

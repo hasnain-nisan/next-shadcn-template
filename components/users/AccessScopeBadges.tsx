@@ -50,13 +50,41 @@ export function AccessScopeBadges({
   accessScopes,
 }: Readonly<AccessScopeBadgesProps>) {
   const scopes = [
-    { key: "canAccessUsers", label: "Users", enabled: accessScopes.canAccessUsers },
-    { key: "canAccessClients", label: "Clients", enabled: accessScopes.canAccessClients },
-    { key: "canAccessProjects", label: "Projects", enabled: accessScopes.canAccessProjects },
-    { key: "canAccessInterviews", label: "Interviews", enabled: accessScopes.canAccessInterviews },
-    { key: "canAccessStakeholders", label: "Stakeholders", enabled: accessScopes.canAccessStakeholders },
-    { key: "canAccessConfig", label: "N8N Configs", enabled: accessScopes.canAccessConfig },
-    { key: "canAccessAdminSettings", label: "Settings", enabled: accessScopes.canAccessAdminSettings },
+    {
+      key: "canAccessUsers",
+      label: "Users",
+      enabled: accessScopes.canAccessUsers,
+    },
+    {
+      key: "canAccessClients",
+      label: "Clients",
+      enabled: accessScopes.canAccessClients,
+    },
+    {
+      key: "canAccessProjects",
+      label: "Projects",
+      enabled: accessScopes.canAccessProjects,
+    },
+    {
+      key: "canAccessInterviews",
+      label: "Interviews",
+      enabled: accessScopes.canAccessInterviews,
+    },
+    {
+      key: "canAccessStakeholders",
+      label: "Stakeholders",
+      enabled: accessScopes.canAccessStakeholders,
+    },
+    {
+      key: "canAccessConfig",
+      label: "Configs",
+      enabled: accessScopes.canAccessConfig,
+    },
+    {
+      key: "canAccessAdminSettings",
+      label: "Settings",
+      enabled: accessScopes.canAccessAdminSettings,
+    },
   ];
 
   const enabledScopes = scopes.filter((scope) => scope.enabled);

@@ -172,17 +172,17 @@ export default function ProjectsPage() {
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <Link
-          href="/dashboard/n8n-configs"
+          href="/dashboard/configs"
           className="text-foreground font-semibold"
         >
-          N8N Configs
+          Configs
         </Link>
       </div>
 
       {/* Module Header */}
       <div className="px-4 lg:px-6 mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">n8n Configs</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Configs</h1>
           <Button
             className="h-8 px-3 text-sm"
             onClick={() => setOpenCreateModal(true)}

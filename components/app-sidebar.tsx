@@ -70,8 +70,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     // New menu items
     access.canAccessConfig && {
-      title: "N8N Configs",
-      url: "/dashboard/n8n-configs",
+      title: "Configs",
+      url: "/dashboard/configs",
       icon: IconAdjustmentsHorizontal,
     },
     access.canAccessAdminSettings && {
