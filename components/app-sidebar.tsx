@@ -1,17 +1,18 @@
 "use client";
 
-import * as React from "react";
 import {
   Icon,
+  IconAdjustmentsHorizontal,
   IconBriefcase,
+  IconFileUpload,
   IconFolder,
   IconLayoutDashboard,
   IconMessages,
+  IconSettings,
   IconUsers,
   IconUserStar,
-  IconSettings,
-  IconAdjustmentsHorizontal,
 } from "@tabler/icons-react";
+import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -24,9 +25,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { BrandLogo } from "./ui/BrandLogo";
-import { useSession } from "next-auth/react";
 import { getNameFromEmail } from "@/lib/helper";
+import { useSession } from "next-auth/react";
+import { BrandLogo } from "./ui/BrandLogo";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
@@ -73,6 +74,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Configs",
       url: "/dashboard/configs",
       icon: IconAdjustmentsHorizontal,
+    },
+    access.canAccessConfig && {
+      title: "Bulk Upload",
+      url: "/dashboard/bulk-upload",
+      icon: IconFileUpload,
     },
     access.canAccessAdminSettings && {
       title: "Settings",
