@@ -36,6 +36,8 @@ type CreateStakeholderFormValues = {
   email?: string;
   phone?: string;
   clientId: string;
+  role?: string;
+  team?: string;
 };
 
 export function CreateClientStakeholderModal({
@@ -56,6 +58,8 @@ export function CreateClientStakeholderModal({
       email: "",
       phone: "",
       clientId: "",
+      role: "",
+      team: "",
     },
   });
 
@@ -181,6 +185,32 @@ export function CreateClientStakeholderModal({
               <p className="text-xs text-red-500 mt-1">
                 {errors.clientId.message || "Client is required"}
               </p>
+            )}
+          </div>
+          
+          {/* Role */}
+          <div>
+            <Label className="mb-2">Role</Label>
+            <Input
+              placeholder="Please enter a Role"
+              type="text"
+              {...register("role")}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+            )}
+          </div>
+
+          {/* Team */}
+          <div>
+            <Label className="mb-2">Team</Label>
+            <Input
+              placeholder="Please enter a Team"
+              type="text"
+              {...register("team")}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
             )}
           </div>
 

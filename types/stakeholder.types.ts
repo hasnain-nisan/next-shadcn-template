@@ -9,6 +9,8 @@ export interface ClientStakeholder {
   email: string | null;
   phone: string | null;
   client: Client;
+  role: string | null;
+  team: string | null;
   createdBy: UserRef;
   updatedBy: UserRef | null;
   interviews: Interview[];

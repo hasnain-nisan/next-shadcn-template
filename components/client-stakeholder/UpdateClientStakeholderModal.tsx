@@ -39,6 +39,8 @@ type UpdateStakeholderFormValues = {
   email?: string;
   phone?: string;
   clientId?: string;
+  role?: string;
+  team?: string;
 };
 
 export function UpdateClientStakeholderModal({
@@ -60,6 +62,8 @@ export function UpdateClientStakeholderModal({
       email: "",
       phone: "",
       clientId: "",
+      role: "",
+      team: "",
     },
   });
 
@@ -71,6 +75,8 @@ export function UpdateClientStakeholderModal({
         name: stakeholder.name ?? "",
         email: stakeholder.email ?? "",
         phone: stakeholder.phone ?? "",
+        role: stakeholder.role ?? "",
+        team: stakeholder.team ?? "",
       });
     }
   }, [open, stakeholder, reset]);
@@ -88,6 +94,8 @@ export function UpdateClientStakeholderModal({
         name: data.name?.trim() || undefined,
         email: data.email?.trim() || undefined,
         phone: data.phone?.trim() || undefined,
+        role: data.role?.trim() || undefined,
+        team: data.team?.trim() || undefined,
       });
       toast.success("Stakeholder updated successfully");
       reset();
@@ -198,6 +206,32 @@ export function UpdateClientStakeholderModal({
                 </Select>
               )}
             />
+          </div>
+
+          {/* Role */}
+          <div>
+            <Label className="mb-2">Role</Label>
+            <Input
+              type="text"
+              placeholder="Please enter role name"
+              {...register("role")}
+            />
+            {errors.role && (
+              <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>
+            )}
+          </div>
+
+          {/* Team */}
+          <div>
+            <Label className="mb-2">Team</Label>
+            <Input
+              type="text"
+              placeholder="Please enter team name"
+              {...register("team")}
+            />
+            {errors.team && (
+              <p className="text-xs text-red-500 mt-1">{errors.team.message}</p>
+            )}
           </div>
 
           {/* Actions */}
