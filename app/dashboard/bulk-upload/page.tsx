@@ -150,27 +150,11 @@ export default function BulkUploadPage() {
                 }
             }
 
-            const response = await fetch("/api/bulk-upload", {
-                method: "POST",
-                body: formData,
-            })
-
-            const result = await response.json()
+            const service = ServiceFactory.getBulkUploadService();
+            const result = await service.uploadExcel(selectedFile, uploadType, selectedProject, selectedClient);
 
             console.log("API response:", result)
 
-            if (result.success) {
-                setShowSuccess(true)
-                setTimeout(() => {
-                    setShowSuccess(false)
-                    setSelectedFile(null)
-                    setSelectedClient("")
-                    setSelectedProject("")
-                    setUploadType("")
-                }, 3000)
-            } else {
-                alert(result.error || "Upload failed. Please try again.")
-            }
         } catch (error) {
             console.error("Upload error:", error)
             alert("An error occurred during upload. Please try again.")
