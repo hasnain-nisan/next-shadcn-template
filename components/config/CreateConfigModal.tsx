@@ -140,7 +140,7 @@ export function CreateConfigModal({
               <Controller
                 name="projectId"
                 control={control}
-                rules={{ required: "Project is required" }}
+                // rules={{ required: "Project is required" }}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-full h-[36px] text-sm">
