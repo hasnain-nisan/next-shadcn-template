@@ -1,4 +1,3 @@
-
 import { API_BASE_URL } from "@/lib/constants";
 import { ApiError, ApiResponse } from "@/types/api.types";
 import { getSession } from "next-auth/react";
@@ -10,16 +9,20 @@ export async function makeApiRequest<T>(
   const session = await getSession();
   const token = session?.accessToken;
   const url = `${API_BASE_URL}${endpoint}`;
-  
-  const defaultOptions: RequestInit = {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      ...options.headers,
-    },
+
+  const isFormData = options.body instanceof FormData;
+
+  // Build headers
+  const defaultHeaders: HeadersInit = {
+    Authorization: token ? `Bearer ${token}` : "",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }), // ✅ only add JSON header if not FormData
+    ...options.headers,
   };
 
-  const config = { ...defaultOptions, ...options };
+  const config: RequestInit = {
+    ...options,
+    headers: defaultHeaders,
+  };
 
   try {
     const response = await fetch(url, config);
@@ -31,6 +34,8 @@ export async function makeApiRequest<T>(
 
     return (data as ApiResponse<T>).data;
   } catch (error) {
+    // console.log("API request error:", error);
+
     if (error instanceof Error) {
       throw error;
     }
