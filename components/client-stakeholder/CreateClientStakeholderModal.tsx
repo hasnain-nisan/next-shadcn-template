@@ -15,8 +15,8 @@ import { Label } from "@/components/ui/label";
 import { IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { toast } from "sonner";
-import { useState } from "react";
-import {
+import { useState, useEffect } from "react";
+import { // <-- Added useEffect import
   Select,
   SelectTrigger,
   SelectValue,
@@ -44,6 +44,9 @@ export function CreateClientStakeholderModal({
   setRefetch,
   clients,
 }: Readonly<Props>) {
+  // Determine the ID of the first client, if available
+  const firstClientId = clients.length > 0 ? clients[0].id : "";
+
   const {
     register,
     handleSubmit,
@@ -55,14 +58,33 @@ export function CreateClientStakeholderModal({
       name: "",
       email: "",
       phone: "",
-      clientId: "",
+      // Set initial default value based on props for first render
+      clientId: firstClientId,
     },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- Effect to reset/set default values when the modal opens ---
+  useEffect(() => {
+    if (open) {
+      // Always reset to a clean state, setting the clientId to the first client's ID
+      reset({
+        name: "",
+        email: "",
+        phone: "",
+        clientId: firstClientId,
+      });
+    }
+  }, [open, firstClientId, reset]); 
+  // Reruns when 'open' state changes or if the 'firstClientId' (derived from 'clients') changes
+
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) reset();
+    // If closing, we let the useEffect handle the reset logic for the next open.
+    // However, calling reset here to clear data when closing is still a good practice.
+    if (!isOpen) {
+      reset(); 
+    }
     setOpen(isOpen);
   };
 
@@ -83,6 +105,9 @@ export function CreateClientStakeholderModal({
       setIsSubmitting(false);
     }
   };
+
+  // Disable submission if no client is available for selection
+  const canSubmit = !isSubmitting && clients.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -163,7 +188,11 @@ export function CreateClientStakeholderModal({
                   "Client is required",
               }}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select 
+                  value={field.value} 
+                  onValueChange={field.onChange}
+                  disabled={clients.length === 0} // Disable if no clients
+                >
                   <SelectTrigger className="w-full h-[36px] text-sm">
                     <SelectValue placeholder="Select a client..." />
                   </SelectTrigger>
@@ -193,7 +222,7 @@ export function CreateClientStakeholderModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={!canSubmit}>
               {isSubmitting && (
                 <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

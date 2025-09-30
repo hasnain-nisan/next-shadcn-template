@@ -1,7 +1,7 @@
-import { Interview } from '@/types/interview.types';
-import { Client } from './client.types';
-import { Project } from './project.types';
-import { UserRef } from './user.types';
+import { Interview } from "@/types/interview.types";
+import { Client } from "./client.types";
+import { Project } from "./project.types";
+import { UserRef } from "./user.types";
 
 export interface ClientStakeholder {
   id: string;
@@ -15,4 +15,6 @@ export interface ClientStakeholder {
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;
+  role: string | null;
+  company: string | null;
 }

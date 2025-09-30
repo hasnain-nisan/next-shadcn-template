@@ -17,9 +17,14 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { CreateInterviewModal } from "@/components/interview/CreateInterviewModal";
-import { se } from "date-fns/locale";
-import { set } from "zod";
+// Import the new modal component
 import { useSession } from "next-auth/react";
+import ClientStakeholderCard from "@/components/clients/StakeholderCard"; // Assuming this is the correct path
+import { CreateClientStakeholderModal } from "@/components/client-stakeholder/CreateClientStakeholderModal";
+import { ClientStakeholder } from "@/types/stakeholder.types";
+import { ClientStakeholderDetailsModal } from "@/components/client-stakeholder/ClientStakeholderDetailsModal";
+import { UpdateClientStakeholderModal } from "@/components/client-stakeholder/UpdateClientStakeholderModal";
+import { DeleteClientStakeholderModal } from "@/components/client-stakeholder/DeleteClientStakeholderModal";
 
 export default function ClientDetailsPage({
   params,
@@ -30,34 +35,87 @@ export default function ClientDetailsPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [openCreateModal, setOpenCreateModal] = useState(false);
-  const [refetch, setRefetch] = useState(false);
-  const [clients, setClients] = useState<Client[]>([]);
+  // State for Interview Modal
+  const [openCreateInterviewModal, setOpenCreateInterviewModal] =
+    useState(false);
   const [projectId, setProjectId] = useState<string>("");
+
+  // State for Stakeholder Modals
+  const [openCreateStakeholderModal, setOpenCreateStakeholderModal] =
+    useState(false);
+  const [openUpdateStakeholderModal, setOpenUpdateStakeholderModal] =
+    useState(false);
+  const [openViewStakeholderModal, setOpenViewStakeholderModal] = // 2. State for View Modal
+    useState(false);
+  const [stakeholderToUpdate, setStakeholderToUpdate] =
+    useState<ClientStakeholder | null>(null);
+  const [stakeholderToView, setStakeholderToView] = // 2. State for View Data
+    useState<ClientStakeholder | null>(null);
+  const [openDeleteStakeholderModal, setOpenDeleteStakeholderModal] =
+    useState(false);
+  const [stakeholderToDelete, setStakeholderToDelete] =
+    useState<ClientStakeholder | null>(null);
+
+  // State for Refetching Data
+  const [refetch, setRefetch] = useState(false);
+
+  // State for Client list (used by modals, currently only this client)
+  const [clients, setClients] = useState<Client[]>([]);
 
   const { data: session } = useSession();
   const accessScopes = session?.user?.accessScopes || {};
   const canCreateInterviews = accessScopes.canCreateInterviews ?? false;
 
+  // Function to fetch client data
+  const fetchClient = async () => {
+    try {
+      setLoading(true);
+      const clientService = ServiceFactory.getClientService();
+      // Ensure the service fetches updated client data, including stakeholders
+      const data = (await clientService.getClientById(id)) as unknown as {
+        data: Client;
+      };
+      setClient(data as unknown as Client);
+      // 'clients' array for the modal/dropdown should contain the current client
+      setClients([data as unknown as Client]);
+      setError(null);
+    } catch (err) {
+      console.error("Fetch client error:", err);
+      setError("Failed to load client details.");
+    } finally {
+      setLoading(false);
+      setRefetch(false); // Reset refetch flag
+    }
+  };
 
   useEffect(() => {
-    const fetchClient = async () => {
-      try {
-        const clientService = ServiceFactory.getClientService();
-        const data = (await clientService.getClientById(id)) as unknown as {
-          data: Client;
-        };
-        setClient(data as unknown as Client);
-        setClients([data as unknown as Client]);
-      } catch (err) {
-        setError("Failed to load client details.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchClient();
-  }, [id]);
+    // Re-run fetch when refetch state is true (after successful creation/update)
+  }, [id, refetch]);
+
+  // --- Stakeholder Modal Handlers ---
+
+  const handleCreateStakeholder = () => {
+    // Open the create modal
+    setOpenCreateStakeholderModal(true);
+  };
+
+  const handleUpdateStakeholder = (stakeholderData: ClientStakeholder) => {
+    // Set the ID of the stakeholder to update and open the update modal
+    // You would use this ID to fetch/pre-fill the update form later.
+    setStakeholderToUpdate(stakeholderData);
+    setOpenUpdateStakeholderModal(true);
+  };
+
+  const handleViewStakeholder = (stakeholderData: ClientStakeholder) => {
+    setStakeholderToView(stakeholderData);
+    setOpenViewStakeholderModal(true);
+  };
+
+  const handleDeleteStakeholder = (stakeholderData: ClientStakeholder) => {
+    setStakeholderToDelete(stakeholderData);
+    setOpenDeleteStakeholderModal(true);
+  };
 
   return (
     <>
@@ -181,41 +239,15 @@ export default function ClientDetailsPage({
               </CardContent>
             </Card>
 
-            {/* Stakeholders section */}
-            <Card>
-              <CardContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="text-sm text-muted-foreground"
-                >
-                  <AccordionItem value="stakeholders">
-                    <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Stakeholders ({client.stakeholders?.length || 0})
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4">
-                      {client.stakeholders?.length > 0 ? (
-                        <div className="flex flex-wrap items-center gap-3">
-                          {client.stakeholders.map((s) => (
-                            <Badge
-                              key={s.id}
-                              variant="outline"
-                              className="px-3 py-1"
-                            >
-                              {s.name}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="italic text-muted-foreground">
-                          No stakeholders assigned
-                        </p>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
+            {/* Stakeholders section (using ClientStakeholderCard) */}
+            <ClientStakeholderCard
+              client={client}
+              // Pass the handlers to the card
+              onCreateStakeholder={handleCreateStakeholder}
+              onUpdateStakeholder={handleUpdateStakeholder}
+              onViewStakeholder={handleViewStakeholder}
+              onDeleteStakeholder={handleDeleteStakeholder}
+            />
 
             {/* Projects Section */}
             <Card>
@@ -230,7 +262,7 @@ export default function ClientDetailsPage({
                       Projects ({client.projects?.length || 0})
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-4">
-                      {client.projects.length === 0 ? (
+                      {client.projects?.length === 0 ? (
                         <div className="italic text-muted-foreground">
                           No projects assigned to this client yet.
                         </div>
@@ -275,11 +307,12 @@ export default function ClientDetailsPage({
                                   size="sm"
                                   className="w-full"
                                   onClick={() => {
-                                    setProjectId(project.id)
-                                    setOpenCreateModal(true)
+                                    setProjectId(project.id);
+                                    setOpenCreateInterviewModal(true);
+                                  }}
+                                  disabled={
+                                    project.isDeleted || !canCreateInterviews
                                   }
-                                  }
-                                  disabled={project.isDeleted || !canCreateInterviews}
                                 >
                                   Request Interview
                                 </Button>
@@ -307,7 +340,7 @@ export default function ClientDetailsPage({
                       Interviews ({client.interviews?.length || 0})
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-4">
-                      {client.interviews.length === 0 ? (
+                      {client.interviews?.length === 0 ? (
                         <div className="italic text-muted-foreground">
                           No interviews linked to this client yet.
                         </div>
@@ -355,14 +388,67 @@ export default function ClientDetailsPage({
         )}
       </div>
 
+      {/* --- Modals --- */}
+
+      {/* 1. Create Interview Modal */}
       <CreateInterviewModal
-        open={openCreateModal}
-        setOpen={setOpenCreateModal}
+        open={openCreateInterviewModal}
+        setOpen={setOpenCreateInterviewModal}
         setRefetch={setRefetch}
         clients={clients}
         id={client?.id}
         projectId={projectId}
       />
+
+      {/* 2. Create Stakeholder Modal (NEW) */}
+      <CreateClientStakeholderModal
+        open={openCreateStakeholderModal}
+        setOpen={setOpenCreateStakeholderModal}
+        setRefetch={setRefetch} // This will trigger a re-fetch of client data
+        clients={clients} // Pass the clients array (containing the current client)
+      />
+
+      {/* 3. View Stakeholder Modal (NEW) */}
+      {openViewStakeholderModal && stakeholderToView && (
+        <ClientStakeholderDetailsModal
+          open={openViewStakeholderModal}
+          setOpen={setOpenViewStakeholderModal}
+          clientStakeholder={stakeholderToView}
+        />
+      )}
+
+      {/* 4. Update Stakeholder Modal (new) */}
+      <UpdateClientStakeholderModal
+        open={openUpdateStakeholderModal}
+        setOpen={setOpenUpdateStakeholderModal}
+        setRefetch={setRefetch}
+        stakeholder={stakeholderToUpdate}
+        clients={clients}
+      />
+
+      {/* 5. Delete Stakeholder Modal (new) */}
+      {openDeleteStakeholderModal && stakeholderToDelete && (
+        <DeleteClientStakeholderModal
+          open={openDeleteStakeholderModal}
+          setOpen={setOpenDeleteStakeholderModal}
+          setRefetch={setRefetch}
+          stakeholder={stakeholderToDelete}
+        />
+      )}
+
+      {/* 3. Update Stakeholder Modal (Placeholder) */}
+      {/* You would create an UpdateClientStakeholderModal similar to the create one.
+        It would receive `stakeholderToUpdateId` and `setOpenUpdateStakeholderModal`.
+      */}
+      {/* {openUpdateStakeholderModal && (
+        <UpdateClientStakeholderModal
+          open={openUpdateStakeholderModal}
+          setOpen={setOpenUpdateStakeholderModal}
+          setRefetch={setRefetch}
+          stakeholderId={stakeholderToUpdateId}
+          clients={clients}
+        />
+      )} */}
     </>
   );
 }

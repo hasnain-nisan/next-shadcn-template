@@ -31,6 +31,8 @@ export async function makeApiRequest<T>(
 
     return (data as ApiResponse<T>).data;
   } catch (error) {
+    console.log("API request error:", error);
+    
     if (error instanceof Error) {
       throw error;
     }

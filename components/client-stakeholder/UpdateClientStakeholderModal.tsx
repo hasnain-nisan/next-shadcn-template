@@ -48,6 +48,8 @@ export function UpdateClientStakeholderModal({
   stakeholder,
   clients,
 }: Readonly<Props>) {
+  const firstClientId = clients.length > 0 ? clients[0].id : "";
+  
   const {
     register,
     handleSubmit,
@@ -59,7 +61,7 @@ export function UpdateClientStakeholderModal({
       name: "",
       email: "",
       phone: "",
-      clientId: "",
+      clientId: firstClientId,
     },
   });
 
@@ -71,6 +73,7 @@ export function UpdateClientStakeholderModal({
         name: stakeholder.name ?? "",
         email: stakeholder.email ?? "",
         phone: stakeholder.phone ?? "",
+        clientId: firstClientId,
       });
     }
   }, [open, stakeholder, reset]);
