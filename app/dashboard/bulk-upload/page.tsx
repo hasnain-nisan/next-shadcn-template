@@ -213,7 +213,7 @@ export default function BulkUploadPage() {
     } catch (error) {
       console.error("Upload error:", error);
       toast.error(
-        error.message || "An error occurred during upload. Please try again."
+        (error as { message?: string })?.message || "An error occurred during upload. Please try again."
       );
     } finally {
       setIsSubmitting(false);
