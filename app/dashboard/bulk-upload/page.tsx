@@ -149,6 +149,26 @@ export default function BulkUploadPage() {
     }
   };
 
+  /**
+   * Resets all state variables to return the form to its initial state.
+   */
+  const handleResetForm = () => {
+    // Reset primary selection states
+    setUploadType("");
+    setSelectedClient("");
+    setSelectedProject("");
+    setSelectedFile(null);
+    setShowSuccess(false);
+
+    // Explicitly clear the file input value
+    const inputElement = document.getElementById(
+      "file-upload"
+    ) as HTMLInputElement;
+    if (inputElement) {
+      inputElement.value = "";
+    }
+  };
+
   const handleBulkUpload = async () => {
     if (!selectedFile) {
       toast.error("Please select a file to upload");
@@ -168,16 +188,16 @@ export default function BulkUploadPage() {
     setIsSubmitting(true);
 
     try {
-    //   const formData = new FormData();
-    //   formData.append("uploadType", uploadType);
-    //   formData.append("file", selectedFile);
+      //   const formData = new FormData();
+      //   formData.append("uploadType", uploadType);
+      //   formData.append("file", selectedFile);
 
-    //   if (selectedClient) {
-    //     formData.append("clientId", selectedClient);
-    //   }
-    //   if (selectedProject) {
-    //     formData.append("projectId", selectedProject);
-    //   }
+      //   if (selectedClient) {
+      //     formData.append("clientId", selectedClient);
+      //   }
+      //   if (selectedProject) {
+      //     formData.append("projectId", selectedProject);
+      //   }
 
       const service = ServiceFactory.getBulkUploadService();
       // Assuming a successful call here would eventually lead to setShowSuccess(true)
@@ -192,7 +212,9 @@ export default function BulkUploadPage() {
       setShowSuccess(true);
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("An error occurred during upload. Please try again.");
+      toast.error(
+        error.message || "An error occurred during upload. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -238,11 +260,20 @@ export default function BulkUploadPage() {
       <div className="px-4 lg:px-6">
         {showSuccess ? (
           // Success State
-          <div className="flex items-center gap-2 text-slate-700">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
-            <span className="text-sm">
-              All data has been uploaded successfully
-            </span>
+          <div className="flex flex-col items-start gap-4 text-slate-700">
+            <div className="flex items-center gap-2 text-slate-700">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <span className="text-sm">
+                All data has been uploaded successfully
+              </span>
+            </div>
+            <Button
+              onClick={handleResetForm}
+              variant="outline"
+              className="mt-2 hover:bg-indigo-50"
+            >
+              Upload Another File
+            </Button>
           </div>
         ) : (
           // Upload Form
