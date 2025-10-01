@@ -16,6 +16,8 @@ import { IAdminSettingsService } from "./interfaces/IAdminSettingsService";
 import { AdminSettingsService } from "./implementations/AdminSettingsService";
 import { IConfigService } from "./interfaces/IConfigService";
 import { ConfigService } from "./implementations/ConfigService";
+import { IBulkUploadService } from "./interfaces/IBulkUploadService";
+import { BulkUploadService } from "./implementations/BulkUploadService";
 
 export class ServiceFactory {
   private static readonly instances = new Map<string, unknown>();
@@ -68,4 +70,9 @@ export class ServiceFactory {
   static getConfigService(): IConfigService {
     return this.getService("configService", () => new ConfigService());
   }
+
+  static getBulkUploadService(): IBulkUploadService {
+    return this.getService("bulkUploadService", () => new BulkUploadService());
+  }
+
 }

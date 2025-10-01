@@ -1,10 +1,9 @@
 "use client";
 
-import { SectionCards } from "@/components/section-cards";
 import { ChartInterviewTrend } from "@/components/chart-area-interactive";
-import { ServiceFactory } from "@/services/ServiceFactory";
-import { useEffect, useMemo, useState } from "react";
-import { Client } from "@/types/client.types";
+import { SectionCards } from "@/components/section-cards";
+import { DateRangePicker } from "@/components/ui/DateRangePicker";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,10 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { DateRangePicker } from "@/components/ui/DateRangePicker";
-import Link from "next/link";
+import { ServiceFactory } from "@/services/ServiceFactory";
+import { Client } from "@/types/client.types";
 import { AnalyticsType } from "@/types/dashboard.types";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
