@@ -270,7 +270,7 @@ export default function BulkUploadPage() {
             <Button
               onClick={handleResetForm}
               variant="outline"
-              className="mt-2 hover:bg-indigo-50"
+              className="mt-2"
             >
               Upload Another File
             </Button>
@@ -373,6 +373,7 @@ export default function BulkUploadPage() {
                     accept=".csv,.xlsx,.xls"
                     onChange={handleFileSelect}
                     className="hidden"
+                    style={{ display: "none" }} // Hide the default file inputs
                     disabled={isSubmitting}
                   />
 
