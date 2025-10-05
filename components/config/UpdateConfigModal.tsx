@@ -23,7 +23,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Config } from "@/types/config.types";
+import { Config, ConfigJson } from "@/types/config.types";
 
 type Props = {
   open: boolean;
@@ -123,7 +123,20 @@ export function UpdateConfigModal({
       const configService = ServiceFactory.getConfigService();
       await configService.update(config.id, {
         ...data,
-        email_confirmation: parsedEmailConfirmation,
+        config: {
+          example1: data.example1,
+          example2: data.example2,
+          example3: data.example3,
+          categories_flag: data.categories_flag,
+          us_categories: data.us_categories,
+          custom_context: data.custom_context,
+          email_confirmation: parsedEmailConfirmation,
+          interview_tracker_gdrive_id: data.interview_tracker_gdrive_id,
+          interview_repository_gdrive_url: data.interview_repository_gdrive_url,
+          global_repository_gdrive_url: data.global_repository_gdrive_url,
+          output_gdrive_url: data.output_gdrive_url,
+          logging_output_url: data.logging_output_url,
+        } as ConfigJson,
       });
       toast.success("Config updated successfully");
       setOpen(false);
