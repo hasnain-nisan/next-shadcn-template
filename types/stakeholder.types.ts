@@ -17,6 +17,5 @@ export interface ClientStakeholder {
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;
-  role: string | null;
   company: string | null;
 }
