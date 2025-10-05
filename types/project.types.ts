@@ -1,4 +1,3 @@
-import { description } from './../components/chart-area-interactive';
 import { Client } from "./client.types";
 import { Interview } from "./interview.types";
 import { ClientStakeholder } from "./stakeholder.types";
@@ -9,7 +8,7 @@ export interface Project {
   name: string;
   clientTeam: string | null;
   client: Client;
-  // stakeholders: ClientStakeholder[];
+  stakeholders: ClientStakeholder[];
   description: string;
   createdBy: UserRef;
   updatedBy: UserRef;

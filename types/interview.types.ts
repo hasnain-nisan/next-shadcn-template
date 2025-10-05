@@ -8,9 +8,9 @@ export interface Interview {
   name: string;
   date: string; // ISO timestamp
   gDriveId: string | null;
-  requestDistillation: string | null;
-  requestCoaching: string | null;
-  requestUserStories: string | null;
+  requestDistillation: boolean;
+  requestCoaching: boolean;
+  requestUserStories: boolean;
   client: Client;
   project: Project;
   stakeholders: ClientStakeholder[];

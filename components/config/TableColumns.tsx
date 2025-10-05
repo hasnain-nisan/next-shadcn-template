@@ -42,7 +42,7 @@ export const GetTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => {
-        const name = row.original.config.project_name;
+        const name = row.original.config.project_name ? row.original.config.project_name : "Global Config";
         const isDeleted = row.original.isDeleted;
 
         return isDeleted ? (

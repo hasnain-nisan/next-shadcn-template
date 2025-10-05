@@ -218,7 +218,7 @@ export default function ProjectDetailsPage({
             </Card>
 
             {/* Stakeholders Section */}
-            {/* <Card>
+            <Card>
               <CardContent>
                 <Accordion
                   type="single"
@@ -290,7 +290,7 @@ export default function ProjectDetailsPage({
                   </AccordionItem>
                 </Accordion>
               </CardContent>
-            </Card> */}
+            </Card>
 
             {/* Interviews Section */}
             <Card>

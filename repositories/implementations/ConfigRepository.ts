@@ -1,7 +1,7 @@
 import { makeApiRequest } from "@/lib/makeApiRequest";
 import { API_ENDPOINTS } from "@/lib/constants";
 import { IConfigRepository } from "../interfaces/IConfigRepository";
-import { Config } from "@/types/config.types";
+import { Config, ConfigJson } from "@/types/config.types";
 
 export class ConfigRepository implements IConfigRepository {
   constructor() {}
@@ -97,7 +97,7 @@ export class ConfigRepository implements IConfigRepository {
   }
 
   async update(id: string, data: Partial<Config>): Promise<Config> {
-    const { projectId, config, change_summary } = data;
+    const { projectId, change_summary, ...rawConfig } = data;
 
     const {
       interview_repository_gdrive_url,
@@ -106,7 +106,8 @@ export class ConfigRepository implements IConfigRepository {
       logging_output_url,
       email_confirmation,
       ...restConfig
-    } = config || {};
+    } = rawConfig as ConfigJson || {};
+    
 
     const sanitizedConfig: Partial<Config["config"]> = {
       ...restConfig,

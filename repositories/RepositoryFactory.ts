@@ -1,5 +1,6 @@
 import { AdminSettingsRepository } from "./implementations/AdminSettingsRepository";
 import { AuthRepository } from "./implementations/AuthRepository";
+import { BulkUploadRepository } from "./implementations/BulkUploadRepository";
 import { ClientRepository } from "./implementations/ClientRepository";
 import { ClientStakeholderRepository } from "./implementations/ClientStakeholderRepository";
 import { ConfigRepository } from "./implementations/ConfigRepository";
@@ -9,6 +10,7 @@ import { ProjectRepository } from "./implementations/ProjectRepository";
 import { UserRepository } from "./implementations/UserRepository";
 import { IAdminSettingsRepository } from "./interfaces/IAdminSettingsRepository";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
+import { IBulkUploadRepository } from "./interfaces/IBulkUploadRepository";
 import { IClientRepository } from "./interfaces/IClientRepository";
 import { IClientStakeholderRepository } from "./interfaces/IClientStakeholderRepository";
 import { IConfigRepository } from "./interfaces/IConfigRepository";
@@ -64,5 +66,8 @@ export class RepositoryFactory {
 
   static getConfigRepository(): IConfigRepository {
     return this.getRepository("config", () => new ConfigRepository());
+  }
+  static getBulkUploadRepository(): IBulkUploadRepository {
+    return this.getRepository("bulkUpload", () => new BulkUploadRepository());
   }
 }

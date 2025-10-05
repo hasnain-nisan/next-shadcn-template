@@ -8,7 +8,15 @@ export interface Config {
   version: number;
   is_latest: boolean;
   isDeleted: boolean;
-  config: {
+  config: ConfigJson
+  change_summary?: string | null;
+  created_by: UserRef | null;
+  updated_by: UserRef | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConfigJson {
     client: string;
     client_code: string;
     project_name: string;
@@ -26,9 +34,3 @@ export interface Config {
     output_gdrive_url?: string;
     logging_output_url?: string;
   };
-  change_summary?: string | null;
-  created_by: UserRef | null;
-  updated_by: UserRef | null;
-  created_at: string;
-  updated_at: string;
-}

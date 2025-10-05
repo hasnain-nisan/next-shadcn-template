@@ -34,7 +34,7 @@ export function MultiSelect({
 }: Readonly<Props>) {
   const [open, setOpen] = useState(false);
 
-  console.log(selected);
+  // console.log(selected);
   
 
   const toggleValue = (value: string) => {

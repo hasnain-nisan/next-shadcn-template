@@ -65,6 +65,9 @@ export const API_ENDPOINTS: ApiEndpoints = {
     getById: (id: string) => `/config/${id}`,
     // toggleFavorite: (id: string) => `/notes/${id}/favorite`,
   },
+  bulkUpload: {
+    uploadExcel: "/bulk-upload",
+  },
 };
 
 export const ROUTES = {
