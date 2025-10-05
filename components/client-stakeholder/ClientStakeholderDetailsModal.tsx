@@ -27,8 +27,7 @@ export function ClientStakeholderDetailsModal({
   setOpen,
   clientStakeholder,
 }: Readonly<Props>) {
-    console.log("Rendering ClientStakeholderDetailsModal with:", clientStakeholder);
-    
+  
   // Helper to safely format date or return a placeholder
   const formatDateTime = (dateString: string) => {
     try {

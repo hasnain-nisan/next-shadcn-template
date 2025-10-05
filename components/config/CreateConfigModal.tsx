@@ -130,9 +130,11 @@ export function CreateConfigModal({
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          // Removed the grid classes entirely to use a single column flow,
+          // relying on the space-y-4 of the container
+          className="space-y-4"
         >
-          {/* Column 1 */}
+          {/* All fields are now placed sequentially in this single block */}
           <div className="space-y-4">
             {/* Project Selection */}
             <div>
@@ -140,7 +142,8 @@ export function CreateConfigModal({
               <Controller
                 name="projectId"
                 control={control}
-                // rules={{ required: "Project is required" }}
+                // Added back the required rule which was commented out
+                rules={{ required: "Project is required" }}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-full h-[36px] text-sm">
@@ -193,10 +196,7 @@ export function CreateConfigModal({
                 {...register("custom_context")}
               />
             </div>
-          </div>
 
-          {/* Column 2 */}
-          <div className="space-y-4">
             {/* Email Confirmation */}
             <div>
               <Label className="mb-1">Email Confirmations</Label>
@@ -221,7 +221,6 @@ export function CreateConfigModal({
             </div>
 
             {/* US Categories */}
-            {/* US Categories */}
             <div>
               <Label className="mb-1">US Categories</Label>
               <Controller
@@ -230,20 +229,21 @@ export function CreateConfigModal({
                 render={({ field }) => (
                   <div className="space-y-2">
                     {Object.entries(field.value).map(([key, value], idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
+                      <div key={idx} className="flex gap-2 items-start">
                         <Input
                           value={key}
                           onChange={(e) => {
                             const updated = { ...field.value };
                             const newKey = e.target.value;
+                            // This handles renaming the key
                             updated[newKey] = updated[key];
                             delete updated[key];
                             field.onChange(updated);
                           }}
                           placeholder="Category key"
-                          className="w-1/3"
+                          className="w-1/5"
                         />
-                        <Input
+                        <textarea
                           value={value}
                           onChange={(e) => {
                             const updated = {
@@ -253,14 +253,15 @@ export function CreateConfigModal({
                             field.onChange(updated);
                           }}
                           placeholder="Category description"
-                          className="w-2/3"
+                          className="w-4/5 rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          rows={3}
                         />
                         {/* Delete Button */}
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="text-destructive"
+                          className="text-destructive mt-2"
                           onClick={() => {
                             const updated = { ...field.value };
                             delete updated[key];
@@ -324,11 +325,12 @@ export function CreateConfigModal({
           </div>
 
           {/* Actions */}
-          <div className="md:col-span-2 flex justify-end gap-2 mt-4">
+          <DialogFooter className="mt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
@@ -338,7 +340,7 @@ export function CreateConfigModal({
               )}
               {isSubmitting ? "Creating..." : "Create"}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

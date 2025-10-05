@@ -210,9 +210,6 @@ export function CreateInterviewModal({
     fetchStakeholders();
   }, [clientId, setValue, clearErrors]);
 
-  console.log("Rendering CreateInterviewModal with project:", project);
-  
-
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {

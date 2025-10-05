@@ -130,9 +130,6 @@ export function CreateProjectModal({
     }
   }, [watchedClientId, clients, setValue, open]);
 
-  console.log(stakeholders, 'stakeholders');
-  
-
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       resetForm(); // Reset form state when closing

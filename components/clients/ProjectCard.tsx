@@ -156,8 +156,6 @@ const ClientProjectCard: React.FC<ClientProjectCardProps> = ({
   projectToSet,
   //   canRequestInterviews,
 }) => {
-  console.log(canCreateInterview, "canCreateInterview in ClientProjectCard");
-
   return (
     <Card>
       <CardContent>

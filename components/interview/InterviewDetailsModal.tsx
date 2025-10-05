@@ -30,8 +30,6 @@ export function InterviewDetailsModal({
   setOpen,
   interview,
 }: Readonly<Props>) {
-  console.log("Rendering InterviewDetailsModal with:", interview);
-
   // Helper to safely format date or return a placeholder
   const formatDateTime = (dateString: string) => {
     try {

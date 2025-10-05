@@ -43,7 +43,6 @@ export function ProjectDetailsModal({
   setOpen,
   project,
 }: Readonly<Props>) {
-  console.log("Rendering ProjectDetailsModal with:", project);
 
   // Helper to safely format date or return a placeholder
   const formatDateTime = (dateString: string) => {

@@ -100,7 +100,6 @@ export default function ClientDetailsPage({
 
   const { data: session } = useSession();
   const accessScopes = session?.user?.accessScopes || {};
-  console.log("User access scopes:", accessScopes); // Debug log
 
   const canCreateStakeholders = accessScopes.canCreateStakeholders ?? false;
   const canUpdateStakeholders = accessScopes.canUpdateStakeholders ?? false;

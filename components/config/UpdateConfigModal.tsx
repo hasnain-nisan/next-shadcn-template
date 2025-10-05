@@ -41,7 +41,7 @@ type UpdateConfigFormValues = {
   categories_flag: string;
   us_categories: Record<string, string>;
   custom_context?: string;
-  email_confirmation: string[];
+  email_confirmation: string;
   interview_tracker_gdrive_id: string;
   interview_repository_gdrive_url?: string;
   global_repository_gdrive_url?: string;
@@ -67,7 +67,21 @@ export function UpdateConfigModal({
   } = useForm<UpdateConfigFormValues>({
     defaultValues: {
       projectId: config?.projectId ?? "",
-      ...config?.config,
+      example1: config?.config?.example1 ?? "",
+      example2: config?.config?.example2 ?? "",
+      example3: config?.config?.example3 ?? "",
+      categories_flag: config?.config?.categories_flag ?? "",
+      us_categories: config?.config?.us_categories ?? {},
+      custom_context: config?.config?.custom_context ?? "",
+      email_confirmation: config?.config?.email_confirmation?.join(", ") ?? "",
+      interview_tracker_gdrive_id:
+        config?.config?.interview_tracker_gdrive_id ?? "",
+      interview_repository_gdrive_url:
+        config?.config?.interview_repository_gdrive_url ?? "",
+      global_repository_gdrive_url:
+        config?.config?.global_repository_gdrive_url ?? "",
+      output_gdrive_url: config?.config?.output_gdrive_url ?? "",
+      logging_output_url: config?.config?.logging_output_url ?? "",
       change_summary: config?.change_summary ?? "",
     },
   });
@@ -78,7 +92,21 @@ export function UpdateConfigModal({
     if (config && open) {
       reset({
         projectId: config.projectId,
-        ...config.config,
+        example1: config.config.example1 ?? "",
+        example2: config.config.example2 ?? "",
+        example3: config.config.example3 ?? "",
+        categories_flag: config.config.categories_flag ?? "",
+        us_categories: config.config.us_categories ?? {},
+        custom_context: config.config.custom_context ?? "",
+        email_confirmation: config.config.email_confirmation?.join(", ") ?? "",
+        interview_tracker_gdrive_id:
+          config.config.interview_tracker_gdrive_id ?? "",
+        interview_repository_gdrive_url:
+          config.config.interview_repository_gdrive_url ?? "",
+        global_repository_gdrive_url:
+          config.config.global_repository_gdrive_url ?? "",
+        output_gdrive_url: config.config.output_gdrive_url ?? "",
+        logging_output_url: config.config.logging_output_url ?? "",
         change_summary: config.change_summary ?? "",
       });
     }
@@ -88,9 +116,14 @@ export function UpdateConfigModal({
     if (!config) return;
     try {
       setIsSubmitting(true);
+      const parsedEmailConfirmation = data.email_confirmation
+        .split(",")
+        .map((email) => email.trim())
+        .filter((email) => email);
       const configService = ServiceFactory.getConfigService();
       await configService.update(config.id, {
-          ...data,
+        ...data,
+        email_confirmation: parsedEmailConfirmation,
       });
       toast.success("Config updated successfully");
       setOpen(false);
@@ -112,11 +145,8 @@ export function UpdateConfigModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
-          {/* Column 1 */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* All fields are now placed sequentially in this single block */}
           <div className="space-y-4">
             <div>
               <Label className="mb-1">Project</Label>
@@ -181,10 +211,7 @@ export function UpdateConfigModal({
                 {...register("change_summary")}
               />
             </div>
-          </div>
 
-          {/* Column 2 */}
-          <div className="space-y-4">
             <div>
               <Label className="mb-1">Email Confirmations</Label>
               <Controller
@@ -194,15 +221,7 @@ export function UpdateConfigModal({
                   <Input
                     type="text"
                     placeholder="Comma-separated emails"
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value
-                          .split(",")
-                          .map((email) => email.trim())
-                          .filter((email) => email)
-                      )
-                    }
-                    value={field.value.join(", ")}
+                    {...field}
                   />
                 )}
               />
@@ -216,7 +235,7 @@ export function UpdateConfigModal({
                 render={({ field }) => (
                   <div className="space-y-2">
                     {Object.entries(field.value).map(([key, value], idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
+                      <div key={idx} className="flex gap-2 items-start">
                         <Input
                           value={key}
                           onChange={(e) => {
@@ -227,9 +246,9 @@ export function UpdateConfigModal({
                             field.onChange(updated);
                           }}
                           placeholder="Category key"
-                          className="w-1/3"
+                          className="w-1/5"
                         />
-                        <Input
+                        <textarea
                           value={value}
                           onChange={(e) => {
                             const updated = {
@@ -239,7 +258,8 @@ export function UpdateConfigModal({
                             field.onChange(updated);
                           }}
                           placeholder="Category description"
-                          className="w-2/3"
+                          className="w-4/5 rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          rows={3}
                         />
                         <Button
                           type="button"
@@ -250,7 +270,7 @@ export function UpdateConfigModal({
                             delete updated[key];
                             field.onChange(updated);
                           }}
-                          className="text-destructive"
+                          className="text-destructive mt-2"
                         >
                           <IconTrash className="w-4 h-4" />
                         </Button>
@@ -291,7 +311,8 @@ export function UpdateConfigModal({
                       ? {
                           required: "Interview tracker GDrive ID is required",
                           validate: (v) =>
-                            (typeof v === 'string' ? v.trim() : '') !== "" || "This field cannot be empty",
+                            (typeof v === "string" ? v.trim() : "") !== "" ||
+                            "This field cannot be empty",
                         }
                       : {}),
                   })}
@@ -307,7 +328,7 @@ export function UpdateConfigModal({
           </div>
 
           {/* Actions */}
-          <div className="md:col-span-2 flex justify-end gap-2 mt-4">
+          <div className="flex justify-end gap-2 mt-4">
             <Button
               type="button"
               variant="outline"

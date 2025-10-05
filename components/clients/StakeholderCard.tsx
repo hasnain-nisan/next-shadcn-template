@@ -120,8 +120,6 @@ const ClientStakeholderCard: React.FC<ClientStakeholderCardProps> = ({
   canUpdateStakeholders,
   canDeleteStakeholders,
 }) => {
-  console.log("Rendering ClientStakeholderCard with client:", client);
-
   return (
     <Card>
       <CardContent>

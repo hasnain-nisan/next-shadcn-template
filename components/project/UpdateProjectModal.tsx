@@ -148,9 +148,6 @@ export function UpdateProjectModal({
           fetchedStakeholders.some((s) => s.id === id)
         );
 
-        console.log(currentSelectedIds, "currentSelectedIds");
-        console.log(validIdsForNewClient, "validIdsForNewClient");
-
         // Only update if the selected list changed (e.g., if we had to remove
         // stakeholders not belonging to the new client, or clear the list entirely).
         // if (validIdsForNewClient.length !== currentSelectedIds.length) {
