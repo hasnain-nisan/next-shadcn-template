@@ -79,6 +79,11 @@ export function ClientStakeholderDetailsModal({
                   {displayValue(clientStakeholder.phone, "No Phone")}
                 </Badge>
               </DetailItem>
+              <DetailItem label="Role">
+                <Badge variant="outline" className="px-3 py-1">
+                  {displayValue(clientStakeholder.role, "No role")}
+                </Badge>
+              </DetailItem>
             </div>
 
             {/* Email and Status */}
@@ -97,6 +102,11 @@ export function ClientStakeholderDetailsModal({
                   }`}
                 >
                   {clientStakeholder.isDeleted ? "Deleted" : "Active"}
+                </Badge>
+              </DetailItem>
+              <DetailItem label="Team">
+                <Badge variant="outline" className="px-3 py-1">
+                  {displayValue(clientStakeholder.team, "No team")}
                 </Badge>
               </DetailItem>
             </div>

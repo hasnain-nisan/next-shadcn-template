@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Select,
   SelectTrigger,
@@ -37,6 +37,23 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import type { Interview } from "@/types/interview.types";
 import type { Client } from "@/types/client.types";
 import type { Project } from "@/types/project.types";
+// Assuming this type is available
+// import type { ClientStakeholder } from "@/types/stakeholder.types";
+
+// --- Function to find Client ID based on Project ID ---
+const findClientId = (clients: Client[], projectId: string | undefined) => {
+  if (!projectId) return "";
+
+  for (const client of clients) {
+    if (client.projects && client.projects.some((p) => p.id === projectId)) {
+      return client.id;
+    }
+  }
+  return "";
+};
+// --------------------------------------------------------
+
+type StakeholderOption = { id: string; name: string };
 
 type Props = {
   open: boolean;
@@ -92,33 +109,50 @@ export function UpdateInterviewModal({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [stakeholders, setStakeholders] = useState<
-    { id: string; name: string }[]
+  // Renamed state to reflect project-specific filtering
+  const [projectStakeholders, setProjectStakeholders] = useState<
+    StakeholderOption[]
   >([]);
+
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
-  const [isLoadingStakeholders, setIsLoadingStakeholders] = useState(false);
+  const [isLoadingStakeholders, setIsLoadingStakeholders] = useState(false); // Combined loading for simplicity
   const [originalClientId, setOriginalClientId] = useState("");
 
   const clientId = watch("clientId");
-  const projectId = watch("projectId");
+  const currentProjectId = watch("projectId");
   const stakeholderIds = watch("stakeholderIds");
+
+  // Memoized Stakeholder Options: only includes project stakeholders
+  const stakeholderOptions = useMemo(() => {
+    const optionsMap = new Map<string, StakeholderOption>();
+
+    // 1. Add all project-associated stakeholders
+    projectStakeholders.forEach((s) => optionsMap.set(s.id, s));
+
+    // 2. Add any currently selected stakeholders that might not be in the list
+    // (e.g., if they were recently removed from the project but still exist in the interview record).
+    if (interview && stakeholderIds) {
+      const selectedButMissing = interview.stakeholders
+        ?.filter((s) => stakeholderIds.includes(s.id) && !optionsMap.has(s.id))
+        .map((s) => ({
+          id: s.id,
+          name: s.name || `Stakeholder ${s.id.substring(0, 4)}`,
+        }));
+
+      selectedButMissing?.forEach((s) => optionsMap.set(s.id, s));
+    }
+
+    return Array.from(optionsMap.values()).sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+  }, [projectStakeholders, interview, stakeholderIds]);
 
   // Reset everything when modal closes
   useEffect(() => {
     if (!open) {
-      reset({
-        name: "",
-        date: "",
-        gDriveId: "",
-        requestDistillation: false,
-        requestCoaching: false,
-        requestUserStories: false,
-        clientId: "",
-        projectId: "",
-        stakeholderIds: [],
-      });
+      reset();
       setProjects([]);
-      setStakeholders([]);
+      setProjectStakeholders([]);
       setOriginalClientId("");
       setSelectedInterview(null);
     }
@@ -127,53 +161,46 @@ export function UpdateInterviewModal({
   // Populate form with interview data when modal opens
   useEffect(() => {
     if (open && interview) {
-      const interviewData: UpdateInterviewFormValues  = {
+      const initialProjectId = interview.project?.id ?? "";
+      const initialClientId = findClientId(clients, initialProjectId);
+
+      const interviewData: UpdateInterviewFormValues = {
         name: interview.name ?? "",
         date: interview.date ?? "",
         gDriveId: interview.gDriveId ?? "",
         requestDistillation: !!interview.requestDistillation,
         requestCoaching: !!interview.requestCoaching,
         requestUserStories: !!interview.requestUserStories,
-        clientId: interview.client?.id ?? "",
-        projectId: interview.project?.id ?? "",
+        clientId: initialClientId,
+        projectId: initialProjectId,
         stakeholderIds: interview.stakeholders?.map((s) => s.id) ?? [],
       };
 
       reset(interviewData);
-      setOriginalClientId(interview.client?.id ?? "");
+      setOriginalClientId(initialClientId);
     }
-  }, [open, interview, reset]);
+  }, [open, interview, reset, clients]);
 
-  // Fetch projects and stakeholders when clientId changes
+  // --- 1. Fetch Projects when clientId changes ---
   useEffect(() => {
-    const fetchProjectsAndStakeholders = async () => {
+    const fetchProjects = async () => {
       if (!clientId || clientId === "") {
         setProjects([]);
-        setStakeholders([]);
         return;
       }
 
       try {
         setIsLoadingProjects(true);
-        setIsLoadingStakeholders(true);
 
-        const [projectResult, stakeholderResult] = await Promise.all([
-          ServiceFactory.getProjectService().getAll({
-            page: 1,
-            limit: Number.MAX_SAFE_INTEGER,
-            clientId,
-            deletedStatus: "false",
-          }),
-          ServiceFactory.getClientStakeholderService().getAll({
-            page: 1,
-            limit: Number.MAX_SAFE_INTEGER,
-            clientId,
-            deletedStatus: "false",
-          }),
-        ]);
+        const projectResult = await ServiceFactory.getProjectService().getAll({
+          page: 1,
+          limit: Number.MAX_SAFE_INTEGER,
+          clientId,
+          deletedStatus: "false",
+        });
 
-        setProjects(projectResult.items);
-        setStakeholders(stakeholderResult.items);
+        // projectResult.items already contains Project[]
+        setProjects(projectResult.items.filter(p => p.id === interview?.project?.id));
 
         // If client changed from original, reset project and stakeholders
         if (clientId !== originalClientId) {
@@ -181,66 +208,73 @@ export function UpdateInterviewModal({
           setValue("stakeholderIds", []);
           clearErrors("projectId");
           clearErrors("stakeholderIds");
+          setProjectStakeholders([]); // Reset project stakeholders
         }
       } catch (error) {
-        console.error("Failed to fetch projects and stakeholders:", error);
-        toast.error("Failed to fetch projects and stakeholders");
+        console.error("Failed to fetch projects:", error);
+        toast.error("Failed to fetch projects");
         setProjects([]);
-        setStakeholders([]);
       } finally {
         setIsLoadingProjects(false);
-        setIsLoadingStakeholders(false);
       }
     };
 
     if (clientId) {
-      fetchProjectsAndStakeholders();
+      fetchProjects();
     } else {
       setProjects([]);
-      setStakeholders([]);
     }
   }, [clientId, originalClientId, setValue, clearErrors]);
 
-  // Set project and stakeholder values after they're loaded
+  // --- 2. Fetch Project Stakeholders when projectId changes ---
   useEffect(() => {
-    if (!interview || !open) return;
-
-    // Only set values if we're still on the original client
-    if (clientId === originalClientId) {
-      if (projects.length > 0 && interview.project?.id && !projectId) {
-        setValue("projectId", interview.project.id);
+    const fetchProjectStakeholders = async () => {
+      if (!currentProjectId || currentProjectId === "") {
+        setProjectStakeholders([]);
+        return;
       }
 
-      if (
-        stakeholders.length > 0 &&
-        interview.stakeholders?.length > 0 &&
-        (!stakeholderIds || stakeholderIds.length === 0)
-      ) {
-        setValue(
-          "stakeholderIds",
-          interview.stakeholders.map((s) => s.id)
+      try {
+        setIsLoadingStakeholders(true);
+
+        // Fetch the specific project details to get its nested stakeholders
+        const projectDetail = await ServiceFactory.getProjectService().getById(
+          currentProjectId
         );
+
+        const stakeholders = projectDetail.stakeholders || [];
+        setProjectStakeholders(
+          stakeholders.map((s) => ({ id: s.id, name: s.name }))
+        );
+
+        // Reset selected stakeholders if the project changes from the initial interview project
+        if (currentProjectId !== interview?.project?.id) {
+          setValue("stakeholderIds", []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch project stakeholders:", error);
+        toast.error("Failed to fetch project stakeholders");
+        setProjectStakeholders([]);
+      } finally {
+        setIsLoadingStakeholders(false);
       }
+    };
+
+    if (currentProjectId) {
+      fetchProjectStakeholders();
+    } else {
+      setProjectStakeholders([]);
     }
-  }, [
-    projects,
-    stakeholders,
-    interview,
-    setValue,
-    clientId,
-    originalClientId,
-    projectId,
-    stakeholderIds,
-    open,
-  ]);
+  }, [currentProjectId, interview, setValue]);
 
   const onSubmit = async (data: UpdateInterviewFormValues) => {
+    if (!interview) return;
+
     try {
       setIsSubmitting(true);
       const interviewService = ServiceFactory.getInterviewService();
-      // console.log("=====================>", data);
-      
-      await interviewService.update(interview!.id, {
+
+      await interviewService.update(interview.id, {
         name: data.name?.trim() || undefined,
         date: data.date,
         gDriveId: data.gDriveId?.trim() || undefined,
@@ -456,7 +490,7 @@ export function UpdateInterviewModal({
                   return (
                     <>
                       <MultiSelect
-                        options={stakeholders.map((s) => ({
+                        options={stakeholderOptions.map((s) => ({
                           label: s.name,
                           value: s.id,
                         }))}
@@ -465,11 +499,17 @@ export function UpdateInterviewModal({
                         placeholder={
                           !clientSelected
                             ? "Select a client first"
+                            : !currentProjectId
+                            ? "Select a project to load stakeholders"
                             : isLoadingStakeholders
-                            ? "Loading stakeholders..."
+                            ? "Loading project stakeholders..."
                             : "Select stakeholders..."
                         }
-                        disabled={!clientSelected || isLoadingStakeholders}
+                        disabled={
+                          !clientSelected ||
+                          !currentProjectId ||
+                          isLoadingStakeholders
+                        }
                       />
                     </>
                   );
@@ -495,73 +535,36 @@ export function UpdateInterviewModal({
               />
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <Label htmlFor="requestDistillation">
-                  Request Distillation
-                </Label>
                 <Input
                   id="requestDistillation"
                   type="checkbox"
                   {...register("requestDistillation")}
+                  className="w-4 h-4"
                 />
+                <Label htmlFor="requestDistillation">
+                  Request Distillation
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Label htmlFor="requestCoaching">
-                  Request Coaching
-                </Label>
                 <Input
                   id="requestCoaching"
                   type="checkbox"
                   {...register("requestCoaching")}
+                  className="w-4 h-4"
                 />
+                <Label htmlFor="requestCoaching">Request Coaching</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Label htmlFor="requestUserStories">
-                  Request User Stories
-                </Label>
                 <Input
                   id="requestUserStories"
                   type="checkbox"
                   {...register("requestUserStories")}
+                  className="w-4 h-4"
                 />
+                <Label htmlFor="requestUserStories">Request User Stories</Label>
               </div>
-            </div>
-
-            {/* <div>
-              <Label htmlFor="requestDistillation" className="mb-2 block">
-                Request Coaching
-              </Label>
-              <Input
-                id="requestDistillation"
-                type="url"
-                {...register("requestDistillation")}
-                placeholder="Enter Request Distillation URL"
-              />
-            </div> */}
-
-            {/* <div>
-              <Label htmlFor="requestCoaching" className="mb-2 block">
-                Request Coaching
-              </Label>
-              <Input
-                id="requestCoaching"
-                type="url"
-                {...register("requestCoaching")}
-                placeholder="Enter coaching URL"
-              />
-            </div> */}
-
-            {/* <div>
-              <Label htmlFor="requestUserStories" className="mb-2 block">
-                Request User Stories
-              </Label>
-              <Input
-                id="requestUserStories"
-                type="url"
-                {...register("requestUserStories")}
-                placeholder="Enter user stories URL"
-              />
             </div> */}
           </div>
 

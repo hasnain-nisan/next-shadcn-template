@@ -30,6 +30,7 @@ import { format } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import { MultiSelect } from "../ui/multi-select";
 import { set } from "zod";
+import { Project } from "@/types/project.types";
 
 type Props = {
   open: boolean;
@@ -37,7 +38,7 @@ type Props = {
   setRefetch: (state: boolean) => void;
   clients: { id: string; name: string }[];
   id?: string;
-  projectId?: string;
+  project?: Project | null;
 };
 
 type CreateInterviewFormValues = {
@@ -58,7 +59,7 @@ export function CreateInterviewModal({
   setRefetch,
   clients,
   id,
-  projectId,
+  project,
 }: Readonly<Props>) {
   const {
     register,
@@ -78,7 +79,7 @@ export function CreateInterviewModal({
       requestCoaching: false,
       requestUserStories: false,
       clientId: id || "",
-      projectId: "",
+      projectId: project?.id || "",
       stakeholderIds: [],
     },
   });
@@ -99,10 +100,10 @@ export function CreateInterviewModal({
   }, [open, id, setValue]);
 
   useEffect(() => {
-    if (open && projectId) {
-      setValue("projectId", projectId);
+    if (open && project) {
+      setValue("projectId", project.id);
     }
-  }, [open, projectId, setValue]);
+  }, [open, project, setValue]);
 
   // Fetch projects when client changes
   useEffect(() => {
@@ -124,11 +125,9 @@ export function CreateInterviewModal({
           deletedStatus: "false",
         });
 
-        if (projectId) {
-          setProjects(
-            result.items.filter((project) => project.id === projectId)
-          );
-          setValue("projectId", projectId);
+        if (project) {
+          setProjects(result.items.filter((pro) => pro.id === project.id));
+          setValue("projectId", project.id);
         } else {
           setProjects(result.items);
           // Reset project selection when client changes and clear validation errors
@@ -148,6 +147,41 @@ export function CreateInterviewModal({
   }, [clientId, setValue, clearErrors]);
 
   // Fetch projects when client changes
+  // useEffect(() => {
+  //   const fetchStakeholders = async () => {
+  //     if (!clientId || clientId === "") {
+  //       setStakeholders([]);
+  //       setValue("stakeholderIds", []);
+  //       clearErrors("stakeholderIds");
+  //       return;
+  //     }
+
+  //     try {
+  //       setIsLoadingStakeholders(true);
+  //       const stakeholderService = ServiceFactory.getClientStakeholderService();
+  //       const result = await stakeholderService.getAll({
+  //         page: 1,
+  //         limit: Number.MAX_SAFE_INTEGER,
+  //         clientId: clientId !== "all" ? clientId : undefined,
+  //         deletedStatus: "false",
+  //       });
+
+  //       setStakeholders(result.items);
+  //       // Reset project selection when client changes and clear validation errors
+  //       setValue("stakeholderIds", []);
+  //       clearErrors("stakeholderIds");
+  //     } catch (error) {
+  //       console.error("Failed to fetch stakeholders:", error);
+  //       toast.error("Failed to fetch stakeholders");
+  //       setStakeholders([]);
+  //     } finally {
+  //       setIsLoadingStakeholders(false);
+  //     }
+  //   };
+
+  //   fetchStakeholders();
+  // }, [clientId, setValue, clearErrors]);
+
   useEffect(() => {
     const fetchStakeholders = async () => {
       if (!clientId || clientId === "") {
@@ -159,15 +193,8 @@ export function CreateInterviewModal({
 
       try {
         setIsLoadingStakeholders(true);
-        const stakeholderService = ServiceFactory.getClientStakeholderService();
-        const result = await stakeholderService.getAll({
-          page: 1,
-          limit: Number.MAX_SAFE_INTEGER,
-          clientId: clientId !== "all" ? clientId : undefined,
-          deletedStatus: "false",
-        });
-
-        setStakeholders(result.items);
+        const stakeholders = project?.stakeholders || [];
+        setStakeholders(stakeholders);
         // Reset project selection when client changes and clear validation errors
         setValue("stakeholderIds", []);
         clearErrors("stakeholderIds");
@@ -182,6 +209,9 @@ export function CreateInterviewModal({
 
     fetchStakeholders();
   }, [clientId, setValue, clearErrors]);
+
+  console.log("Rendering CreateInterviewModal with project:", project);
+  
 
   // Reset form when modal closes
   useEffect(() => {
@@ -516,9 +546,7 @@ export function CreateInterviewModal({
                 />
               </div>
               <div className="flex items-center space-x-2">
-                <Label htmlFor="requestCoaching">
-                  Request Coaching
-                </Label>
+                <Label htmlFor="requestCoaching">Request Coaching</Label>
                 <Input
                   id="requestCoaching"
                   type="checkbox"
@@ -526,9 +554,7 @@ export function CreateInterviewModal({
                 />
               </div>
               <div className="flex items-center space-x-2">
-                <Label htmlFor="requestUserStories">
-                  Request User Stories
-                </Label>
+                <Label htmlFor="requestUserStories">Request User Stories</Label>
                 <Input
                   id="requestUserStories"
                   type="checkbox"

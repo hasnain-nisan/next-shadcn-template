@@ -53,21 +53,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/dashboard/clients",
       icon: IconBriefcase,
     },
-    access.canAccessStakeholders && {
-      title: "Client Stakeholders",
-      url: "/dashboard/client-stakeholders",
-      icon: IconUserStar,
-    },
-    access.canAccessProjects && {
-      title: "Projects",
-      url: "/dashboard/projects",
-      icon: IconFolder,
-    },
-    access.canAccessInterviews && {
-      title: "Discovery Interview",
-      url: "/dashboard/discovery-interviews",
-      icon: IconMessages,
-    },
+    // access.canAccessStakeholders && {
+    //   title: "Client Stakeholders",
+    //   url: "/dashboard/client-stakeholders",
+    //   icon: IconUserStar,
+    // },
+    // access.canAccessProjects && {
+    //   title: "Projects",
+    //   url: "/dashboard/projects",
+    //   icon: IconFolder,
+    // },
+    // access.canAccessInterviews && {
+    //   title: "Discovery Interview",
+    //   url: "/dashboard/discovery-interviews",
+    //   icon: IconMessages,
+    // },
 
     // New menu items
     access.canAccessConfig && {

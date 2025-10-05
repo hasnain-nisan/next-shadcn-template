@@ -22,6 +22,9 @@ interface StakeholderDetailsAccordionProps {
   onUpdate: (stakeholder: ClientStakeholder) => void;
   onView: (stakeholder: ClientStakeholder) => void;
   onDelete: (stakeholder: ClientStakeholder) => void;
+  canManageStakeholders: boolean;
+  canUpdateStakeholders: boolean;
+  canDeleteStakeholders: boolean;
 }
 
 const StakeholderDetailsRow: React.FC<StakeholderDetailsAccordionProps> = ({
@@ -29,27 +32,30 @@ const StakeholderDetailsRow: React.FC<StakeholderDetailsAccordionProps> = ({
   onUpdate,
   onView,
   onDelete,
+  canManageStakeholders,
+  canUpdateStakeholders,
+  canDeleteStakeholders,
 }) => (
-  <div className="flex justify-between items-center py-3">
+  <div className="flex justify-between items-center py-3 border rounded-md px-4 hover:bg-gray-50">
     {/* Stakeholder Info */}
-    <div className="flex flex-col gap-1 max-w-[calc(100%-140px)]">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 max-w-[calc(100%-220px)] sm:max-w-[calc(100%-250px)]">
       <p className="text-base font-medium text-foreground truncate">
-        {clientStakeholder.name}
+        {clientStakeholder.name || "Unnamed Stakeholder"}
       </p>
-      {/* Uncomment if you want to show more info */}
+
+      {/* Date and Status/Requests Badge */}
       <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-        {clientStakeholder.isDeleted && (
-          <Badge
-            variant="destructive"
-            className="bg-red-500 hover:bg-red-500 text-white pointer-events-none"
-          >
-            Deleted
-          </Badge>
-        )}
-        {/* <Badge variant="outline">{clientStakeholder.email}</Badge>
-        <Badge variant="outline">{clientStakeholder.phone}</Badge>
-        <Badge variant="outline">{clientStakeholder.role}</Badge>
-        <Badge variant="outline">{clientStakeholder.company}</Badge> */}
+        {/* Status Badge */}
+        <Badge
+          variant={clientStakeholder.isDeleted ? "destructive" : "secondary"}
+          className={`text-xs pointer-events-none ${
+            clientStakeholder.isDeleted
+              ? "bg-red-400 hover:bg-red-400 text-white"
+              : "border-green-500 text-green-600 bg-green-50/50 hover:bg-green-50/50"
+          }`}
+        >
+          {clientStakeholder.isDeleted ? "Deleted" : "Active"}
+        </Badge>
       </div>
     </div>
 
@@ -61,6 +67,7 @@ const StakeholderDetailsRow: React.FC<StakeholderDetailsAccordionProps> = ({
         onClick={() => onView?.(clientStakeholder)}
         className="w-8 h-8"
         title={`View ${clientStakeholder.name}`}
+        disabled={!canManageStakeholders}
       >
         <Eye className="w-4 h-4 text-muted-foreground hover:text-foreground" />
       </Button>
@@ -70,7 +77,7 @@ const StakeholderDetailsRow: React.FC<StakeholderDetailsAccordionProps> = ({
         onClick={() => onUpdate(clientStakeholder)}
         className="w-8 h-8"
         title={`Update ${clientStakeholder.name}`}
-        disabled={clientStakeholder.isDeleted}
+        disabled={clientStakeholder.isDeleted || !canUpdateStakeholders}
       >
         <Pencil className="w-4 h-4 text-muted-foreground hover:text-foreground" />
       </Button>
@@ -80,7 +87,7 @@ const StakeholderDetailsRow: React.FC<StakeholderDetailsAccordionProps> = ({
         onClick={() => onDelete(clientStakeholder)}
         className="w-8 h-8"
         title={`Delete ${clientStakeholder.name}`}
-        disabled={clientStakeholder.isDeleted}
+        disabled={clientStakeholder.isDeleted || !canDeleteStakeholders}
       >
         <Trash2 className="w-4 h-4 text-red-500 hover:text-red-700" />
       </Button>
@@ -96,6 +103,10 @@ interface ClientStakeholderCardProps {
   onUpdateStakeholder: (stakeholder: ClientStakeholder) => void; // Function to open the update form/modal
   onViewStakeholder: (stakeholder: ClientStakeholder) => void; // Function to open the view details modal
   onDeleteStakeholder: (stakeholder: ClientStakeholder) => void; // Function to open the delete confirmation modal
+  canManageStakeholders: boolean;
+  canCreateStakeholders: boolean;
+  canUpdateStakeholders: boolean;
+  canDeleteStakeholders: boolean;
 }
 
 const ClientStakeholderCard: React.FC<ClientStakeholderCardProps> = ({
@@ -104,6 +115,10 @@ const ClientStakeholderCard: React.FC<ClientStakeholderCardProps> = ({
   onUpdateStakeholder,
   onViewStakeholder,
   onDeleteStakeholder,
+  canManageStakeholders,
+  canCreateStakeholders,
+  canUpdateStakeholders,
+  canDeleteStakeholders,
 }) => {
   console.log("Rendering ClientStakeholderCard with client:", client);
 
@@ -126,6 +141,7 @@ const ClientStakeholderCard: React.FC<ClientStakeholderCardProps> = ({
                 size="sm"
                 onClick={onCreateStakeholder} // Call the passed handler
                 className="flex items-center gap-1 flex-shrink-0"
+                disabled={!canCreateStakeholders} // Disable if user lacks permission
               >
                 <PlusCircle className="w-4 h-4" />
                 Create
@@ -143,6 +159,9 @@ const ClientStakeholderCard: React.FC<ClientStakeholderCardProps> = ({
                       onUpdate={onUpdateStakeholder}
                       onView={onViewStakeholder}
                       onDelete={onDeleteStakeholder}
+                      canManageStakeholders={canManageStakeholders}
+                      canUpdateStakeholders={canUpdateStakeholders}
+                      canDeleteStakeholders={canDeleteStakeholders}
                     />
                   ))}
                 </div>

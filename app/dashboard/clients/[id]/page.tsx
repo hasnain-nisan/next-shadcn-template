@@ -25,6 +25,18 @@ import { ClientStakeholder } from "@/types/stakeholder.types";
 import { ClientStakeholderDetailsModal } from "@/components/client-stakeholder/ClientStakeholderDetailsModal";
 import { UpdateClientStakeholderModal } from "@/components/client-stakeholder/UpdateClientStakeholderModal";
 import { DeleteClientStakeholderModal } from "@/components/client-stakeholder/DeleteClientStakeholderModal";
+import ProjectCard from "@/components/clients/ProjectCard";
+import { Project } from "@/types/project.types";
+import { CreateProjectModal } from "@/components/project/CreateProjectModal";
+import { ProjectDetailsModal } from "@/components/project/ProjectDetailsModal";
+import { UpdateProjectModal } from "@/components/project/UpdateProjectModal";
+import { DeleteProjectModal } from "@/components/project/DeleteProjectModal";
+import { Inter } from "next/font/google";
+import ClientInterviewCard from "@/components/clients/InterviewCard";
+import { Interview } from "@/types/interview.types";
+import { InterviewDetailsModal } from "@/components/interview/InterviewDetailsModal";
+import { UpdateInterviewModal } from "@/components/interview/UpdateInterviewModal";
+import { DeleteInterviewModal } from "@/components/interview/DeleteInterviewModal";
 
 export default function ClientDetailsPage({
   params,
@@ -35,10 +47,7 @@ export default function ClientDetailsPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // State for Interview Modal
-  const [openCreateInterviewModal, setOpenCreateInterviewModal] =
-    useState(false);
-  const [projectId, setProjectId] = useState<string>("");
+  const [project, setProject] = useState<Project | null>(null);
 
   // State for Stakeholder Modals
   const [openCreateStakeholderModal, setOpenCreateStakeholderModal] =
@@ -56,6 +65,33 @@ export default function ClientDetailsPage({
   const [stakeholderToDelete, setStakeholderToDelete] =
     useState<ClientStakeholder | null>(null);
 
+  // State for Project Modals
+  const [openCreateProjectModal, setOpenCreateProjectModal] = useState(false);
+  const [openUpdateProjectModal, setOpenUpdateProjectModal] = useState(false);
+  const [openViewProjectModal, setOpenViewProjectModal] = useState(false);
+  const [openDeleteProjectModal, setOpenDeleteProjectModal] = useState(false);
+  const [projectToUpdate, setProjectToUpdate] = useState<Project | null>(null);
+  const [projectToView, setProjectToView] = useState<Project | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+
+  // State for Interview Modals
+  const [openCreateInterviewModal, setOpenCreateInterviewModal] =
+    useState(false);
+  const [openUpdateInterviewModal, setOpenUpdateInterviewModal] =
+    useState(false);
+  const [openViewInterviewModal, setOpenViewInterviewModal] = useState(false);
+  const [openDeleteInterviewModal, setOpenDeleteInterviewModal] =
+    useState(false);
+  const [interviewToUpdate, setInterviewToUpdate] = useState<Interview | null>(
+    null
+  );
+  const [interviewToView, setInterviewToView] = useState<Interview | null>(
+    null
+  );
+  const [interviewToDelete, setInterviewToDelete] = useState<Interview | null>(
+    null
+  );
+
   // State for Refetching Data
   const [refetch, setRefetch] = useState(false);
 
@@ -64,7 +100,22 @@ export default function ClientDetailsPage({
 
   const { data: session } = useSession();
   const accessScopes = session?.user?.accessScopes || {};
-  const canCreateInterviews = accessScopes.canCreateInterviews ?? false;
+  console.log("User access scopes:", accessScopes); // Debug log
+
+  const canCreateStakeholders = accessScopes.canCreateStakeholders ?? false;
+  const canUpdateStakeholders = accessScopes.canUpdateStakeholders ?? false;
+  const canDeleteStakeholders = accessScopes.canDeleteStakeholders ?? false;
+  const canManageStakeholders = accessScopes.canManageStakeholders ?? false;
+
+  const canCreateProjects = accessScopes.canCreateProjects ?? false;
+  const canUpdateProjects = accessScopes.canUpdateProjects ?? false;
+  const canDeleteProjects = accessScopes.canDeleteProjects ?? false;
+  const canManageProjects = accessScopes.canManageProjects ?? false;
+
+  const canCreateInterview = accessScopes.canCreateInterviews ?? false;
+  const canUpdateInterview = accessScopes.canUpdateInterviews ?? false;
+  const canDeleteInterview = accessScopes.canDeleteInterviews ?? false;
+  const canManageInterview = accessScopes.canManageInterviews ?? false;
 
   // Function to fetch client data
   const fetchClient = async () => {
@@ -94,7 +145,6 @@ export default function ClientDetailsPage({
   }, [id, refetch]);
 
   // --- Stakeholder Modal Handlers ---
-
   const handleCreateStakeholder = () => {
     // Open the create modal
     setOpenCreateStakeholderModal(true);
@@ -116,6 +166,51 @@ export default function ClientDetailsPage({
     setStakeholderToDelete(stakeholderData);
     setOpenDeleteStakeholderModal(true);
   };
+  // --- Stakeholder Modal Handlers ---
+
+  // --- Project Modal Handlers (placeholders) ---
+  const handleCreateProject = () => {
+    setOpenCreateProjectModal(true);
+  };
+
+  const handleUpdateProject = (projectData: Project) => {
+    // Set the ID of the stakeholder to update and open the update modal
+    // You would use this ID to fetch/pre-fill the update form later.
+    setProjectToUpdate(projectData);
+    setOpenUpdateProjectModal(true);
+  };
+
+  const handleViewProject = (projectData: Project) => {
+    setProjectToView(projectData);
+    setOpenViewProjectModal(true);
+  };
+
+  const handleDeleteProject = (projectData: Project) => {
+    setProjectToDelete(projectData);
+    setOpenDeleteProjectModal(true);
+  };
+  // --- Project Modal Handlers ---
+
+  // --- Interview Modal Handlers ---
+  const handleCreateInterview = () => {
+    setOpenCreateInterviewModal(true);
+  };
+
+  const handleUpdateInterview = (interviewData: Interview) => {
+    setInterviewToUpdate(interviewData);
+    setOpenUpdateInterviewModal(true);
+  };
+
+  const handleViewInterview = (interviewData: Interview) => {
+    setInterviewToView(interviewData);
+    setOpenViewInterviewModal(true);
+  };
+
+  const handleDeleteInterview = (interviewData: Interview) => {
+    setInterviewToDelete(interviewData);
+    setOpenDeleteInterviewModal(true);
+  };
+  // --- Interview Modal Handlers ---
 
   return (
     <>
@@ -247,139 +342,42 @@ export default function ClientDetailsPage({
               onUpdateStakeholder={handleUpdateStakeholder}
               onViewStakeholder={handleViewStakeholder}
               onDeleteStakeholder={handleDeleteStakeholder}
+              canManageStakeholders={canManageStakeholders}
+              canCreateStakeholders={canCreateStakeholders}
+              canUpdateStakeholders={canUpdateStakeholders}
+              canDeleteStakeholders={canDeleteStakeholders}
             />
 
-            {/* Projects Section */}
-            <Card>
-              <CardContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="text-sm text-muted-foreground"
-                >
-                  <AccordionItem value="projects">
-                    <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Projects ({client.projects?.length || 0})
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-4">
-                      {client.projects?.length === 0 ? (
-                        <div className="italic text-muted-foreground">
-                          No projects assigned to this client yet.
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                          {client.projects.map((project, index) => (
-                            <div
-                              key={index}
-                              className="space-y-3 border p-4 rounded-md shadow-sm bg-white"
-                            >
-                              {/* Project Name */}
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Project Name:
-                                </span>
-                                <p className="text-black">
-                                  {project.name || "Unnamed Project"}
-                                </p>
-                              </div>
-
-                              {/* Status */}
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Status:
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className={`px-3 py-1 ${
-                                    project.isDeleted
-                                      ? "border-red-500 text-red-600"
-                                      : "border-green-500 text-green-600"
-                                  }`}
-                                >
-                                  {project.isDeleted ? "Deleted" : "Active"}
-                                </Badge>
-                              </div>
-
-                              {/* Action Button */}
-                              <div className="pt-3">
-                                <Button
-                                  variant="default"
-                                  size="sm"
-                                  className="w-full"
-                                  onClick={() => {
-                                    setProjectId(project.id);
-                                    setOpenCreateInterviewModal(true);
-                                  }}
-                                  disabled={
-                                    project.isDeleted || !canCreateInterviews
-                                  }
-                                >
-                                  Request Interview
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
+            {/* project section */}
+            <ProjectCard
+              client={client}
+              // Pass the handlers to the card
+              onCreateProject={handleCreateProject}
+              onUpdateProject={handleUpdateProject}
+              onViewProject={handleViewProject}
+              onDeleteProject={handleDeleteProject}
+              canManageProjects={canManageProjects}
+              canCreateProjects={canCreateProjects}
+              canUpdateProjects={canUpdateProjects}
+              canDeleteProjects={canDeleteProjects}
+              canCreateInterview={canCreateInterview}
+              openCreateInterviewModal={setOpenCreateInterviewModal}
+              projectToSet={setProject}
+            />
 
             {/* Interviews Section */}
-            <Card>
-              <CardContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="text-sm text-muted-foreground"
-                >
-                  <AccordionItem value="interviews">
-                    <AccordionTrigger className="text-base font-semibold text-foreground">
-                      Interviews ({client.interviews?.length || 0})
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-4">
-                      {client.interviews?.length === 0 ? (
-                        <div className="italic text-muted-foreground">
-                          No interviews linked to this client yet.
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                          {client.interviews.map((interview, index) => (
-                            <div
-                              key={index}
-                              className="space-y-2 border p-4 rounded-md"
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Interview Title:
-                                </span>
-                                <p className="text-black">
-                                  {interview.name || `Interview ${index + 1}`}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">
-                                  Date:
-                                </span>
-                                <p className="text-black">
-                                  {interview.date
-                                    ? new Date(
-                                        interview.date
-                                      ).toLocaleDateString()
-                                    : "—"}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
+            <ClientInterviewCard
+              client={client}
+              // Pass the handlers to the card
+              onCreateInterview={handleCreateInterview}
+              onUpdateInterview={handleUpdateInterview} // Reusing project handlers for simplicity
+              onViewInterview={handleViewInterview}
+              onDeleteInterview={handleDeleteInterview}
+              canManageInterviews={canManageInterview}
+              canCreateInterviews={canCreateInterview}
+              canUpdateInterviews={canUpdateInterview}
+              canDeleteInterviews={canDeleteInterview}
+            />
           </>
         ) : (
           <div className="text-center text-sm text-muted-foreground py-10">
@@ -397,16 +395,19 @@ export default function ClientDetailsPage({
         setRefetch={setRefetch}
         clients={clients}
         id={client?.id}
-        projectId={projectId}
+        project={project}
       />
 
+      {/* Start Stakeholder modals */}
       {/* 2. Create Stakeholder Modal (NEW) */}
-      <CreateClientStakeholderModal
-        open={openCreateStakeholderModal}
-        setOpen={setOpenCreateStakeholderModal}
-        setRefetch={setRefetch} // This will trigger a re-fetch of client data
-        clients={clients} // Pass the clients array (containing the current client)
-      />
+      {openCreateStakeholderModal && (
+        <CreateClientStakeholderModal
+          open={openCreateStakeholderModal}
+          setOpen={setOpenCreateStakeholderModal}
+          setRefetch={setRefetch} // This will trigger a re-fetch of client data
+          clients={clients} // Pass the clients array (containing the current client)
+        />
+      )}
 
       {/* 3. View Stakeholder Modal (NEW) */}
       {openViewStakeholderModal && stakeholderToView && (
@@ -418,13 +419,15 @@ export default function ClientDetailsPage({
       )}
 
       {/* 4. Update Stakeholder Modal (new) */}
-      <UpdateClientStakeholderModal
-        open={openUpdateStakeholderModal}
-        setOpen={setOpenUpdateStakeholderModal}
-        setRefetch={setRefetch}
-        stakeholder={stakeholderToUpdate}
-        clients={clients}
-      />
+      {openUpdateStakeholderModal && stakeholderToUpdate && (
+        <UpdateClientStakeholderModal
+          open={openUpdateStakeholderModal}
+          setOpen={setOpenUpdateStakeholderModal}
+          setRefetch={setRefetch}
+          stakeholder={stakeholderToUpdate}
+          clients={clients}
+        />
+      )}
 
       {/* 5. Delete Stakeholder Modal (new) */}
       {openDeleteStakeholderModal && stakeholderToDelete && (
@@ -435,20 +438,82 @@ export default function ClientDetailsPage({
           stakeholder={stakeholderToDelete}
         />
       )}
+      {/* End Stakeholders modals */}
 
-      {/* 3. Update Stakeholder Modal (Placeholder) */}
-      {/* You would create an UpdateClientStakeholderModal similar to the create one.
-        It would receive `stakeholderToUpdateId` and `setOpenUpdateStakeholderModal`.
-      */}
-      {/* {openUpdateStakeholderModal && (
-        <UpdateClientStakeholderModal
-          open={openUpdateStakeholderModal}
-          setOpen={setOpenUpdateStakeholderModal}
+      {/* Start Project modals */}
+      {/* 6. Create Project Modal */}
+      {openCreateProjectModal && (
+        <CreateProjectModal
+          open={openCreateProjectModal}
+          setOpen={setOpenCreateProjectModal}
           setRefetch={setRefetch}
-          stakeholderId={stakeholderToUpdateId}
           clients={clients}
         />
-      )} */}
+      )}
+
+      {/* 7. View Stakeholder Modal (NEW) */}
+      {openViewProjectModal && projectToView && (
+        <ProjectDetailsModal
+          open={openViewProjectModal}
+          setOpen={setOpenViewProjectModal}
+          project={projectToView}
+        />
+      )}
+
+      {/* 8. Update Project Modal (NEW) */}
+      {openUpdateProjectModal && projectToUpdate && (
+        <UpdateProjectModal
+          open={openUpdateProjectModal}
+          setOpen={setOpenUpdateProjectModal}
+          setRefetch={setRefetch}
+          project={projectToUpdate}
+          clients={clients}
+        />
+      )}
+
+      {/* 9. Delete Project Modal (NEW) */}
+      {openDeleteProjectModal && projectToDelete && (
+        <DeleteProjectModal
+          open={openDeleteProjectModal}
+          setOpen={setOpenDeleteProjectModal}
+          setRefetch={setRefetch}
+          project={projectToDelete}
+        />
+      )}
+      {/* End Project modals */}
+
+      {/* Start Interview modals */}
+      {/* 10.View Interview Modal (NEW) */}
+      {openViewInterviewModal && interviewToView && (
+        <InterviewDetailsModal
+          open={openViewInterviewModal}
+          setOpen={setOpenViewInterviewModal}
+          interview={interviewToView}
+        />
+      )}
+
+      {/* 11. Update Interview Modal (NEW) */}
+      {openUpdateInterviewModal && interviewToUpdate && (
+        <UpdateInterviewModal
+          open={openUpdateInterviewModal}
+          setOpen={setOpenUpdateInterviewModal}
+          setRefetch={setRefetch}
+          interview={interviewToUpdate}
+          clients={clients}
+          setSelectedInterview={() => {}}
+        />
+      )}
+
+      {/* 12. Delete Interview Modal (NEW) */}
+      {openDeleteInterviewModal && interviewToDelete && (
+        <DeleteInterviewModal
+          open={openDeleteInterviewModal}
+          setOpen={setOpenDeleteInterviewModal}
+          setRefetch={setRefetch}
+          interview={interviewToDelete}
+        />
+      )}
+      {/* End Interview modals */}
     </>
   );
 }

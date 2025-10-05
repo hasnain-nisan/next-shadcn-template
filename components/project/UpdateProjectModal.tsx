@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { IconLoader2 } from "@tabler/icons-react";
 import { ServiceFactory } from "@/services/ServiceFactory";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Select,
   SelectTrigger,
@@ -23,8 +23,10 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import type { Project } from "@/types/project.types";
 import type { Client } from "@/types/client.types";
+import type { ClientStakeholder } from "@/types/stakeholder.types";
 
 type Props = {
   open: boolean;
@@ -35,10 +37,11 @@ type Props = {
 };
 
 type UpdateProjectFormValues = {
-  name?: string;
-  clientTeam?: string;
-  clientId?: string;
-  description?: string;
+  name: string;
+  clientTeam: string;
+  clientId: string;
+  description: string;
+  stakeholderIds: string[];
 };
 
 export function UpdateProjectModal({
@@ -48,11 +51,15 @@ export function UpdateProjectModal({
   project,
   clients,
 }: Readonly<Props>) {
+  const firstClientId = clients.length > 0 ? clients[0].id : "";
+
   const {
     register,
     handleSubmit,
     reset,
     control,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<UpdateProjectFormValues>({
     defaultValues: {
@@ -60,47 +67,133 @@ export function UpdateProjectModal({
       clientTeam: "",
       clientId: "",
       description: "",
+      stakeholderIds: [],
     },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
+  const watchedClientId = watch("clientId");
 
-  // Populate form when modal opens with a project
+  const resetForm = useCallback(() => {
+    reset({
+      name: "",
+      clientTeam: "",
+      clientId: "",
+      description: "",
+      stakeholderIds: [],
+    });
+    setStakeholders([]);
+  }, [reset]);
+
+  // --- 1. Populate form on open (This section remains largely correct) ---
   useEffect(() => {
     if (open && project) {
+      const initialClient = project.client?.id ?? firstClientId;
+      const initialStakeholderIds =
+        project.stakeholders?.map((s) => s.id) ?? [];
+
+      // Ensure that the initial reset sets the project's selected IDs
       reset({
         name: project.name ?? "",
         clientTeam: project.clientTeam ?? "",
-        clientId: project.client?.id ?? "",
+        clientId: initialClient,
         description: project.description ?? "",
+        stakeholderIds: initialStakeholderIds,
       });
+    } else if (!open) {
+      resetForm();
     }
-  }, [open, project, reset]);
+  }, [open, project, reset, firstClientId, resetForm]);
+
+  // --- 2. Fetch stakeholders when clientId changes (CRITICAL FIX HERE) ---
+  useEffect(() => {
+    if (!open || !watchedClientId) {
+      setStakeholders([]);
+      // When client is cleared, also clear selected stakeholders
+      if (open) setValue("stakeholderIds", []);
+      return;
+    }
+
+    const fetchStakeholders = async () => {
+      try {
+        const clientStakeholderService =
+          ServiceFactory.getClientStakeholderService();
+
+        const result = await clientStakeholderService.getAll({
+          page: 1,
+          limit: Number.MAX_SAFE_INTEGER,
+          clientId: watchedClientId,
+          deletedStatus: "false",
+        });
+
+        const fetchedStakeholders = result.items;
+        setStakeholders(fetchedStakeholders);
+
+        // Logic to handle selected IDs upon client change:
+
+        const isInitialLoad = open && project?.client?.id === watchedClientId;
+
+        // If it's the initial load for the current project, do nothing here.
+        // The MultiSelect will automatically show the selected IDs from the
+        // form state once 'stakeholders' are available.
+        if (isInitialLoad) {
+          return;
+        }
+
+        // If the client selection was manually changed, we need to clear or filter:
+        // const currentSelectedIds = watch("stakeholderIds");
+        const currentSelectedIds = project?.stakeholders?.map((s) => s.id) ?? [];
+        const validIdsForNewClient = currentSelectedIds.filter((id) =>
+          fetchedStakeholders.some((s) => s.id === id)
+        );
+
+        console.log(currentSelectedIds, "currentSelectedIds");
+        console.log(validIdsForNewClient, "validIdsForNewClient");
+
+        // Only update if the selected list changed (e.g., if we had to remove
+        // stakeholders not belonging to the new client, or clear the list entirely).
+        // if (validIdsForNewClient.length !== currentSelectedIds.length) {
+          setValue("stakeholderIds", validIdsForNewClient);
+        // }
+      } catch (error) {
+        console.error("Failed to fetch stakeholders:", error);
+        toast.error("Failed to load client stakeholders.");
+        setStakeholders([]);
+        setValue("stakeholderIds", []);
+      }
+    };
+
+    fetchStakeholders();
+
+    // The dependency array is correct: re-run when client or modal state changes
+  }, [watchedClientId, open, project, setValue, watch]); // `watch` added as it's used inside the effect
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      reset({
-        name: "",
-        clientTeam: "",
-        clientId: "",
-        description: "",
-      });
+      resetForm();
     }
     setOpen(isOpen);
   };
 
   const onSubmit = async (data: UpdateProjectFormValues) => {
+    if (!project) return;
+
     try {
       setIsSubmitting(true);
       const projectService = ServiceFactory.getProjectService();
-      await projectService.update(project!.id, {
+
+      const payload = {
         name: data.name?.trim() || undefined,
         clientTeam: data.clientTeam?.trim() || undefined,
         clientId: data.clientId,
         description: data.description?.trim() || undefined,
-      });
+        stakeholderIds: data.stakeholderIds,
+      };
+
+      await projectService.update(project.id, payload);
       toast.success("Project updated successfully");
-      setOpen(false); // closing triggers handleOpenChange → reset
+      handleOpenChange(false);
       setRefetch(true);
     } catch (error) {
       toast.error(
@@ -111,12 +204,16 @@ export function UpdateProjectModal({
     }
   };
 
+  const clientSelected = !!watchedClientId;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="mb-5">
-          <DialogTitle>Update Project</DialogTitle>
-          <DialogDescription>Modify project details.</DialogDescription>
+          <DialogTitle>Update Project: {project?.name}</DialogTitle>
+          <DialogDescription>
+            Modify project details and stakeholders.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -126,11 +223,8 @@ export function UpdateProjectModal({
             <Input
               type="text"
               {...register("name", {
-                validate: (v) =>
-                  v === undefined ||
-                  v.trim() === "" ||
-                  v.trim().length > 0 ||
-                  "Name must not be empty if provided",
+                required: "Name is required",
+                validate: (v) => v.trim() !== "" || "Name cannot be empty",
               })}
             />
             {errors.name && (
@@ -164,6 +258,12 @@ export function UpdateProjectModal({
             <Controller
               name="clientId"
               control={control}
+              rules={{
+                required: "Client is required",
+                validate: (v) =>
+                  (typeof v === "string" && v.trim() !== "") ||
+                  "Client is required",
+              }}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger className="w-full h-[36px] text-sm">
@@ -179,6 +279,48 @@ export function UpdateProjectModal({
                 </Select>
               )}
             />
+            {errors.clientId && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.clientId.message}
+              </p>
+            )}
+          </div>
+
+          {/* Stakeholder Multi-Select */}
+          <div>
+            <Label className="mb-2">Stakeholders</Label>
+            <Controller
+              name="stakeholderIds"
+              control={control}
+              render={({ field }) => {
+                const options = stakeholders.map((s) => ({
+                  label: s.name,
+                  value: s.id,
+                }));
+
+                return (
+                  <>
+                    <MultiSelect
+                      options={options}
+                      selected={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select stakeholders..."
+                      disabled={!clientSelected || options.length === 0}
+                    />
+                    {!clientSelected && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Select a client first to enable stakeholder selection.
+                      </p>
+                    )}
+                    {clientSelected && options.length === 0 && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        No active stakeholders found for this client.
+                      </p>
+                    )}
+                  </>
+                );
+              }}
+            />
           </div>
 
           {/* Description */}
@@ -188,7 +330,6 @@ export function UpdateProjectModal({
               className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               rows={4}
               {...register("description", {
-                required: "Description is required",
                 validate: (v) =>
                   v === undefined ||
                   v.trim() === "" ||

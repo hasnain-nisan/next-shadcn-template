@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   Dialog,
@@ -37,7 +37,7 @@ type CreateProjectFormValues = {
   name: string;
   clientTeam?: string;
   clientId: string;
-  // stakeholderIds: string[];
+  stakeholderIds: string[];
   description: string;
 };
 
@@ -47,6 +47,9 @@ export function CreateProjectModal({
   setRefetch,
   clients,
 }: Readonly<Props>) {
+  // Determine the ID of the first client, if available, for default values
+  const firstClientId = clients.length > 0 ? clients[0].id : "";
+
   const {
     register,
     handleSubmit,
@@ -59,55 +62,83 @@ export function CreateProjectModal({
     defaultValues: {
       name: "",
       clientTeam: "",
-      clientId: "",
-      // stakeholderIds: [],
+      clientId: firstClientId, // Set default clientId here
+      stakeholderIds: [],
       description: "",
     },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [clientId, setClientId] = useState("all");
-  // const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
+  
+  // Use watch to reactively get the clientId value from the form
+  const watchedClientId = watch("clientId");
+  
+  const [stakeholders, setStakeholders] = useState<ClientStakeholder[]>([]);
 
-  // Fetch stakeholders when clientId changes
-  // useEffect(() => {
-  //   const fetchStakeholders = async () => {
-  //     try {
-  //       const clientStakeholderService =
-  //         ServiceFactory.getClientStakeholderService();
-  //       const result = await clientStakeholderService.getAll({
-  //         page: 1,
-  //         limit: Number.MAX_SAFE_INTEGER,
-  //         clientId: clientId !== "all" ? clientId : undefined,
-  //         deletedStatus: "false",
-  //       });
-  //       setStakeholders(result.items);
-  //     } catch (error) {
-  //       console.error("Failed to fetch stakeholders:", error);
-  //     }
-  //   };
+  // Memoize the reset function
+  const resetForm = useCallback(() => {
+    reset({
+      name: "",
+      clientTeam: "",
+      clientId: firstClientId,
+      stakeholderIds: [],
+      description: "",
+    });
+    setStakeholders([]); // Clear stakeholders display
+  }, [reset, firstClientId]);
 
-  //   if (clientId && clientId !== "") {
-  //     fetchStakeholders();
-  //   } else {
-  //     setStakeholders([]);
-  //   }
-  // }, [clientId]);
-
-  // Reset form and state when modal closes
+  // Handle modal open/close and form reset
   useEffect(() => {
-    if (!open) {
-      reset({
-        name: "",
-        clientTeam: "",
-        clientId: "",
-        // stakeholderIds: [],
-        description: "",
-      });
-      setClientId("all");
-      // setStakeholders([]);
+    if (open) {
+      resetForm();
     }
-  }, [open, reset]);
+    // When closing, we rely on resetForm or handleOpenChange to reset the state
+  }, [open, resetForm]);
+
+  // Fetch stakeholders when clientId changes in the form
+  useEffect(() => {
+    const fetchStakeholders = async () => {
+      // Reset stakeholders when client changes or is cleared
+      setValue("stakeholderIds", []); 
+
+      if (!watchedClientId || watchedClientId === "") {
+        setStakeholders([]);
+        return;
+      }
+      
+      try {
+        const clientStakeholderService =
+          ServiceFactory.getClientStakeholderService();
+        
+        // Fetch only for the selected client ID
+        const result = await clientStakeholderService.getAll({
+          page: 1,
+          limit: Number.MAX_SAFE_INTEGER,
+          clientId: watchedClientId,
+          deletedStatus: "false",
+        });
+        setStakeholders(result.items);
+      } catch (error) {
+        console.error("Failed to fetch stakeholders:", error);
+        toast.error("Failed to load client stakeholders.");
+        setStakeholders([]);
+      }
+    };
+
+    if (clients.length > 0) {
+      fetchStakeholders();
+    }
+  }, [watchedClientId, clients, setValue, open]);
+
+  console.log(stakeholders, 'stakeholders');
+  
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      resetForm(); // Reset form state when closing
+    }
+    setOpen(isOpen);
+  };
 
   const onSubmit = async (data: CreateProjectFormValues) => {
     try {
@@ -115,7 +146,7 @@ export function CreateProjectModal({
       const projectService = ServiceFactory.getProjectService();
       await projectService.create(data);
       toast.success("Project created successfully");
-      setOpen(false);
+      handleOpenChange(false); // Close modal and reset
       setRefetch(true);
     } catch (error) {
       toast.error(
@@ -126,8 +157,11 @@ export function CreateProjectModal({
     }
   };
 
+  const clientSelected = !!watchedClientId;
+  const canSubmit = !isSubmitting && clientSelected;
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="mb-5">
           <DialogTitle>Create Project</DialogTitle>
@@ -187,11 +221,8 @@ export function CreateProjectModal({
               render={({ field }) => (
                 <Select
                   value={field.value}
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    setClientId(value);
-                    // setValue("stakeholderIds", []); // Reset stakeholders when client changes
-                  }}
+                  onValueChange={field.onChange}
+                  disabled={clients.length === 0}
                 >
                   <SelectTrigger className="w-full h-[36px] text-sm">
                     <SelectValue placeholder="Select a client..." />
@@ -214,7 +245,7 @@ export function CreateProjectModal({
           </div>
 
           {/* Stakeholder Multi-Select */}
-          {/* <div>
+          <div>
             <Label className="mb-2">Stakeholders</Label>
             <Controller
               name="stakeholderIds"
@@ -226,8 +257,6 @@ export function CreateProjectModal({
                   "At least one stakeholder must be assigned",
               }}
               render={({ field }) => {
-                const clientSelected = !!watch("clientId");
-
                 return (
                   <>
                     <MultiSelect
@@ -238,7 +267,7 @@ export function CreateProjectModal({
                       selected={field.value}
                       onChange={field.onChange}
                       placeholder="Select stakeholders..."
-                      disabled={!clientSelected}
+                      disabled={!clientSelected || stakeholders.length === 0}
                     />
                     {!clientSelected && (
                       <p className="text-xs text-muted-foreground mt-1">
@@ -254,7 +283,7 @@ export function CreateProjectModal({
                 {errors.stakeholderIds.message}
               </p>
             )}
-          </div> */}
+          </div>
 
           {/* Description */}
           <div>
@@ -284,7 +313,7 @@ export function CreateProjectModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={!canSubmit}>
               {isSubmitting && (
                 <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
