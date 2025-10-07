@@ -101,7 +101,7 @@ export default function ProjectDetailsPage({
                               Name:
                             </span>
                             <p className="text-black">
-                              {configVersion.project.name}
+                              {configVersion?.project?.name || "N/A"}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function ProjectDetailsPage({
                               Client Team:
                             </span>
                             <Badge variant="outline" className="px-3 py-1">
-                              {configVersion.project.clientTeam}
+                              {configVersion?.project?.clientTeam || "N/A"}
                             </Badge>
                           </div>
                         </div>
@@ -118,17 +118,21 @@ export default function ProjectDetailsPage({
                             <span className="font-medium text-foreground">
                               Status:
                             </span>
-                            <Badge
-                              className={`px-3 py-1 ${
-                                configVersion.project.isDeleted
-                                  ? "bg-red-600 text-white"
-                                  : "bg-green-600 text-white"
-                              }`}
-                            >
-                              {configVersion.project.isDeleted
-                                ? "Deleted"
-                                : "Active"}
-                            </Badge>
+                            {configVersion.project ? (
+                              <Badge
+                                className={`px-3 py-1 ${
+                                  configVersion.project.isDeleted
+                                    ? "bg-red-600 text-white"
+                                    : "bg-green-600 text-white"
+                                }`}
+                              >
+                                {configVersion.project.isDeleted
+                                  ? "Deleted"
+                                  : "Active"}
+                              </Badge>
+                            ) : (
+                              <Badge>N/A</Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-foreground">
@@ -138,7 +142,7 @@ export default function ProjectDetailsPage({
                               variant="outline"
                               className="px-3 py-1 font-mono text-xs"
                             >
-                              {configVersion.project.id}
+                              {configVersion?.project?.id || "N/A"}
                             </Badge>
                           </div>
                         </div>
@@ -151,7 +155,7 @@ export default function ProjectDetailsPage({
                             Client Name:
                           </span>
                           <Badge variant="outline" className="px-3 py-1">
-                            {configVersion.project.client.name}
+                            {configVersion?.project?.client?.name || "N/A"}
                           </Badge>
                         </div>
                         <div className="flex gap-2 items-center">
@@ -159,7 +163,7 @@ export default function ProjectDetailsPage({
                             Client Code:
                           </span>
                           <Badge variant="outline" className="px-3 py-1">
-                            {configVersion.project.client.clientCode}
+                            {configVersion?.project?.client?.clientCode || "N/A"}
                           </Badge>
                         </div>
                       </div>
@@ -170,7 +174,7 @@ export default function ProjectDetailsPage({
                           Description
                         </h3>
                         <p className="text-black">
-                          {configVersion.project.description ||
+                          {configVersion?.project?.description ||
                             "No description provided"}
                         </p>
                       </div>
