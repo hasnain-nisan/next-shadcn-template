@@ -34,9 +34,6 @@ export function MultiSelect({
 }: Readonly<Props>) {
   const [open, setOpen] = useState(false);
 
-  // console.log(selected);
-  
-
   const toggleValue = (value: string) => {
     if (selected.includes(value)) {
       onChange(selected.filter((v) => v !== value));

@@ -19,7 +19,7 @@ export interface IConfigRepository {
   }>;
 
   create(data: {
-    projectId: string;
+    projectId?: string;
     config: Partial<Config["config"]>;
     version: number;
     is_latest: boolean;

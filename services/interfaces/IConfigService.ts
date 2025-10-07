@@ -19,7 +19,7 @@ export interface IConfigService {
   }>;
 
   create(data: {
-    projectId: string;
+    projectId?: string;
     config: Partial<Config["config"]>;
     change_summary?: string;
   }): Promise<Config>;

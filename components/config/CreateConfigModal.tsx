@@ -32,7 +32,7 @@ type Props = {
 };
 
 type CreateConfigFormValues = {
-  projectId: string;
+  projectId?: string;
   example1?: string;
   example2?: string;
   example3?: string;
@@ -143,7 +143,7 @@ export function CreateConfigModal({
                 name="projectId"
                 control={control}
                 // Added back the required rule which was commented out
-                rules={{ required: "Project is required" }}
+                // rules={{ required: "Project is required" }}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-full h-[36px] text-sm">

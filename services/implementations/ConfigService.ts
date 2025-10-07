@@ -42,7 +42,7 @@ export class ConfigService implements IConfigService {
   }
 
   async create(data: {
-    projectId: string;
+    projectId?: string;
     config: Partial<Config["config"]>;
     change_summary?: string;
     version: number;
