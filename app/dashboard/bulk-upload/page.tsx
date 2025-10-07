@@ -250,15 +250,13 @@ export default function BulkUploadPage() {
 
     try {
       const service = ServiceFactory.getBulkUploadService();
-      const res: { success: boolean; result: BulkUploadResult } =
+      const res =
         await service.uploadExcel(
           selectedFile,
           uploadType,
           selectedProject,
           selectedClient
-        );
-
-      console.log("Upload response:", res);
+        ) as unknown as { success: boolean; result: BulkUploadResult; error?: string };
 
       if (res.success && res.result) {
         setUploadResult(res.result);
