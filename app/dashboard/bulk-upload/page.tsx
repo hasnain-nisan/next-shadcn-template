@@ -2,11 +2,17 @@
 "use client";
 
 import type React from "react";
-import Link from "next/link"; // Import Link for breadcrumbs
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator"; // Import Separator
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -15,10 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ServiceFactory } from "@/services/ServiceFactory";
-// Import IconX for the remove button
-import { CheckCircle2, Loader2, Upload, X as IconX } from "lucide-react";
+import {
+  CheckCircle2,
+  Download,
+  Loader2,
+  Upload,
+  X as IconX,
+} from "lucide-react";
 import { useEffect, useState } from "react";
-// Assuming you are using sonner for toast
 import { toast } from "sonner";
 
 interface Client {
@@ -43,7 +53,11 @@ export default function BulkUploadPage() {
   const [isLoadingClients, setIsLoadingClients] = useState(false);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFormValid, setIsFormValid] = useState(false); // Re-adding isFormValid for proper button disabling
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // ---State to trigger the download effect ---
+  const [fileToDownload, setFileToDownload] = useState<string | null>(null);
 
   // --- Data Fetching Logic (Unchanged) ---
 
@@ -82,6 +96,32 @@ export default function BulkUploadPage() {
     setIsFormValid(valid);
   }, [uploadType, selectedClient, selectedProject, selectedFile]);
 
+  useEffect(() => {
+      if (!fileToDownload) return;
+
+      const downloadFile = async () => {
+        setIsDownloading(true);
+        try {
+          const link = document.createElement("a");
+          link.href = `/samples/${fileToDownload}`;
+          link.download = fileToDownload;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.info(`Downloading ${fileToDownload}...`);
+        } catch (error) {
+          console.error("Download error:", error);
+          toast.error("Download failed. Please try again.");
+        } finally {
+          setIsDownloading(false);
+          setFileToDownload(null);
+        }
+      };
+
+      downloadFile();
+    }, [fileToDownload]);
+
+
   const fetchClients = async () => {
     setIsLoadingClients(true);
     try {
@@ -95,7 +135,6 @@ export default function BulkUploadPage() {
         clientCode: undefined,
         deletedStatus: "false",
       });
-
       setClients(result.items);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -131,16 +170,9 @@ export default function BulkUploadPage() {
     }
   };
 
-  /**
-   * New function to clear the selected file.
-   * Resets the selectedFile state to null.
-   * Also clears the file input value so the same file can be selected again.
-   */
   const handleRemoveFile = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault(); // Prevent button from submitting a form
+    event.preventDefault();
     setSelectedFile(null);
-
-    // Explicitly clear the file input value
     const inputElement = document.getElementById(
       "file-upload"
     ) as HTMLInputElement;
@@ -149,18 +181,12 @@ export default function BulkUploadPage() {
     }
   };
 
-  /**
-   * Resets all state variables to return the form to its initial state.
-   */
   const handleResetForm = () => {
-    // Reset primary selection states
     setUploadType("");
     setSelectedClient("");
     setSelectedProject("");
     setSelectedFile(null);
     setShowSuccess(false);
-
-    // Explicitly clear the file input value
     const inputElement = document.getElementById(
       "file-upload"
     ) as HTMLInputElement;
@@ -174,46 +200,29 @@ export default function BulkUploadPage() {
       toast.error("Please select a file to upload");
       return;
     }
-
     if (uploadType === "project-stakeholder" && !selectedClient) {
       toast.error("Please select a client");
       return;
     }
-
     if (uploadType === "stakeholder" && !selectedProject) {
       toast.error("Please select a project");
       return;
     }
-
     setIsSubmitting(true);
-
     try {
-      //   const formData = new FormData();
-      //   formData.append("uploadType", uploadType);
-      //   formData.append("file", selectedFile);
-
-      //   if (selectedClient) {
-      //     formData.append("clientId", selectedClient);
-      //   }
-      //   if (selectedProject) {
-      //     formData.append("projectId", selectedProject);
-      //   }
-
       const service = ServiceFactory.getBulkUploadService();
-      // Assuming a successful call here would eventually lead to setShowSuccess(true)
       await service.uploadExcel(
         selectedFile,
         uploadType,
         selectedProject,
         selectedClient
       );
-
-      // Placeholder for success handling from API response
       setShowSuccess(true);
     } catch (error) {
       console.error("Upload error:", error);
       toast.error(
-        (error as { message?: string })?.message || "An error occurred during upload. Please try again."
+        (error as { message?: string })?.message ||
+          "An error occurred during upload. Please try again."
       );
     } finally {
       setIsSubmitting(false);
@@ -238,7 +247,7 @@ export default function BulkUploadPage() {
         </Link>
         <Separator orientation="vertical" className="h-4" />
         <Link
-          href="/dashboard/bulk-upload" // Assuming this is the correct path
+          href="/dashboard/bulk-upload"
           className="text-foreground font-semibold"
         >
           Bulk Upload
@@ -249,6 +258,46 @@ export default function BulkUploadPage() {
       <div className="px-4 lg:px-6 mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">Bulk Upload</h1>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                disabled={isDownloading}
+                className="w-[220px] justify-center"
+              >
+                {isDownloading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                Bulk Download Samples
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[350px]">
+              {[
+                {
+                  label: "Download client, project, and stakeholder data",
+                  filename: "tp-client-project-stakeholder.xlsx",
+                },
+                {
+                  label: "Download project and stakeholder data",
+                  filename: "tp-project-stakeholder.xlsx",
+                },
+                {
+                  label: "Download stakeholder data",
+                  filename: "tp-stakeholder.xlsx",
+                },
+              ].map(({ label, filename }) => (
+                <DropdownMenuItem
+                  key={filename}
+                  onSelect={() => setFileToDownload(filename)}
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
           Import client, project, and stakeholder data by uploading a formatted
@@ -256,10 +305,9 @@ export default function BulkUploadPage() {
         </p>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area (Unchanged) */}
       <div className="px-4 lg:px-6">
         {showSuccess ? (
-          // Success State
           <div className="flex flex-col items-start gap-4 text-slate-700">
             <div className="flex items-center gap-2 text-slate-700">
               <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -276,9 +324,8 @@ export default function BulkUploadPage() {
             </Button>
           </div>
         ) : (
-          // Upload Form
           <div className="max-w-md space-y-6">
-            {/* Upload Type Dropdown */}
+            {/* ... rest of your unchanged form JSX ... */}
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Choose type of upload
@@ -300,8 +347,6 @@ export default function BulkUploadPage() {
                 </SelectContent>
               </Select>
             </div>
-
-            {/* Select Client Dropdown */}
             {uploadType === "project-stakeholder" && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -331,8 +376,6 @@ export default function BulkUploadPage() {
                 </Select>
               </div>
             )}
-
-            {/* Select Project Dropdown */}
             {uploadType === "stakeholder" && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -362,8 +405,6 @@ export default function BulkUploadPage() {
                 </Select>
               </div>
             )}
-
-            {/* File Upload and Submit Button */}
             {shouldShowFileUpload() && (
               <div className="space-y-4">
                 <div>
@@ -373,13 +414,10 @@ export default function BulkUploadPage() {
                     accept=".csv,.xlsx,.xls"
                     onChange={handleFileSelect}
                     className="hidden"
-                    style={{ display: "none" }} // Hide the default file inputs
+                    style={{ display: "none" }}
                     disabled={isSubmitting}
                   />
-
-                  {/* Conditional Display for File Selection */}
                   {!selectedFile ? (
-                    // 1. Show "Select File" button when no file is chosen
                     <label htmlFor="file-upload" className="w-full">
                       <div className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700">
                         <Upload className="h-4 w-4 shrink-0" />
@@ -389,7 +427,6 @@ export default function BulkUploadPage() {
                       </div>
                     </label>
                   ) : (
-                    // 2. Show selected file name and a remove button
                     <div className="flex w-full items-center justify-between gap-2 rounded-md border border-slate-300 bg-white p-3 shadow-sm">
                       <span className="text-sm font-medium text-slate-700 truncate">
                         {selectedFile.name}
@@ -405,13 +442,10 @@ export default function BulkUploadPage() {
                       </Button>
                     </div>
                   )}
-
-                  {/* Muted text for allowed file types */}
                   <p className="mt-2 text-xs text-muted-foreground">
                     Allowed file types: **.csv, .xlsx, .xls**
                   </p>
                 </div>
-
                 <div className="flex justify-start">
                   <Button
                     onClick={handleBulkUpload}
