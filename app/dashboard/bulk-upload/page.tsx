@@ -41,12 +41,24 @@ interface Project {
   name: string;
 }
 
+// Define the shape of the successful upload response
+interface BulkUploadResult {
+  message: string;
+  processedRecords: number;
+}
+
 export default function BulkUploadPage() {
+  const ALLOWED_EXTENSIONS = [".csv", ".xlsx", ".xls"];
   const [uploadType, setUploadType] = useState<string>("");
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // --- NEW STATE: To hold the result message and count ---
+  const [uploadResult, setUploadResult] = useState<BulkUploadResult | null>(
+    null
+  );
 
   const [clients, setClients] = useState<Client[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -164,9 +176,32 @@ export default function BulkUploadPage() {
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
+    const inputElement = event.target;
+
+    if (!file) {
+      setSelectedFile(null);
+      return;
     }
+
+    // File type validation logic
+    const fileName = file.name.toLowerCase();
+    const isValidExtension = ALLOWED_EXTENSIONS.some((ext) =>
+      fileName.endsWith(ext)
+    );
+
+    if (!isValidExtension) {
+      toast.error(
+        `Invalid file type. Only ${ALLOWED_EXTENSIONS.join(", ")} are allowed.`
+      );
+
+      // Reset the file input field
+      inputElement.value = "";
+      setSelectedFile(null);
+      return;
+    }
+
+    // If valid, set the file
+    setSelectedFile(file);
   };
 
   const handleRemoveFile = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -186,6 +221,7 @@ export default function BulkUploadPage() {
     setSelectedProject("");
     setSelectedFile(null);
     setShowSuccess(false);
+    setUploadResult(null); // Reset the upload result
     const inputElement = document.getElementById(
       "file-upload"
     ) as HTMLInputElement;
@@ -208,15 +244,38 @@ export default function BulkUploadPage() {
       return;
     }
     setIsSubmitting(true);
+
+    // Reset upload result before starting a new upload
+    setUploadResult(null);
+
     try {
       const service = ServiceFactory.getBulkUploadService();
-      await service.uploadExcel(
-        selectedFile,
-        uploadType,
-        selectedProject,
-        selectedClient
-      );
-      setShowSuccess(true);
+      const res: { success: boolean; result: BulkUploadResult } =
+        await service.uploadExcel(
+          selectedFile,
+          uploadType,
+          selectedProject,
+          selectedClient
+        );
+
+      console.log("Upload response:", res);
+
+      if (res.success && res.result) {
+        setUploadResult(res.result);
+        setShowSuccess(true);
+        // Display a toast based on the number of processed records
+        if (res.result.processedRecords > 0) {
+          toast.success("Bulk upload complete!");
+        } else {
+          // Show the specific message from the backend, e.g., "No valid data found"
+          toast.info(res.result.message);
+        }
+      } else {
+        // Fallback for non-error, non-success structure
+        throw new Error(
+          res.result.message || "Bulk upload failed unexpectedly."
+        );
+      }
     } catch (error) {
       console.error("Upload error:", error);
       toast.error(
@@ -280,8 +339,7 @@ export default function BulkUploadPage() {
                   filename: "tp-client-project-stakeholder.xlsx",
                 },
                 {
-                  label:
-                    "File for updating project and stakeholder data",
+                  label: "File for updating project and stakeholder data",
                   filename: "tp-project-stakeholder.xlsx",
                 },
                 {
@@ -305,16 +363,30 @@ export default function BulkUploadPage() {
         </p>
       </div>
 
-      {/* Main Content Area (Unchanged) */}
+      {/* Main Content Area: SUCCESS / FORM */}
       <div className="px-4 lg:px-6">
-        {showSuccess ? (
+        {showSuccess && uploadResult ? (
           <div className="flex flex-col items-start gap-4 text-slate-700">
-            <div className="flex items-center gap-2 text-slate-700">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <span className="text-sm">
-                All data has been uploaded successfully
-              </span>
+            <div className="flex items-center gap-2">
+              {/* Change icon/color based on records processed */}
+              {uploadResult.processedRecords > 0 ? (
+                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              ) : (
+                <IconX className="h-6 w-6 text-yellow-600" />
+              )}
+              <div className="text-lg font-semibold text-slate-700">
+                {uploadResult.message}
+              </div>
             </div>
+
+            {/* Display Processed Records Count */}
+            <p className="text-sm font-medium text-muted-foreground">
+              Records Processed:{" "}
+              <span className="text-slate-900 font-bold">
+                {uploadResult.processedRecords}
+              </span>
+            </p>
+
             <Button
               onClick={handleResetForm}
               variant="outline"
@@ -325,7 +397,6 @@ export default function BulkUploadPage() {
           </div>
         ) : (
           <div className="max-w-md space-y-6">
-            {/* ... rest of your unchanged form JSX ... */}
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Choose type of upload
