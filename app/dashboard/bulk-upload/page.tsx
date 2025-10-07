@@ -97,30 +97,29 @@ export default function BulkUploadPage() {
   }, [uploadType, selectedClient, selectedProject, selectedFile]);
 
   useEffect(() => {
-      if (!fileToDownload) return;
+    if (!fileToDownload) return;
 
-      const downloadFile = async () => {
-        setIsDownloading(true);
-        try {
-          const link = document.createElement("a");
-          link.href = `/samples/${fileToDownload}`;
-          link.download = fileToDownload;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          toast.info(`Downloading ${fileToDownload}...`);
-        } catch (error) {
-          console.error("Download error:", error);
-          toast.error("Download failed. Please try again.");
-        } finally {
-          setIsDownloading(false);
-          setFileToDownload(null);
-        }
-      };
+    const downloadFile = async () => {
+      setIsDownloading(true);
+      try {
+        const link = document.createElement("a");
+        link.href = `/samples/${fileToDownload}`;
+        link.download = fileToDownload;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.info(`Downloading ${fileToDownload}...`);
+      } catch (error) {
+        console.error("Download error:", error);
+        toast.error("Download failed. Please try again.");
+      } finally {
+        setIsDownloading(false);
+        setFileToDownload(null);
+      }
+    };
 
-      downloadFile();
-    }, [fileToDownload]);
-
+    downloadFile();
+  }, [fileToDownload]);
 
   const fetchClients = async () => {
     setIsLoadingClients(true);
@@ -263,7 +262,7 @@ export default function BulkUploadPage() {
               <Button
                 variant="outline"
                 disabled={isDownloading}
-                className="w-[220px] justify-center"
+                className="w-[200px] justify-center"
               >
                 {isDownloading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -273,18 +272,20 @@ export default function BulkUploadPage() {
                 Bulk Download Samples
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[350px]">
+            <DropdownMenuContent className="w-[200px]">
               {[
                 {
-                  label: "Download client, project, and stakeholder data",
+                  label:
+                    "File for updating client, project, and stakeholder data",
                   filename: "tp-client-project-stakeholder.xlsx",
                 },
                 {
-                  label: "Download project and stakeholder data",
+                  label:
+                    "File for updating project and stakeholder data",
                   filename: "tp-project-stakeholder.xlsx",
                 },
                 {
-                  label: "Download stakeholder data",
+                  label: "File for updating stakeholder data",
                   filename: "tp-stakeholder.xlsx",
                 },
               ].map(({ label, filename }) => (
@@ -297,7 +298,6 @@ export default function BulkUploadPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
           Import client, project, and stakeholder data by uploading a formatted
