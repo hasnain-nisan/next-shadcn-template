@@ -96,30 +96,31 @@ export default function BulkUploadPage() {
     setIsFormValid(valid);
   }, [uploadType, selectedClient, selectedProject, selectedFile]);
 
-  // --- NEW: useEffect hook to handle the file download side-effect ---
   useEffect(() => {
-    // This effect runs whenever 'fileToDownload' changes from null to a filename
-    if (fileToDownload) {
-      setIsDownloading(true);
-      try {
-        // Create an anchor element to trigger the download
-        const a = document.createElement("a");
-        a.href = `/samples/${fileToDownload}`;
-        a.download = fileToDownload;  // Set the desired filename
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        toast.info(`Preparing to download ${fileToDownload}...`);
-      } catch (error) {
-        console.error("Download error:", error);
-        toast.error("An error occurred during download. Please try again.");
-      } finally {
-        // Reset states after the operation to be ready for the next click
-        setIsDownloading(false);
-        setFileToDownload(null);
-      }
-    }
-  }, [fileToDownload]);
+      if (!fileToDownload) return;
+
+      const downloadFile = async () => {
+        setIsDownloading(true);
+        try {
+          const link = document.createElement("a");
+          link.href = `/samples/${fileToDownload}`;
+          link.download = fileToDownload;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.info(`Downloading ${fileToDownload}...`);
+        } catch (error) {
+          console.error("Download error:", error);
+          toast.error("Download failed. Please try again.");
+        } finally {
+          setIsDownloading(false);
+          setFileToDownload(null);
+        }
+      };
+
+      downloadFile();
+    }, [fileToDownload]);
+
 
   const fetchClients = async () => {
     setIsLoadingClients(true);
@@ -257,13 +258,12 @@ export default function BulkUploadPage() {
       <div className="px-4 lg:px-6 mb-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">Bulk Upload</h1>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 disabled={isDownloading}
-                className="w-[220px] justify-center" // Increased width for longer text
+                className="w-[220px] justify-center"
               >
                 {isDownloading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -274,28 +274,30 @@ export default function BulkUploadPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[350px]">
-              {/* ---onSelect now just sets the state to trigger the effect --- */}
-              <DropdownMenuItem
-                onSelect={() =>
-                  setFileToDownload("tp-client-project-stakeholder.xlsx")
-                }
-              >
-                Download client, project, and stakeholder data
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() =>
-                  setFileToDownload("tp-project-stakeholder.xlsx")
-                }
-              >
-                Download project and stakeholder data
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => setFileToDownload("tp-stakeholder.xlsx")}
-              >
-                Download stakeholder data
-              </DropdownMenuItem>
+              {[
+                {
+                  label: "Download client, project, and stakeholder data",
+                  filename: "tp-client-project-stakeholder.xlsx",
+                },
+                {
+                  label: "Download project and stakeholder data",
+                  filename: "tp-project-stakeholder.xlsx",
+                },
+                {
+                  label: "Download stakeholder data",
+                  filename: "tp-stakeholder.xlsx",
+                },
+              ].map(({ label, filename }) => (
+                <DropdownMenuItem
+                  key={filename}
+                  onSelect={() => setFileToDownload(filename)}
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
           Import client, project, and stakeholder data by uploading a formatted
