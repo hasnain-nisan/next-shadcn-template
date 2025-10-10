@@ -10,6 +10,8 @@ export async function makeApiRequest<T>(
   const token = session?.accessToken;
   const url = `${API_BASE_URL}${endpoint}`;
 
+  console.log("Making API request to:", url);
+
   const isFormData = options.body instanceof FormData;
 
   // Build headers
