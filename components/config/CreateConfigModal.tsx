@@ -40,10 +40,10 @@ type CreateConfigFormValues = {
   us_categories: Record<string, string>;
   custom_context?: string;
   email_confirmation: string[];
-  interview_tracker_gdrive_id: string;
+  // interview_tracker_gdrive_id: string;
   interview_repository_gdrive_url?: string;
   global_repository_gdrive_url?: string;
-  output_gdrive_url?: string;
+  output_gdrive_url: string;
   logging_output_url?: string;
 };
 
@@ -90,7 +90,7 @@ export function CreateConfigModal({
       categories_flag: "Y",
       us_categories: defaultUsCategories,
       email_confirmation: [],
-      interview_tracker_gdrive_id: "",
+      output_gdrive_url: "",
     },
   });
 
@@ -293,20 +293,23 @@ export function CreateConfigModal({
 
             {/* GDrive URLs */}
             {[
-              "interview_tracker_gdrive_id",
               "interview_repository_gdrive_url",
               "global_repository_gdrive_url",
               "output_gdrive_url",
               "logging_output_url",
             ].map((field) => (
               <div key={field}>
-                <Label className="mb-1">{field.replace(/_/g, " ")}</Label>
+                <Label className="mb-1">
+                  {field
+                    .replace(/_/g, " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+                </Label>
                 <Input
                   type="text"
                   {...register(field as keyof CreateConfigFormValues, {
-                    ...(field === "interview_tracker_gdrive_id"
+                    ...(field === "output_gdrive_url"
                       ? {
-                          required: "Interview tracker GDrive ID is required",
+                          required: "Output GDrive Url is required",
                           validate: (v) =>
                             (typeof v === "string" ? v.trim() : "") !== "" ||
                             "This field cannot be empty",
@@ -314,12 +317,11 @@ export function CreateConfigModal({
                       : {}),
                   })}
                 />
-                {field === "interview_tracker_gdrive_id" &&
-                  errors.interview_tracker_gdrive_id && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {errors.interview_tracker_gdrive_id.message}
-                    </p>
-                  )}
+                {field === "output_gdrive_url" && errors.output_gdrive_url && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.output_gdrive_url.message}
+                  </p>
+                )}
               </div>
             ))}
           </div>

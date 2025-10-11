@@ -281,10 +281,10 @@ export default function ProjectDetailsPage({
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                           {[
-                            [
-                              "Interview Tracker GDrive ID",
-                              configVersion.config.interview_tracker_gdrive_id,
-                            ],
+                            // [
+                            //   "Interview Tracker GDrive ID",
+                            //   configVersion.config.interview_tracker_gdrive_id,
+                            // ],
                             [
                               "Interview Repository GDrive URL",
                               configVersion.config

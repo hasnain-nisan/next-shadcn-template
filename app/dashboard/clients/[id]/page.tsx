@@ -104,17 +104,17 @@ export default function ClientDetailsPage({
   const canCreateStakeholders = accessScopes.canCreateStakeholders ?? false;
   const canUpdateStakeholders = accessScopes.canUpdateStakeholders ?? false;
   const canDeleteStakeholders = accessScopes.canDeleteStakeholders ?? false;
-  const canManageStakeholders = accessScopes.canManageStakeholders ?? false;
+  const canManageStakeholders = accessScopes.canAccessStakeholders ?? false;
 
   const canCreateProjects = accessScopes.canCreateProjects ?? false;
   const canUpdateProjects = accessScopes.canUpdateProjects ?? false;
   const canDeleteProjects = accessScopes.canDeleteProjects ?? false;
-  const canManageProjects = accessScopes.canManageProjects ?? false;
+  const canManageProjects = accessScopes.canAccessProjects ?? false;
 
   const canCreateInterview = accessScopes.canCreateInterviews ?? false;
   const canUpdateInterview = accessScopes.canUpdateInterviews ?? false;
   const canDeleteInterview = accessScopes.canDeleteInterviews ?? false;
-  const canManageInterview = accessScopes.canManageInterviews ?? false;
+  const canManageInterview = accessScopes.canAccessInterviews ?? false;
 
   // Function to fetch client data
   const fetchClient = async () => {
