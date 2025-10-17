@@ -31,6 +31,7 @@ import { Calendar } from "../ui/calendar";
 import { MultiSelect } from "../ui/multi-select";
 import { set } from "zod";
 import { Project } from "@/types/project.types";
+import { EmailTagInput } from "./EmailTagInput";
 
 type Props = {
   open: boolean;
@@ -51,6 +52,7 @@ type CreateInterviewFormValues = {
   clientId: string;
   projectId: string;
   stakeholderIds: string[];
+  outputEmails?: string[];
 };
 
 export function CreateInterviewModal({
@@ -81,6 +83,7 @@ export function CreateInterviewModal({
       clientId: id || "",
       projectId: project?.id || "",
       stakeholderIds: [],
+      outputEmails: [],
     },
   });
 
@@ -279,8 +282,16 @@ export function CreateInterviewModal({
         ].includes(name)
       ) {
         // Ensure the change was to 'true'
-        const requestFields = ["requestDistillation", "requestCoaching", "requestUserStories"] as const;
-        if (name && requestFields.includes(name as typeof requestFields[number]) && value[name as keyof typeof value]) {
+        const requestFields = [
+          "requestDistillation",
+          "requestCoaching",
+          "requestUserStories",
+        ] as const;
+        if (
+          name &&
+          requestFields.includes(name as (typeof requestFields)[number]) &&
+          value[name as keyof typeof value]
+        ) {
           if (name !== "requestDistillation") {
             setValue("requestDistillation", false);
           }
@@ -558,6 +569,20 @@ export function CreateInterviewModal({
                   {errors.gDriveId.message}
                 </p>
               )}
+            </div>
+
+            {/* NEW FIELD: Who should we send the output to (Tag Input) */}
+            <div className="md:col-span-2">
+              <Label htmlFor="outputEmailsInput" className="mb-2 block">
+                Who should we send the output to
+              </Label>
+              <Controller
+                name="outputEmails"
+                control={control}
+                render={({ field }) => (
+                  <EmailTagInput field={field} />
+                )}
+              />
             </div>
 
             {/* Optional Fields */}
