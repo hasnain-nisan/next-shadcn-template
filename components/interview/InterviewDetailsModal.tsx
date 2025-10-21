@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import React from "react";
 import { ClientStakeholder } from "@/types/stakeholder.types"; // Assuming this type is available
 import { Interview } from "@/types/interview.types";
+import { format } from "date-fns";
 
 // --- 1. Define the Interview Data Structures ---
 
@@ -100,11 +101,7 @@ export function InterviewDetailsModal({
             : "bg-yellow-600 text-white hover:bg-yellow-600"
         }`}
       >
-        {requested === true
-          ? "Requested"
-          : requested === false
-          ? "No"
-          : "N/A"}
+        {requested === true ? "Yes" : requested === false ? "No" : "N/A"}
       </Badge>
     </div>
   );
@@ -131,7 +128,10 @@ export function InterviewDetailsModal({
             {/* Date */}
             <DetailItem label="Date">
               <p className="text-sm text-black break-words">
-                {formatDateOnly(interview.date)}
+                {/* {formatDateOnly(interview.date)} */}
+                {interview.date
+                  ? format(new Date(interview.date), "MMMM do, yyyy") // Matches "October 6th, 2025" style
+                  : "Date not set"}
               </p>
             </DetailItem>
 
@@ -140,7 +140,7 @@ export function InterviewDetailsModal({
 
             {/* Google Drive ID */}
             <DetailItem label="G-Drive ID">
-              <p className="text-sm text-blue-600 truncate max-w-full hover:underline cursor-pointer">
+              <p className="text-sm max-w-full text-black">
                 {displayValue(interview.gDriveId)}
               </p>
             </DetailItem>

@@ -269,43 +269,43 @@ export function CreateInterviewModal({
     return true;
   };
 
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      // Only proceed if a request field was changed by the user
-      if (
-        type === "change" &&
-        name && // Check if name is defined
-        [
-          "requestDistillation",
-          "requestCoaching",
-          "requestUserStories",
-        ].includes(name)
-      ) {
-        // Ensure the change was to 'true'
-        const requestFields = [
-          "requestDistillation",
-          "requestCoaching",
-          "requestUserStories",
-        ] as const;
-        if (
-          name &&
-          requestFields.includes(name as (typeof requestFields)[number]) &&
-          value[name as keyof typeof value]
-        ) {
-          if (name !== "requestDistillation") {
-            setValue("requestDistillation", false);
-          }
-          if (name !== "requestCoaching") {
-            setValue("requestCoaching", false);
-          }
-          if (name !== "requestUserStories") {
-            setValue("requestUserStories", false);
-          }
-        }
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, setValue]);
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) => {
+  //     // Only proceed if a request field was changed by the user
+  //     if (
+  //       type === "change" &&
+  //       name && // Check if name is defined
+  //       [
+  //         "requestDistillation",
+  //         "requestCoaching",
+  //         "requestUserStories",
+  //       ].includes(name)
+  //     ) {
+  //       // Ensure the change was to 'true'
+  //       const requestFields = [
+  //         "requestDistillation",
+  //         "requestCoaching",
+  //         "requestUserStories",
+  //       ] as const;
+  //       if (
+  //         name &&
+  //         requestFields.includes(name as (typeof requestFields)[number]) &&
+  //         value[name as keyof typeof value]
+  //       ) {
+  //         if (name !== "requestDistillation") {
+  //           setValue("requestDistillation", false);
+  //         }
+  //         if (name !== "requestCoaching") {
+  //           setValue("requestCoaching", false);
+  //         }
+  //         if (name !== "requestUserStories") {
+  //           setValue("requestUserStories", false);
+  //         }
+  //       }
+  //     }
+  //   });
+  //   return () => subscription.unsubscribe();
+  // }, [watch, setValue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
