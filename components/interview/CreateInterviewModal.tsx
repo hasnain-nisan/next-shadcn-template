@@ -242,18 +242,29 @@ export function CreateInterviewModal({
   };
 
   const handleDateSelect = (
-    date: Date | undefined,
-    onChange: (value: string) => void
-  ) => {
-    if (date) {
-      const normalized = new Date(
-        Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
-      ).toISOString();
-      onChange(normalized);
-    } else {
-      onChange("");
-    }
-  };
+	  date: Date | undefined,
+	  onChange: (value: string) => void
+	) => {
+	  if (date) {
+		// Create a date at local midnight
+		const localDate = new Date(
+		  date.getFullYear(),
+		  date.getMonth(),
+		  date.getDate()
+		);
+
+		// Adjust for the local timezone offset so UTC date matches clicked day
+		const corrected = new Date(
+		  localDate.getTime() - localDate.getTimezoneOffset() * 60000
+		);
+
+		// Send ISO string that preserves the clicked day in UTC
+		onChange(corrected.toISOString());
+	  } else {
+		onChange("");
+	  }
+	};
+
 
   const validateName = (value: string) => {
     if (!value || value.trim() === "") {
