@@ -254,12 +254,12 @@ export function CreateInterviewModal({
 		);
 
 		// Adjust for the local timezone offset so UTC date matches clicked day
-		const corrected = new Date(
-		  localDate.getTime() - localDate.getTimezoneOffset() * 60000
-		);
+		// const corrected = new Date(
+		//   localDate.getTime() - localDate.getTimezoneOffset() * 60000
+		// );
 
 		// Send ISO string that preserves the clicked day in UTC
-		onChange(corrected.toISOString());
+		onChange(localDate.toISOString());
 	  } else {
 		onChange("");
 	  }
